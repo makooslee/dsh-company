@@ -1,0 +1,17 @@
+# dsh-company bundle patch.
+#
+# 一行 insert 挂上 Host 半身；浏览器半身由 package.json 的 dsh.client 声明，
+# 绑定在 name 为裸包名的这一行上。
+#
+# 可覆盖的 config（留空即用默认值）：
+#   companyName: 我的公司                       # 面板标题、员工人设里的公司名
+#   repoUrl: https://github.com/makooslee/dsh-company  # 面板右上角 Star 按钮的目标
+#   sponsorImage: docs/sponsor/wechat.png       # 包内赞赏码，Host 直接伺服
+#   sponsorText: 自定义的赞赏说明
+#   cwd: /path/to/workspace                     # 员工会话默认工作目录
+#   bidTimeoutMs: 360000                        # 认单超时
+#   workTimeoutMs: 1800000                      # 执行超时
+- insert:
+    - id: dsh-company
+      name: 'dsh-company'
+      config: {}

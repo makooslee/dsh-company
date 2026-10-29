@@ -1,0 +1,55 @@
+{
+  "name": "dsh-company",
+  "version": "0.3.0",
+  "private": false,
+  "type": "module",
+  "description": "A tiny company of employee agents for DeepSeek Harness: each has its own identity, model and skills, and they bid for work instead of being piped through it.",
+  "license": "MIT",
+  "icon": "icon.svg",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "cordis",
+    "multi-agent",
+    "agent-team",
+    "ai-company"
+  ],
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg",
+    "README.md",
+    "README.en.md",
+    "LICENSE",
+    "docs/**"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": []
+    }
+  },
+  "author": "makooslee",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/makooslee/dsh-company.git"
+  },
+  "homepage": "https://github.com/makooslee/dsh-company#readme",
+  "bugs": {
+    "url": "https://github.com/makooslee/dsh-company/issues"
+  }
+}
