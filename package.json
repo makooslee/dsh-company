@@ -1,6 +1,6 @@
 {
   "name": "dsh-company",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "private": false,
   "type": "module",
   "description": "A tiny company of employee agents for DeepSeek Harness: each has its own identity, model and skills, and they bid for work instead of being piped through it.",
