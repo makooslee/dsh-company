@@ -28,6 +28,22 @@ Most multi-agent setups chain roles: product → tech lead → engineer → QA, 
 - **Skill whitelist** — tick the tools an employee may use; everything else is restricted away inside that agent's scope.
 - **Two entry points** — the management page, or the `company_dispatch` tool so the CEO assistant can dispatch from chat. One implementation behind both.
 
+## Screenshots
+
+**Roster** — built-in roles in place; every card shows status and skills, click through for the full transcript
+
+![Roster](docs/screenshots/roster.jpg)
+
+**Mission board** — after dispatching, employees bid on their own: Engineering and Analytics accept, Product declines with an owner suggestion
+
+![Mission board](docs/screenshots/bids.jpg)
+
+**Hire** — open a new seat from a role template; persona, model and skill whitelist are all editable
+
+![Hire](docs/screenshots/hire.jpg)
+
+> Screenshots are from the Chinese UI; an English localisation ships in the same bundle.
+
 ## Install
 
 Requires DeepSeek Harness (with the `plugin_manager` tool) and Node ≥ 20.

@@ -41,6 +41,20 @@ CEO 派单
 | **技能白名单** | 每个员工可用的工具逐项勾选，未勾选的工具在其 agent scope 内被限制掉 |
 | **两种入口** | 管理页面派单；或在对话里直接用 `company_dispatch` 工具让 CEO 助手派单（同一份实现） |
 
+## 效果图
+
+**花名册** — 内置角色就位，卡片上直接看状态和技能，点开可看该员工的完整对话
+
+![花名册](docs/screenshots/roster.jpg)
+
+**任务板** — 派单后员工自行认单：研发工程师、数据分析师接单，产品经理拒单并说明该归谁干
+
+![任务板](docs/screenshots/bids.jpg)
+
+**招聘员工** — 从角色模板开新坑，人设、模型、技能白名单都能改
+
+![招聘员工](docs/screenshots/hire.jpg)
+
 ## 安装
 
 要求：DeepSeek Harness（含 `plugin_manager` 工具）与 Node ≥ 20。

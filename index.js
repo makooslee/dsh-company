@@ -426,12 +426,20 @@ export function apply(ctx, config = {}) {
   }
 
   function seedRoles() {
-    if (employees.size > 0) return;
+    // 逐角色补缺：花名册里已有该角色（含已解雇的记录）就不再重复 seed。
+    // 老版本只 seed 过 4 个角色，这样后续版本新增的内置角色能自动补齐。
+    const present = new Set([...employees.values()].map((employee) => employee.role));
     for (const role of ROLE_TEMPLATES) {
+      if (present.has(role.id)) continue;
       const employee = normalizeEmployee({ role: role.id, name: role.name });
       employees.set(employee.id, employee);
       saveEmployee(employee);
     }
+  }
+
+  // 在岗员工（解雇是标记而非删除，避免下个版本把被解雇的人又 seed 回来）
+  function activeEmployees() {
+    return [...employees.values()].filter((employee) => !employee.fired);
   }
 
   function publicEmployee(employee) {
@@ -447,7 +455,7 @@ export function apply(ctx, config = {}) {
   }
 
   function rosterText(excludeId) {
-    return [...employees.values()]
+    return activeEmployees()
       .filter((employee) => employee.id !== excludeId)
       .map((employee) => `- ${employee.name}（${employee.title || employee.role}）`)
       .join('\n');
@@ -691,7 +699,7 @@ export function apply(ctx, config = {}) {
   }
 
   async function runMission(mission, controller) {
-    const targets = mission.employeeIds.map((id) => employees.get(id)).filter(Boolean);
+    const targets = mission.employeeIds.map((id) => employees.get(id)).filter((employee) => employee && !employee.fired);
 
     pushEvent(mission, { kind: 'system', name: '系统', text: `任务已下发，${targets.length} 名员工开始认单。` });
     const verdicts = await Promise.all(targets.map((employee) => runBid(mission, employee, controller)));
@@ -760,7 +768,7 @@ export function apply(ctx, config = {}) {
     state() {
       return {
         companyName,
-        employees: [...employees.values()].map(publicEmployee),
+        employees: activeEmployees().map(publicEmployee),
         missions: [...missions.values()].sort((a, b) => b.createdAt - a.createdAt).map(publicMission),
         templates: ROLE_TEMPLATES.map((role) => ({
           id: role.id,
@@ -814,7 +822,10 @@ export function apply(ctx, config = {}) {
 
     async fire(id) {
       if (typeof id !== 'string' || !employees.has(id)) throw new Error('找不到这名员工');
-      employees.delete(id);
+      // 解雇 = 打标记 + 下岗，不物理删记录：seed 逻辑靠记录区分「没招过」和「被解雇」
+      const employee = employees.get(id);
+      employee.fired = true;
+      saveEmployee(employee);
       const runtime = runtimes.get(id);
       if (runtime) {
         runtimes.delete(id);
@@ -824,7 +835,6 @@ export function apply(ctx, config = {}) {
           /* ignore */
         }
       }
-      if (store) Promise.resolve(store.deleteRecord('employees', id)).catch(() => {});
       return { id };
     },
 
@@ -833,7 +843,11 @@ export function apply(ctx, config = {}) {
       const title = typeof source.title === 'string' ? source.title.trim() : '';
       if (!title) throw new Error('任务标题不能为空');
       const rawIds = Array.isArray(source.employeeIds) ? source.employeeIds : [];
-      const employeeIds = [...new Set(rawIds.filter((id) => typeof id === 'string' && employees.has(id)))];
+      const employeeIds = [...new Set(rawIds.filter((id) => {
+        if (typeof id !== 'string') return false;
+        const employee = employees.get(id);
+        return Boolean(employee) && !employee.fired;
+      }))];
       if (employeeIds.length === 0) throw new Error('至少要通知一名员工');
       const mission = {
         id: randomUUID(),
@@ -970,7 +984,7 @@ export function apply(ctx, config = {}) {
         },
       },
       execute(args) {
-        const roster = [...employees.values()];
+        const roster = activeEmployees();
         const wanted = String(args.employees || '')
           .split(/[,，\s]+/)
           .map((item) => item.trim())
