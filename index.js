@@ -44,6 +44,8 @@ const MODEL_CACHE_MS = 60 * 1000;
 /** 每名员工的独立记忆目录（相对 DSH home）。 */
 const MEMORY_HOME_DIR = 'dsh-company';
 const MEMORY_TABLE = 'memories';
+/** 工作流表（n8n 式编排）：同一 version 内加表，不影响既有记录。 */
+const WORKFLOW_TABLE = 'workflows';
 /** 记忆种类：note=CEO 备注，bid=认单理由，deliver=交付结果，system=系统事件。 */
 const MEMORY_KINDS = new Set(['note', 'bid', 'deliver', 'system']);
 
@@ -259,6 +261,10 @@ export function apply(ctx, config = {}) {
   const missionRuntime = new Map();
   /** @type {Map<string, {handle: object, agent: object, fingerprint: string, status: string, sessionId: string}>} 员工运行时 */
   const runtimes = new Map();
+  /** @type {Map<string, object>} 工作流定义（含 lastRun） */
+  const workflows = new Map();
+  /** @type {Map<string, {abort: AbortController}>} 正在运行的工作流 */
+  const workflowRuntime = new Map();
 
   let store = null;
   let storeReady = null;
@@ -281,11 +287,11 @@ export function apply(ctx, config = {}) {
       try {
         // version 保持 1：storage-json 用 acceptedStamps 判定记录归属，
         // 改 version 会让旧 employees/missions 记录整批作废。
-        // 新增 memories 表是同一版本内的加表，不影响既有记录。
+        // 新增 memories/workflows 表是同一版本内的加表，不影响既有记录。
         return await backend.kv.open({
           name: STORE_UNIT,
           version: 1,
-          tables: ['employees', 'missions', MEMORY_TABLE],
+          tables: ['employees', 'missions', MEMORY_TABLE, WORKFLOW_TABLE],
           layout: 'per-record',
         });
       } catch (error) {
@@ -307,6 +313,11 @@ export function apply(ctx, config = {}) {
     void events;
     void results;
     Promise.resolve(store.putRecord('missions', mission.id, mission)).catch(() => {});
+  }
+
+  function saveWorkflow(workflow) {
+    if (!store) return;
+    Promise.resolve(store.putRecord(WORKFLOW_TABLE, workflow.id, workflow)).catch(() => {});
   }
 
   async function restore() {
@@ -334,6 +345,23 @@ export function apply(ctx, config = {}) {
       for (const row of rowsOf(MEMORY_TABLE)) {
         if (row && typeof row.id === 'string' && typeof row.employeeId === 'string') {
           pushMemoryEntry(row);
+        }
+      }
+      for (const row of rowsOf(WORKFLOW_TABLE)) {
+        if (row && typeof row.id === 'string' && typeof row.name === 'string' && Array.isArray(row.nodes)) {
+          // 重启中断的运行标成 failed，避免前端一直等 running。
+          if (row.lastRun && row.lastRun.status === 'running') {
+            row.lastRun.status = 'failed';
+            row.lastRun.finishedAt = Date.now();
+            row.lastRun.error = '插件重启，运行中断';
+            for (const slot of row.lastRun.nodeRuns || []) {
+              if (slot.status === 'running' || slot.status === 'pending') {
+                slot.status = 'failed';
+                slot.error = slot.error || '插件重启，运行中断';
+              }
+            }
+          }
+          workflows.set(row.id, row);
         }
       }
     } catch (error) {
@@ -1096,6 +1124,271 @@ export function apply(ctx, config = {}) {
     };
   }
 
+  // ── 工作流（n8n 式编排：start 触发 → 员工节点沿连线接力执行） ─────────────
+  // 节点：{id, type:'start'|'employee', x, y, title?, employeeId?, instruction?}
+  // 连线：{id, source, target}；执行按拓扑分层，同层并行、同员工串行。
+  const WORKFLOW_NODE_LIMIT = 60;
+  const WORKFLOW_EDGE_LIMIT = 200;
+  const WORKFLOW_INSTRUCTION_LIMIT = 4000;
+  const WORKFLOW_OUTPUT_LIMIT = 6000;
+
+  function publicRun(run) {
+    if (!run) return null;
+    return {
+      id: run.id,
+      status: run.status,
+      startedAt: run.startedAt,
+      finishedAt: run.finishedAt || 0,
+      input: run.input || '',
+      error: run.error || '',
+      nodeRuns: (run.nodeRuns || []).map((slot) => ({ ...slot })),
+    };
+  }
+
+  function publicWorkflow(workflow) {
+    return {
+      id: workflow.id,
+      name: workflow.name,
+      description: workflow.description || '',
+      createdAt: workflow.createdAt,
+      updatedAt: workflow.updatedAt,
+      nodes: (workflow.nodes || []).map((node) => ({ ...node })),
+      edges: (workflow.edges || []).map((edge) => ({ ...edge })),
+      lastRun: publicRun(workflow.lastRun),
+    };
+  }
+
+  /** 保存前的全量校验 + 归一化；任何一条不过直接抛错（HTTP 层转 fail）。 */
+  function normalizeWorkflow(source) {
+    const src = source && typeof source === 'object' ? source : {};
+    const id = typeof src.id === 'string' && src.id.trim() ? src.id.trim() : randomUUID();
+    const name = typeof src.name === 'string' ? src.name.trim() : '';
+    if (!name) throw new Error('工作流名称不能为空');
+    if (name.length > 80) throw new Error('工作流名称不能超过 80 字');
+    const description = typeof src.description === 'string' ? src.description.slice(0, 500) : '';
+
+    const rawNodes = Array.isArray(src.nodes) ? src.nodes : [];
+    if (rawNodes.length < 1 || rawNodes.length > WORKFLOW_NODE_LIMIT) {
+      throw new Error(`节点数量需在 1–${WORKFLOW_NODE_LIMIT} 之间`);
+    }
+    const ids = new Set();
+    const nodes = rawNodes.map((raw, index) => {
+      const node = raw && typeof raw === 'object' ? raw : {};
+      const nodeId = typeof node.id === 'string' && node.id.trim() ? node.id.trim() : `n${index}`;
+      if (ids.has(nodeId)) throw new Error(`节点 id 重复：${nodeId}`);
+      ids.add(nodeId);
+      const type = node.type === 'employee' ? 'employee' : 'start';
+      const title = typeof node.title === 'string' ? node.title.slice(0, 100) : '';
+      const x = Number.isFinite(Number(node.x)) ? Number(node.x) : 0;
+      const y = Number.isFinite(Number(node.y)) ? Number(node.y) : 0;
+      if (type === 'employee') {
+        const employeeId = typeof node.employeeId === 'string' ? node.employeeId : '';
+        const employee = employees.get(employeeId);
+        if (!employee || employee.fired) throw new Error(`节点「${title || nodeId}」引用的员工不存在或已解雇`);
+        const instruction = typeof node.instruction === 'string' ? node.instruction : '';
+        if (instruction.length > WORKFLOW_INSTRUCTION_LIMIT) {
+          throw new Error(`节点「${title || nodeId}」的说明超过 ${WORKFLOW_INSTRUCTION_LIMIT} 字`);
+        }
+        return { id: nodeId, type, x, y, title, employeeId, instruction };
+      }
+      return { id: nodeId, type, x, y, title };
+    });
+    const starts = nodes.filter((node) => node.type === 'start');
+    if (starts.length !== 1) throw new Error('工作流必须有且只有一个「开始」节点');
+
+    const rawEdges = Array.isArray(src.edges) ? src.edges : [];
+    if (rawEdges.length > WORKFLOW_EDGE_LIMIT) throw new Error(`连线不能超过 ${WORKFLOW_EDGE_LIMIT} 条`);
+    const edges = [];
+    const pairs = new Set();
+    for (const raw of rawEdges) {
+      const edge = raw && typeof raw === 'object' ? raw : {};
+      const source = typeof edge.source === 'string' ? edge.source : '';
+      const target = typeof edge.target === 'string' ? edge.target : '';
+      if (!ids.has(source) || !ids.has(target)) throw new Error('连线指向了不存在的节点');
+      if (source === target) throw new Error('不能把节点连到自己');
+      const pair = `${source}→${target}`;
+      if (pairs.has(pair)) continue; // 重复连线静默去重
+      pairs.add(pair);
+      edges.push({ id: typeof edge.id === 'string' && edge.id ? edge.id : `e${edges.length}`, source, target });
+    }
+
+    // 环检测（Kahn 拓扑排序：能排出全部节点 = 无环）
+    const indegree = new Map(nodes.map((node) => [node.id, 0]));
+    for (const edge of edges) indegree.set(edge.target, (indegree.get(edge.target) || 0) + 1);
+    const queue = nodes.map((node) => node.id).filter((nodeId) => indegree.get(nodeId) === 0);
+    let visited = 0;
+    while (queue.length) {
+      const current = queue.shift();
+      visited += 1;
+      for (const edge of edges) {
+        if (edge.source !== current) continue;
+        const left = (indegree.get(edge.target) || 0) - 1;
+        indegree.set(edge.target, left);
+        if (left === 0) queue.push(edge.target);
+      }
+    }
+    if (visited !== nodes.length) throw new Error('工作流不能有环');
+
+    const previous = workflows.get(id);
+    return {
+      id,
+      name,
+      description,
+      nodes,
+      edges,
+      createdAt: previous?.createdAt || Date.now(),
+      updatedAt: Date.now(),
+      lastRun: previous?.lastRun || null,
+    };
+  }
+
+  /** 收集某节点的上游输出（按连线顺序拼接；无上游时回落 run.input）。 */
+  function workflowUpstream(workflow, run, nodeId) {
+    const byId = new Map((run.nodeRuns || []).map((slot) => [slot.nodeId, slot]));
+    const sources = workflow.edges.filter((edge) => edge.target === nodeId).map((edge) => edge.source);
+    if (!sources.length) return run.input || '';
+    const parts = sources.map((source) => {
+      const slot = byId.get(source);
+      const node = workflow.nodes.find((item) => item.id === source);
+      const label = node?.title || node?.employeeId || source;
+      return `### 上游节点「${label}」的输出\n${slot?.output || '（无输出）'}`;
+    });
+    return parts.join('\n\n');
+  }
+
+  function workflowNodePrompt(workflow, node, upstream) {
+    const employee = employees.get(node.employeeId);
+    const instruction = String(node.instruction || '').trim() || '按你的职责完成这一步，直接给出结果。';
+    const body = instruction.includes('{{input}}')
+      ? instruction.split('{{input}}').join(upstream || '（本次没有上游输入）')
+      : upstream
+        ? `上游传来的输入/结果：\n---\n${upstream}\n---\n\n你的任务：\n${instruction}`
+        : `你的任务：\n${instruction}`;
+    return (
+      `你在公司「${companyName}」执行工作流「${workflow.name}」的节点` +
+      `「${node.title || '未命名节点'}」。你是${employee?.name || '该节点负责人'}（${employee?.title || employee?.role || ''}）。\n\n` +
+      `${body}\n\n要求：只输出这一步的交付结果，不要寒暄，不要复述任务。`
+    );
+  }
+
+  /**
+   * 执行一次运行：拓扑分层，每层并行；同员工多节点经 locks 串行化。
+   * start 节点输出 = run.input；上游失败/取消的下游节点标 skipped。
+   */
+  async function executeWorkflow(workflow, run, controller) {
+    const slotOf = new Map(run.nodeRuns.map((slot) => [slot.nodeId, slot]));
+    const incoming = new Map(workflow.nodes.map((node) => [node.id, []]));
+    for (const edge of workflow.edges) incoming.get(edge.target)?.push(edge.source);
+    const locks = new Map(); // employeeId → 串行链
+    const terminal = new Set(['done', 'failed', 'skipped']);
+
+    const touch = (slot) => {
+      workflow.lastRun = run;
+      saveWorkflow(workflow); // 逐节点落盘，面板轮询拿得到实时进度
+      void slot;
+    };
+
+    async function withEmployeeLock(employeeId, task) {
+      const previous = locks.get(employeeId) || Promise.resolve();
+      const chained = previous.catch(() => {}).then(task);
+      locks.set(employeeId, chained.catch(() => {}));
+      return chained;
+    }
+
+    async function execNode(node) {
+      const slot = slotOf.get(node.id);
+      slot.status = 'running';
+      slot.startedAt = Date.now();
+      touch(slot);
+      try {
+        if (node.type === 'start') {
+          slot.output = String(run.input || '');
+          slot.status = 'done';
+        } else {
+          const employee = employees.get(node.employeeId);
+          if (!employee || employee.fired) throw new Error('员工不存在或已解雇');
+          const upstream = workflowUpstream(workflow, run, node.id);
+          const prompt = workflowNodePrompt(workflow, node, upstream);
+          await withEmployeeLock(employee.id, async () => {
+            if (controller.signal.aborted) throw new Error('运行已取消');
+            const runtime = await ensureRuntime(employee);
+            runtime.status = 'running';
+            try {
+              const turn = await turnOnce(runtime, prompt, workTimeoutMs, '工作流执行');
+              const text = String(turn.text || '').trim();
+              if (turn.error && !text) throw new Error(turn.error);
+              slot.output = truncate(text || '（无输出）', WORKFLOW_OUTPUT_LIMIT);
+            } finally {
+              runtime.status = 'idle';
+            }
+          });
+        }
+        slot.status = 'done';
+        slot.finishedAt = Date.now();
+        slot.error = '';
+      } catch (error) {
+        slot.status = 'failed';
+        slot.finishedAt = Date.now();
+        slot.error = String(error?.message ?? error);
+      }
+      touch(slot);
+    }
+
+    // 主循环：每轮挑出「上游全部终结」的 pending 节点
+    for (;;) {
+      if (controller.signal.aborted) {
+        for (const slot of run.nodeRuns) {
+          if (slot.status === 'pending' || slot.status === 'running') {
+            slot.status = 'failed';
+            slot.error = '运行已取消';
+            slot.finishedAt = Date.now();
+          }
+        }
+        break;
+      }
+      const pending = workflow.nodes.filter((node) => slotOf.get(node.id).status === 'pending');
+      if (!pending.length) break;
+      const ready = [];
+      const blocked = [];
+      for (const node of pending) {
+        const sources = incoming.get(node.id) || [];
+        if (!sources.every((source) => terminal.has(slotOf.get(source).status))) continue;
+        if (sources.some((source) => slotOf.get(source).status !== 'done')) blocked.push(node);
+        else ready.push(node);
+      }
+      if (blocked.length) {
+        for (const node of blocked) {
+          const slot = slotOf.get(node.id);
+          slot.status = 'skipped';
+          slot.error = '上游未成功，已跳过';
+          slot.finishedAt = Date.now();
+          touch(slot);
+        }
+        continue;
+      }
+      if (!ready.length) {
+        // 理论不可达（保存时已做环检测）；防御性兜底避免死循环。
+        for (const node of pending) {
+          const slot = slotOf.get(node.id);
+          slot.status = 'skipped';
+          slot.error = '上游未完成，已跳过';
+          slot.finishedAt = Date.now();
+          touch(slot);
+        }
+        break;
+      }
+      await Promise.all(ready.map((node) => execNode(node)));
+    }
+
+    const failed = run.nodeRuns.some((slot) => slot.status === 'failed' || slot.status === 'skipped');
+    run.status = controller.signal.aborted ? 'failed' : failed ? 'failed' : 'done';
+    if (controller.signal.aborted) run.error = '运行已取消';
+    run.finishedAt = Date.now();
+    workflow.lastRun = run;
+    saveWorkflow(workflow);
+    workflowRuntime.delete(workflow.id);
+  }
+
   // ── 调度动作（单一实现：HTTP 与 agent tool 共用） ────────────────────────
   const service = {
     state() {
@@ -1103,6 +1396,7 @@ export function apply(ctx, config = {}) {
         companyName,
         employees: activeEmployees().map(publicEmployee),
         missions: [...missions.values()].sort((a, b) => b.createdAt - a.createdAt).map(publicMission),
+        workflows: [...workflows.values()].sort((a, b) => b.updatedAt - a.updatedAt).map(publicWorkflow),
         templates: ROLE_TEMPLATES.map((role) => ({
           id: role.id,
           name: role.name,
@@ -1296,6 +1590,74 @@ export function apply(ctx, config = {}) {
         })),
       };
     },
+
+    // ── 工作流 ────────────────────────────────────────────────────────────
+
+    /** 保存（新建或更新）工作流：全量校验通过才落盘。 */
+    workflowSave(input) {
+      const source = input && typeof input.workflow === 'object' && input.workflow ? input.workflow : input;
+      const workflow = normalizeWorkflow(source);
+      workflows.set(workflow.id, workflow);
+      saveWorkflow(workflow);
+      return publicWorkflow(workflow);
+    },
+
+    /** 删除工作流：停掉运行中的、移除记录。 */
+    workflowRemove(input) {
+      const source = input && typeof input === 'object' ? input : {};
+      const id = typeof source.id === 'string' ? source.id : '';
+      const workflow = workflows.get(id);
+      if (!workflow) throw new Error('找不到这个工作流');
+      const runtime = workflowRuntime.get(id);
+      if (runtime) {
+        runtime.abort.abort();
+        workflowRuntime.delete(id);
+      }
+      workflows.delete(id);
+      if (store) Promise.resolve(store.deleteRecord(WORKFLOW_TABLE, id)).catch(() => {});
+      return { id };
+    },
+
+    /** 运行工作流：立即返回 run，执行在后台推进（nodeRuns 逐个变状态）。 */
+    workflowRun(input) {
+      const source = input && typeof input === 'object' ? input : {};
+      const id = typeof source.id === 'string' ? source.id : '';
+      const workflow = workflows.get(id);
+      if (!workflow) throw new Error('找不到这个工作流');
+      if (workflowRuntime.has(id)) throw new Error('工作流正在运行中');
+      // 运行前再过一遍校验：员工可能在上次保存后被解雇
+      const normalized = normalizeWorkflow(workflow);
+      workflows.set(normalized.id, normalized);
+      const run = {
+        id: randomUUID(),
+        status: 'running',
+        startedAt: Date.now(),
+        finishedAt: 0,
+        input: typeof source.input === 'string' ? source.input.slice(0, 20000) : '',
+        error: '',
+        nodeRuns: normalized.nodes.map((node) => ({
+          nodeId: node.id,
+          status: 'pending',
+          output: '',
+          error: '',
+          startedAt: 0,
+          finishedAt: 0,
+        })),
+      };
+      normalized.lastRun = run;
+      saveWorkflow(normalized);
+      const controller = new AbortController();
+      workflowRuntime.set(normalized.id, { abort: controller });
+      executeWorkflow(normalized, run, controller).catch((error) => {
+        run.status = 'failed';
+        run.error = error && error.message ? error.message : String(error);
+        run.finishedAt = Date.now();
+        normalized.lastRun = run;
+        saveWorkflow(normalized);
+        workflowRuntime.delete(normalized.id);
+      });
+      return { run: publicRun(run) };
+    },
   };
 
   // ── HTTP API ─────────────────────────────────────────────────────────────
@@ -1335,6 +1697,9 @@ export function apply(ctx, config = {}) {
       ? service.appendMemoryNote(body)
       : service.memory(body),
   );
+  route('/api/dsh-company/workflow-save', (body) => service.workflowSave(body));
+  route('/api/dsh-company/workflow-remove', (body) => service.workflowRemove(body));
+  route('/api/dsh-company/workflow-run', (body) => service.workflowRun(body));
 
   ctx.effect(() =>
     ctx.connection.fetch.register({
@@ -1429,12 +1794,14 @@ export function apply(ctx, config = {}) {
               .map((employee) => `- ${employee.name}（${employee.title || employee.role}）：${activityOf(employee)}`)
               .join('\n');
             const running = [...missions.values()].filter((mission) => mission.status === 'bidding' || mission.status === 'working');
+            const runningFlows = [...workflows.values()].filter((flow) => workflowRuntime.has(flow.id));
             return {
               kind: 'success',
               text: [
                 `「${companyName}」当前 ${activeEmployees().length} 名员工：`,
                 roster || '- （暂无员工）',
                 running.length ? `进行中的任务：${running.map((mission) => mission.title).join('、')}` : '进行中的任务：无',
+                `工作流：${workflows.size} 个${runningFlows.length ? `（运行中：${runningFlows.map((flow) => flow.name).join('、')}）` : ''}`,
                 '用法：/dsh-company 标题 | 说明 | 员工A,员工B',
               ].join('\n'),
             };
@@ -1477,6 +1844,8 @@ export function apply(ctx, config = {}) {
     disposed = true;
     for (const runtime of missionRuntime.values()) runtime.abort.abort();
     missionRuntime.clear();
+    for (const runtime of workflowRuntime.values()) runtime.abort.abort();
+    workflowRuntime.clear();
     for (const runtime of runtimes.values()) {
       try {
         if (runtime.agent && runtime.agent.cancel) runtime.agent.cancel({ kind: 'disposed' });

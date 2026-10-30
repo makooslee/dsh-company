@@ -12,7 +12,7 @@ You are the CEO. Everybody below you **is a real agent session** with its own id
 
 Most multi-agent setups chain roles: product → tech lead → engineer → QA, and one stuck stage stalls everything. dsh-company uses **bidding** instead:
 
-1. **Dispatch** — the mission is broadcast to the employees you picked, each with the same brief plus the company roster.
+1. **Dispatch** — the mission is broadcast to the employees you picked, each with the same brief plus a roster of the team.
 2. **Bid** — each replies with `【接单】` / `【不接】` on the first line and reasons below; declining requires naming a better owner.
 3. **Work** — only those who accepted get a second turn, and they are told who else is working so they do not duplicate each other.
 
@@ -23,20 +23,21 @@ Most multi-agent setups chain roles: product → tech lead → engineer → QA, 
 - **Seven built-in roles** — Project Director, Product Manager, Tech Lead, Engineer, Data Analyst, QA Engineer, Reviewer. Every persona, title, skill set and model is editable; hire your own too.
 - **Bidding-based collaboration** — self-assignment with an owner suggestion on decline; accepted work is mutually visible.
 - **Team timeline** — bids, declines and deliverables folded into one readable stream.
-- **Employee transcripts** — click anyone in the roster to read *their own session*, tool calls included.
+- **Employee transcripts** — click anyone under Employees to read *their own session*, tool calls included.
 - **Real model picker** — the dropdown is fed by the Harness model catalog, the same source DSH's own model selection uses; set per employee.
 - **Skill whitelist** — tick the tools an employee may use; everything else is restricted away inside that agent's scope.
 - **`/dsh-company` slash command** — dispatch straight from any conversation: `/dsh-company title | brief | Alice,Bob`; type only `/dsh-company` to see the company status.
 - **agent-team panel link** — employees and missions are mirrored into Harness' own agent-team panel, so you can see who is doing what.
 - **Deletable missions** — one click removes a mission from the board; the mirrored task folds away in the official panel too.
 - **Private memory per employee** — every employee owns a separate memory directory; bid reasons and deliveries are archived there and can be written by hand.
+- **Workflow orchestration (v0.5)** — an n8n-style canvas: drag start and employee nodes, connect them into a pipeline, hit run. Same-layer nodes run in parallel, a failed upstream skips its downstream automatically, and `{{input}}` placeholders feed each step the previous step's output.
 - **Two entry points** — the management page, or the `company_dispatch` tool so the CEO assistant can dispatch from chat. One implementation behind both.
 
 ## Screenshots
 
-**Roster** — built-in roles in place; every card shows status and skills, click through for the full transcript
+**Employees** — built-in roles in place; every card shows status and skills, click through for the full transcript
 
-![Roster](docs/screenshots/roster.jpg)
+![Employees](docs/screenshots/roster.jpg)
 
 **Mission board** — after dispatching, employees bid on their own: Engineering and Analytics accept, Product declines with an owner suggestion
 
@@ -68,7 +69,7 @@ Reload the page: an org-chart icon appears in the sidebar. If it does not, resta
 
 ## Usage
 
-**Roster** — the seven roles are in place. Click a card to read that person's transcript; click "edit" to change name, title, persona, model or skills; click "Hire" to add someone.
+**Employees** — the seven roles are in place. Click a card to read that person's transcript; click "edit" to change name, title, persona, model or skills; click "Hire" to add someone.
 
 **Mission board** — write a title + brief → tick who should be notified → "Dispatch". You then see:
 
@@ -86,6 +87,17 @@ Reload the page: an org-chart icon appears in the sidebar. If it does not, resta
 - type only `/dsh-company` to see the company status (who is doing what, which missions are running).
 
 **See "who is doing what" in the agent-team panel**: the plugin mirrors employees and missions into Harness' own agent-team data, so your crew shows up in the agent-team panel next to the conversation title — one task card per person, stating the current step (bidding / working / delivered). The mirror only lives in the session that dispatched it, so it never leaks into other conversations.
+
+**Workflow orchestration** (v0.5+): switch to the Workflows tab and compose employees into a pipeline, n8n-style:
+
+- one workflow has exactly one "Start" node (which receives the run input) followed by any number of employee nodes;
+- each employee node names its owner and instruction; `{{input}}` in the instruction is replaced with the upstream node's output at run time;
+- drag from a node's output port to the next node's input port to create a connection; click a connection to delete it;
+- on run, nodes in the same layer execute in parallel (the same employee inside one pipeline is queued serially);
+- when an upstream node fails, its downstream nodes are marked "skipped" instead of running blind;
+- every node's output is visible live while running, and the last run stays on the card.
+
+Pipelines are deterministic orchestration: who does which step, in what order, with what input — you draw it. Plain "dispatch" is bidding-based: employees decide for themselves. The two complement each other.
 
 **Private memory per employee**: every employee owns its own memory directory:
 
@@ -112,7 +124,7 @@ Override the row's `config` in the profile's `cordis.patch.yml`:
     workTimeoutMs: 1800000
 ```
 
-Roster and missions persist through the storage service's `json` backend (unit `dsh_company`, per-record layout). Without storage it degrades to memory-only; nothing else changes.
+Employees, missions and workflows persist through the storage service's `json` backend (unit `dsh_company`, per-record layout). Without storage it degrades to memory-only; nothing else changes.
 
 Memory directories live under `<DSH home>/dsh-company/employees/<employeeId>/`, where the DSH home comes from Harness' `dshHomePath` service (`~/.dsh` by default). A copy also stays in the storage `memories` table so the panel can read it.
 
@@ -126,6 +138,7 @@ Memory directories live under `<DSH home>/dsh-company/employees/<employeeId>/`, 
 - The slash command is registered through `ctx.commands.register()` and shares one service implementation with the panel and the agent tool;
 - The agent-team link works by mirroring employees and missions as official `team/member` and `team/task` events in the CEO's session, letting the official projection fold out member rows and task cards — no second panel;
 - Each employee's memory is both a file in its own directory and a dynamic system prompt section, re-evaluated on every assembly;
+- Workflow execution is topological layering: every round picks the nodes whose upstreams are all done and runs them in parallel; the same employee inside one pipeline queues behind an employeeId lock chain; run state is persisted node by node (`lastRun.nodeRuns`), so the 2.5s panel poll shows live progress;
 - Every registration happens inside `ctx.effect` and returns its cleanup, so unloading disposes agents and closes the storage handle.
 
 ## Sponsorship
