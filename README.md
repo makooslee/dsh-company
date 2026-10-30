@@ -39,6 +39,10 @@ CEO 派单
 | **员工对话详情** | 点开花名册里的任何一个人，看**他自己那个会话**的完整对话（含工具调用） |
 | **真实模型选择** | 模型下拉来自 Harness 的模型目录，和 DSH 自己的模型选择同源；可按员工单独指定 |
 | **技能白名单** | 每个员工可用的工具逐项勾选，未勾选的工具在其 agent scope 内被限制掉 |
+| **`/dsh-company` 斜杠命令** | 在当前对话框直接派活：`/dsh-company 标题 \| 说明 \| 员工A,员工B`；只写 `/dsh-company` 看公司现状 |
+| **agent-team 面板联动** | 员工与任务会镜像进 Harness 自带的 agent-team 面板，直接看到「谁在干什么」 |
+| **任务可删除** | 任务卡上的删除按钮一键清理任务；官方面板里的镜像任务同步折叠 |
+| **每员工独立记忆** | 每个员工一个独立目录存记忆，接单理由、交付结论自动归档，还能手动记一笔 |
 | **两种入口** | 管理页面派单；或在对话里直接用 `company_dispatch` 工具让 CEO 助手派单（同一份实现） |
 
 ## 效果图
@@ -91,6 +95,33 @@ git clone <this-repo> dsh-company
 
 **从对话里派单**：直接说「把这事派给技术总监和工程师」，模型会调 `company_dispatch`。
 
+**用斜杠命令派单**（v0.4 起）：在任意对话框输入
+
+```
+/dsh-company 上线新版结算页 | 需要方案和实现 | 工程师,数据分析师
+```
+
+- 省略第三段 = 派给全员；
+- 只写 `/dsh-company` = 看公司现状（谁在干什么、有哪些任务在跑）。
+
+**在 agent-team 面板看「谁在干什么」**：插件会把员工与任务镜像成 Harness 官方的 agent-team 数据，
+所以对话标题右侧的 agent-team 面板里会直接出现你的班底，每人一张任务卡写着当前进度
+（正在认单 / 正在执行 / 已交付）。镜像只写在派单所在的那个会话里，不会串到别的会话。
+
+**每个员工的独立记忆**：每名员工在 DSH home 下有自己的记忆目录：
+
+```
+<DSH home>/dsh-company/employees/<employeeId>/
+├── memory.md          # 人类可读的追加式记忆
+└── memory/<id>.json   # 结构化单条记忆
+```
+
+接单理由与交付结论会自动归档进去，并注入该员工自己的 system prompt（只有他能看见）。
+在员工详情页可以手动「记一笔」，也可以直接看目录路径。
+
+**删除任务**：任务卡右上角的「删除」按钮删掉任务；若任务正在跑会先中止。
+官方面板里对应的镜像任务会同步折叠。
+
 ## 配置
 
 在 profile 的 `cordis.patch.yml` 里覆盖该行的 `config`：
@@ -106,6 +137,9 @@ git clone <this-repo> dsh-company
 
 数据：花名册与任务存放于 storage 服务的 `json` 后端（unit `dsh_company`，per-record）。存储不可用时自动退化为纯内存，功能不变，只是重启后不保留。
 
+记忆目录在 `<DSH home>/dsh-company/employees/<employeeId>/`；`DSH home` 取自 Harness 的 `dshHomePath` 服务（默认 `~/.dsh`）。
+同时在 storage 的 `memories` 表留一份，便于面板读取。
+
 ## 实现要点
 
 - 员工是 `ctx.agents.create()` 创建的真实 Agent，各自独立 session 与上下文，因此天然并行；
@@ -113,6 +147,10 @@ git clone <this-repo> dsh-company
 - 技能走 `agentCtx.tools.restrict({ allow })`，只作用于该员工自己的 agent scope；
 - 派活走 `agent.followup(userMessage)`，员工自己开新 turn；
 - 产出、对话记录都从 session 日志派生——日志是唯一真相源，插件内存只是派生缓存；
+- 斜杠命令走 `ctx.commands.register()`，与面板、agent 工具共用同一份 service 实现；
+- agent-team 联动是把员工与任务镜像成官方的 `team/member` 与 `team/task` 事件写进 CEO 会话，
+  由官方投影折叠出成员行与任务卡——不另造一套面板；
+- 每员工记忆既是独立目录里的文件，也是 system prompt 里的一段动态文本（装配时重新求值）；
 - 所有注册都在 `ctx.effect` 内完成并返回清理，插件卸载时释放 agent、关闭存储句柄。
 
 ## 目录

@@ -94,6 +94,19 @@ window.__ModuleLoader__.load({
         detailTitle: '员工详情',
         openSession: '会话',
         refresh: '刷新',
+        remove: '删除',
+        removing: '删除中…',
+        removeConfirm: '确认删除',
+        removeTitle: '删除任务「{title}」？',
+        removed: '已删除',
+        memory: '记忆',
+        memoryEmpty: '还没有记忆。',
+        memoryEntries: '条记忆',
+        memoryDir: '记忆目录',
+        addNote: '记一笔',
+        notePh: '写一条备注…',
+        noteSaved: '已记下',
+        saving: '保存中…',
       },
       en: {
         title: 'Company',
@@ -170,6 +183,19 @@ window.__ModuleLoader__.load({
         detailTitle: 'Employee detail',
         openSession: 'session',
         refresh: 'Refresh',
+        remove: 'Delete',
+        removing: 'Deleting…',
+        removeConfirm: 'Confirm delete',
+        removeTitle: 'Delete mission “{title}”?',
+        removed: 'Deleted',
+        memory: 'Memory',
+        memoryEmpty: 'No memory yet.',
+        memoryEntries: 'entries',
+        memoryDir: 'Memory dir',
+        addNote: 'Add note',
+        notePh: 'Write a note…',
+        noteSaved: 'Note saved',
+        saving: 'Saving…',
       },
     };
 
@@ -243,6 +269,7 @@ window.__ModuleLoader__.load({
 .dsc-avatar{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:14px;flex:none}
 .dsc-card-name{font-weight:600}
 .dsc-card-title{font-size:11px;color:var(--dsw-alias-label-tertiary, rgba(128,128,128,.9))}
+.dsc-card-sub{font-size:11px;line-height:1.6;color:var(--dsw-alias-label-tertiary, rgba(128,128,128,.9));overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .dsc-dot{width:7px;height:7px;border-radius:50%;flex:none;display:inline-block;margin-right:5px}
 .dsc-chips{display:flex;flex-wrap:wrap;gap:4px}
 .dsc-chip{font-size:11px;padding:1px 7px;border-radius:999px;background:var(--dsw-alias-bg-layer-3, rgba(128,128,128,.18));color:var(--dsw-alias-label-secondary, CanvasText)}
@@ -267,6 +294,8 @@ window.__ModuleLoader__.load({
 .dsc-pickbtn[data-on="1"]{background:var(--dsw-alias-button-primary-dimmed, rgba(76,141,255,.2));border-color:var(--dsw-alias-brand-primary, #4C8DFF);color:var(--dsw-alias-label-primary, CanvasText)}
 .dsc-list{display:flex;flex-direction:column;gap:10px}
 .dsc-mission{border:1px solid var(--dsw-alias-border-l2, rgba(128,128,128,.34));border-radius:10px;padding:11px 12px;background:var(--dsw-alias-bg-layer-2, rgba(128,128,128,.1))}
+.dsc-remove-confirm{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px;padding:7px 9px;border-radius:8px;border:.5px solid var(--dsw-alias-state-error-secondary, rgba(229,72,77,.45));background:var(--dsw-alias-bg-layer-1, Canvas)}
+.dsc-remove-confirm .dsc-hint{margin-top:0;flex:1;min-width:160px}
 .dsc-mission-head{display:flex;align-items:center;gap:8px;cursor:pointer}
 .dsc-mission-title{font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .dsc-badge{font-size:11px;padding:1px 8px;border-radius:999px;background:var(--dsw-alias-bg-layer-3, rgba(128,128,128,.18));color:var(--dsw-alias-label-secondary, CanvasText);flex:none;white-space:nowrap}
@@ -305,11 +334,30 @@ window.__ModuleLoader__.load({
 .dsc-sponsor-text{font-size:12px;line-height:1.8;color:var(--dsw-alias-label-secondary, CanvasText);white-space:pre-wrap;text-align:center}
 .dsc-star{display:inline-flex;align-items:center;gap:4px;text-decoration:none}
 .dsc-drawer-msg[data-r="tool"]{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:var(--dsw-alias-label-tertiary, rgba(128,128,128,.9));padding:2px 8px;border-style:dashed}
+.dsc-memory{display:flex;flex-direction:column;gap:6px;padding-top:8px;border-top:1px solid var(--dsw-alias-border-l1, rgba(128,128,128,.24))}
+.dsc-memory-head{display:flex;align-items:center;gap:8px}
+.dsc-memory-title{font-size:12px;font-weight:600;color:var(--dsw-alias-label-secondary, CanvasText)}
+.dsc-memory-path{font-size:11px;color:var(--dsw-alias-label-tertiary, rgba(128,128,128,.9));word-break:break-all}
+.dsc-memory-list{display:flex;flex-direction:column;gap:6px;max-height:220px;overflow:auto}
+.dsc-memory-item{border:.5px solid var(--dsw-alias-border-l1, rgba(128,128,128,.24));border-radius:8px;background:var(--dsw-alias-bg-layer-1, Canvas);padding:6px 9px}
+.dsc-memory-meta{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--dsw-alias-label-tertiary, rgba(128,128,128,.9));margin-bottom:2px;flex-wrap:wrap}
+.dsc-memory-kind{font-size:10px;padding:0 6px;border-radius:999px;background:var(--dsw-alias-bg-layer-3, rgba(128,128,128,.18));color:var(--dsw-alias-label-secondary, CanvasText)}
+.dsc-memory-text{font-size:12px;line-height:1.7;white-space:pre-wrap;word-break:break-word;color:var(--dsw-alias-label-primary, CanvasText)}
+.dsc-memory-body{margin:0;max-height:220px;overflow:auto;padding:8px 10px;border-radius:8px;background:var(--dsw-alias-bg-layer-1, Canvas);border:.5px solid var(--dsw-alias-border-l1, rgba(128,128,128,.24));font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;line-height:1.7;white-space:pre-wrap;word-break:break-word;color:var(--dsw-alias-label-primary, CanvasText)}
+.dsc-memory-foot{display:flex;gap:8px;align-items:flex-end}
+.dsc-memory-foot .dsc-area{flex:1;min-height:56px}
 `;
 
     function initial(text) {
       const trimmed = String(text || '').trim();
       return trimmed ? trimmed.slice(0, 1) : '·';
+    }
+
+    /** 把 {name} 占位符替换成实参；未命中的占位符原样留下。 */
+    function fill(template, values) {
+      return String(template || '').replace(/\{(\w+)\}/g, (match, key) =>
+        values && Object.prototype.hasOwnProperty.call(values, key) ? String(values[key]) : match,
+      );
     }
 
     function Dot({ state }) {
@@ -544,9 +592,13 @@ window.__ModuleLoader__.load({
       );
     }
 
-    function EmployeeDetail({ employee, onClose, t }) {
+    function EmployeeDetail({ employee, onClose, onToast, t }) {
       const [data, setData] = useState(null);
       const [error, setError] = useState('');
+      const [memory, setMemory] = useState(null);
+      const [memoryError, setMemoryError] = useState('');
+      const [note, setNote] = useState('');
+      const [noteBusy, setNoteBusy] = useState(false);
       const ref = useRef(null);
 
       const load = useCallback(async () => {
@@ -558,11 +610,27 @@ window.__ModuleLoader__.load({
         }
       }, [employee.id]);
 
+      const loadMemory = useCallback(async () => {
+        try {
+          const result = await call('memory', { employeeId: employee.id });
+          setMemory(result && typeof result === 'object' ? result : null);
+          setMemoryError('');
+        } catch (caught) {
+          setMemoryError(caught && caught.message ? caught.message : String(caught));
+        }
+      }, [employee.id]);
+
       useEffect(() => {
         load();
         const timer = setInterval(load, 3000);
         return () => clearInterval(timer);
       }, [load]);
+
+      useEffect(() => {
+        loadMemory();
+        const timer = setInterval(loadMemory, 10000);
+        return () => clearInterval(timer);
+      }, [loadMemory]);
 
       useEffect(() => {
         const onKey = (event) => {
@@ -576,6 +644,47 @@ window.__ModuleLoader__.load({
       }, [onClose]);
 
       const messages = data && Array.isArray(data.messages) ? data.messages : EMPTY;
+
+      const submitNote = async () => {
+        const text = note.trim();
+        if (!text || noteBusy) return;
+        setNoteBusy(true);
+        try {
+          const result = await call('memory', { employeeId: employee.id, text });
+          setNote('');
+          if (result && typeof result === 'object' && Array.isArray(result.entries)) setMemory(result);
+          else await loadMemory();
+          if (onToast) onToast(t('noteSaved'));
+        } catch (caught) {
+          if (onToast) onToast(caught && caught.message ? caught.message : String(caught));
+        } finally {
+          setNoteBusy(false);
+        }
+      };
+
+      const memoryPath =
+        memory && memory.path
+          ? String(memory.path)
+          : typeof employee.memoryPath === 'string' && employee.memoryPath
+            ? employee.memoryPath
+            : '';
+      const memoryList = memory && Array.isArray(memory.entries) ? memory.entries : EMPTY;
+      const memoryContent = memory && typeof memory.content === 'string' ? memory.content : '';
+      const memoryEntries = memoryList.length
+        ? memoryList.length
+        : memory && typeof memory.entries === 'number' && Number.isFinite(memory.entries)
+          ? memory.entries
+          : Number.isFinite(Number(employee.memoryEntries))
+            ? Number(employee.memoryEntries)
+            : 0;
+
+      const formatMemoryTime = (value) => {
+        if (value === undefined || value === null || value === '') return '';
+        const date = typeof value === 'number' ? new Date(value) : new Date(String(value));
+        if (Number.isNaN(date.getTime())) return String(value);
+        const pad = (part) => String(part).padStart(2, '0');
+        return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+      };
 
       return h(
         'div',
@@ -620,6 +729,72 @@ window.__ModuleLoader__.load({
                     ),
                   ),
                 ),
+          h(
+            'div',
+            { className: 'dsc-memory' },
+            h(
+              'div',
+              { className: 'dsc-memory-head' },
+              h('span', { className: 'dsc-memory-title' }, t('memory')),
+              h('span', { style: { flex: 1 } }),
+              memoryEntries > 0
+                ? h('span', { className: 'dsc-badge' }, `${memoryEntries} ${t('memoryEntries')}`)
+                : null,
+            ),
+            memoryPath
+              ? h(
+                  'div',
+                  { className: 'dsc-memory-path' },
+                  `${t('memoryDir')} · ${memoryPath}`,
+                )
+              : null,
+            memoryError ? h('div', { className: 'dsc-err' }, memoryError) : null,
+            memoryList.length
+              ? h(
+                  'div',
+                  { className: 'dsc-memory-list' },
+                  memoryList.map((entry, index) =>
+                    h(
+                      'div',
+                      { className: 'dsc-memory-item', key: entry && entry.id ? entry.id : index },
+                      h(
+                        'div',
+                        { className: 'dsc-memory-meta' },
+                        entry && entry.kind
+                          ? h('span', { className: 'dsc-memory-kind' }, String(entry.kind))
+                          : null,
+                        formatMemoryTime(entry ? entry.at : ''),
+                      ),
+                      h('div', { className: 'dsc-memory-text' }, entry && entry.text ? String(entry.text) : ''),
+                    ),
+                  ),
+                )
+              : memoryContent
+                ? h('pre', { className: 'dsc-memory-body' }, memoryContent)
+                : !memoryError
+                  ? h('div', { className: 'dsc-empty' }, t('memoryEmpty'))
+                  : null,
+            h(
+              'div',
+              { className: 'dsc-memory-foot' },
+              h('textarea', {
+                className: 'dsc-area',
+                value: note,
+                placeholder: t('notePh'),
+                onChange: (event) => setNote(event.target.value),
+              }),
+              h(
+                'button',
+                {
+                  className: 'dsc-btn',
+                  'data-kind': 'primary',
+                  disabled: noteBusy || !note.trim(),
+                  onClick: submitNote,
+                },
+                noteBusy ? t('saving') : t('addNote'),
+              ),
+            ),
+          ),
         ),
       );
     }
@@ -677,12 +852,29 @@ window.__ModuleLoader__.load({
       );
     }
 
-    function MissionCard({ mission, t }) {
+    function MissionCard({ mission, t, onRemove }) {
       const [open, setOpen] = useState(mission.status === 'bidding' || mission.status === 'working');
+      const [confirming, setConfirming] = useState(false);
+      const [busy, setBusy] = useState(false);
       const phaseKey =
         mission.status === 'bidding' ? 'bidPhase' : mission.status === 'working' ? 'workPhase' : mission.phase === 'closed' ? 'closedPhase' : '';
-      const accepted = mission.results.filter((item) => item.bid === 'accept');
+      const results = Array.isArray(mission.results) ? mission.results : EMPTY;
+      const accepted = results.filter((item) => item.bid === 'accept');
       const events = Array.isArray(mission.events) ? mission.events : EMPTY;
+
+      const confirmRemove = async () => {
+        if (busy || typeof onRemove !== 'function') return;
+        setBusy(true);
+        try {
+          await onRemove(mission);
+          setConfirming(false);
+        } catch {
+          // 宿主错误已由面板 toast 呈现，确认块保留以便重试。
+        } finally {
+          setBusy(false);
+        }
+      };
+
       return h(
         'div',
         { className: 'dsc-mission' },
@@ -692,9 +884,56 @@ window.__ModuleLoader__.load({
           h('span', { className: 'dsc-mission-title' }, mission.title),
           phaseKey ? h('span', { className: 'dsc-badge' }, t(phaseKey)) : null,
           h('span', { className: 'dsc-badge', 'data-s': mission.status }, t(mission.status) || mission.status),
-          h('span', { className: 'dsc-badge' }, `${accepted.length}/${mission.results.length} ${t('whoAccepted')}`),
+          h('span', { className: 'dsc-badge' }, `${accepted.length}/${results.length} ${t('whoAccepted')}`),
           h('span', { className: 'dsc-btn', 'data-kind': 'ghost' }, open ? t('collapse') : t('expand')),
+          h(
+            'button',
+            {
+              className: 'dsc-btn',
+              'data-kind': 'danger',
+              disabled: busy,
+              title: t('remove'),
+              onClick: (event) => {
+                event.stopPropagation();
+                setConfirming((value) => !value);
+              },
+            },
+            busy ? t('removing') : t('remove'),
+          ),
         ),
+        confirming
+          ? h(
+              'div',
+              { className: 'dsc-remove-confirm' },
+              h('div', { className: 'dsc-hint' }, fill(t('removeTitle'), { title: mission.title })),
+              h(
+                'button',
+                {
+                  className: 'dsc-btn',
+                  'data-kind': 'danger',
+                  disabled: busy,
+                  onClick: (event) => {
+                    event.stopPropagation();
+                    confirmRemove();
+                  },
+                },
+                busy ? t('removing') : t('removeConfirm'),
+              ),
+              h(
+                'button',
+                {
+                  className: 'dsc-btn',
+                  'data-kind': 'ghost',
+                  disabled: busy,
+                  onClick: (event) => {
+                    event.stopPropagation();
+                    setConfirming(false);
+                  },
+                },
+                t('cancel'),
+              ),
+            )
+          : null,
         open
           ? h(
               'div',
@@ -879,6 +1118,17 @@ window.__ModuleLoader__.load({
         }
       };
 
+      const removeMission = async (mission) => {
+        try {
+          await call('remove', { id: mission.id });
+          await refresh();
+          setToast(t('removed'));
+        } catch (caught) {
+          setToast(caught && caught.message ? caught.message : String(caught));
+          throw caught;
+        }
+      };
+
       const blankEmployee = () => {
         const template = templates[0];
         return {
@@ -1015,6 +1265,21 @@ window.__ModuleLoader__.load({
                             t('skillCount'),
                             employee.model ? ` · ${employee.model}` : '',
                           ),
+                          typeof employee.activity === 'string' && employee.activity
+                            ? h(
+                                'div',
+                                { className: 'dsc-card-sub' },
+                                h(Dot, { state: employee.status === 'running' ? 'running' : 'idle' }),
+                                employee.activity,
+                              )
+                            : null,
+                          Number.isFinite(Number(employee.memoryEntries)) && Number(employee.memoryEntries) > 0
+                            ? h(
+                                'div',
+                                { className: 'dsc-card-sub' },
+                                `${Number(employee.memoryEntries)} ${t('memoryEntries')}`,
+                              )
+                            : null,
                           h(
                             'div',
                             { className: 'dsc-chips' },
@@ -1137,7 +1402,7 @@ window.__ModuleLoader__.load({
                   { className: 'dsc-list' },
                   missions.length === 0
                     ? h('div', { className: 'dsc-empty' }, t('emptyMissions'))
-                    : missions.map((mission) => h(MissionCard, { key: mission.id, mission, t })),
+                    : missions.map((mission) => h(MissionCard, { key: mission.id, mission, t, onRemove: removeMission })),
                 ),
               ),
         ),
@@ -1154,7 +1419,14 @@ window.__ModuleLoader__.load({
               onSave: saveEmployee,
             })
           : null,
-        detail ? h(EmployeeDetail, { employee: detail, t, onClose: () => setDetail(null) }) : null,
+        detail
+          ? h(EmployeeDetail, {
+              employee: detail,
+              t,
+              onToast: setToast,
+              onClose: () => setDetail(null),
+            })
+          : null,
         sponsorOpen ? h(SponsorModal, { links, t, onClose: () => setSponsorOpen(false) }) : null,
         toast ? h('div', { className: 'dsc-toast' }, toast) : null,
       );

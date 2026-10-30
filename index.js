@@ -17,21 +17,35 @@
  * - 派活走 agent.followup(userMessage)，员工自己开新 turn；
  * - 产出与会话记录都从 session 日志派生（日志是唯一真相源）；
  * - 所有注册都在 ctx.effect 内完成并返回清理。
+ *
+ * v0.4 新增：
+ * - /dsh-company 斜杠命令：在当前对话框里直接给团队派活。
+ * - 每名员工一个独立记忆目录（DSH home 下 dsh-company/employees/<id>/memory.md），
+ *   记忆条目同时进 storage（memories 表），并动态注入员工自己的 system prompt。
+ * - 任务可删除；员工与任务同时镜像成 Agent Teams 事件（team/member、team/task），
+ *   这样官方 agent-team 面板能直接看到「谁在干什么」。
  */
 
 import { randomUUID } from 'node:crypto';
-import { readFile } from 'node:fs/promises';
+import { appendFile, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { homedir } from 'node:os';
 import { extname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export const name = 'dsh-company';
 
-export const inject = ['connection', 'agents', 'tools', 'systemPrompt', 'sessions'];
+export const inject = ['connection', 'agents', 'tools', 'systemPrompt', 'sessions', 'commands'];
 
 const STORE_UNIT = 'dsh_company';
 const BID_TIMEOUT_MS = 6 * 60 * 1000;
 const WORK_TIMEOUT_MS = 30 * 60 * 1000;
 const MODEL_CACHE_MS = 60 * 1000;
+
+/** 每名员工的独立记忆目录（相对 DSH home）。 */
+const MEMORY_HOME_DIR = 'dsh-company';
+const MEMORY_TABLE = 'memories';
+/** 记忆种类：note=CEO 备注，bid=认单理由，deliver=交付结果，system=系统事件。 */
+const MEMORY_KINDS = new Set(['note', 'bid', 'deliver', 'system']);
 
 /** 包目录：用于伺服包内的赞赏码图片。 */
 const PACKAGE_DIR = fileURLToPath(new URL('.', import.meta.url));
@@ -265,10 +279,13 @@ export function apply(ctx, config = {}) {
         return null;
       }
       try {
+        // version 保持 1：storage-json 用 acceptedStamps 判定记录归属，
+        // 改 version 会让旧 employees/missions 记录整批作废。
+        // 新增 memories 表是同一版本内的加表，不影响既有记录。
         return await backend.kv.open({
           name: STORE_UNIT,
           version: 1,
-          tables: ['employees', 'missions'],
+          tables: ['employees', 'missions', MEMORY_TABLE],
           layout: 'per-record',
         });
       } catch (error) {
@@ -314,8 +331,273 @@ export function apply(ctx, config = {}) {
           missions.set(row.id, row);
         }
       }
+      for (const row of rowsOf(MEMORY_TABLE)) {
+        if (row && typeof row.id === 'string' && typeof row.employeeId === 'string') {
+          pushMemoryEntry(row);
+        }
+      }
     } catch (error) {
       logger.warn?.(`dsh-company: restore failed (${error?.message ?? error})`);
+    }
+  }
+
+  // ── 每名员工的独立记忆目录 ───────────────────────────────────────────────
+  // 目录结构（DSH home 下）：
+  //   dsh-company/employees/<employeeId>/memory.md        人类可读的追加式记忆
+  //   dsh-company/employees/<employeeId>/memory/<id>.json  结构化单条记忆
+  // 同一份内容也进 storage 的 memories 表，方便面板读取与跨目录备份。
+  const memoryEntries = new Map();
+
+  function memoryRoot() {
+    const dshHomePath = ctx.get('dshHomePath');
+    if (typeof dshHomePath === 'function') {
+      try {
+        return String(dshHomePath(MEMORY_HOME_DIR, 'employees'));
+      } catch {
+        /* 落到 homedir 兜底 */
+      }
+    }
+    return resolve(homedir(), '.dsh', MEMORY_HOME_DIR, 'employees');
+  }
+
+  function memoryDirFor(employeeId) {
+    const safe = String(employeeId || 'unknown').replace(/[^a-zA-Z0-9_-]/g, '_');
+    return resolve(memoryRoot(), safe);
+  }
+
+  function memoryFileFor(employeeId) {
+    return resolve(memoryDirFor(employeeId), 'memory.md');
+  }
+
+  function memoryEntriesOf(employeeId) {
+    return memoryEntries.get(employeeId) || [];
+  }
+
+  function pushMemoryEntry(entry) {
+    const list = memoryEntries.get(entry.employeeId) || [];
+    list.push(entry);
+    list.sort((a, b) => (a.at || 0) - (b.at || 0));
+    memoryEntries.set(entry.employeeId, list);
+    return entry;
+  }
+
+  function saveMemoryEntry(entry) {
+    if (!store) return;
+    Promise.resolve(store.putRecord(MEMORY_TABLE, entry.id, entry)).catch(() => {});
+  }
+
+  function memoryMarkdown(entry) {
+    const stamp = new Date(entry.at || Date.now()).toISOString();
+    const label = entry.kind === 'deliver' ? '交付' : entry.kind === 'bid' ? '认单' : entry.kind === 'system' ? '系统' : '备注';
+    return `## ${stamp} · ${label}\n\n${entry.text}\n`;
+  }
+
+  /**
+   * 写一条记忆：storage + 员工独立目录（memory.md 与单条 json）。
+   * 目录写失败不影响主流程（记忆仍留在 storage）。
+   */
+  async function appendMemory(employeeId, kind, text) {
+    const body = typeof text === 'string' ? text.trim() : '';
+    if (!body) throw new Error('记忆内容不能为空');
+    const entry = {
+      id: randomUUID(),
+      employeeId,
+      at: Date.now(),
+      kind: MEMORY_KINDS.has(kind) ? kind : 'note',
+      text: body,
+    };
+    pushMemoryEntry(entry);
+    saveMemoryEntry(entry);
+    try {
+      const dir = memoryDirFor(employeeId);
+      await mkdir(resolve(dir, 'memory'), { recursive: true });
+      await writeFile(resolve(dir, 'memory', `${entry.id}.json`), `${JSON.stringify(entry, null, 2)}\n`, 'utf8');
+      await appendFile(memoryFileFor(employeeId), memoryMarkdown(entry), 'utf8');
+    } catch (error) {
+      logger.warn?.(`dsh-company: memory file write failed (${error?.message ?? error})`);
+    }
+    return entry;
+  }
+
+  /** 供 system prompt 动态注入：最近的记忆摘要。 */
+  function memoryDigest(employeeId, limit = 8) {
+    const list = memoryEntriesOf(employeeId);
+    if (list.length === 0) return '';
+    const recent = list.slice(-limit);
+    const lines = recent.map((entry) => {
+      const stamp = new Date(entry.at || Date.now()).toISOString().slice(0, 16).replace('T', ' ');
+      const label = entry.kind === 'deliver' ? '交付' : entry.kind === 'bid' ? '认单' : entry.kind === 'system' ? '系统' : '备注';
+      return `- [${stamp} ${label}] ${truncate(entry.text, 240)}`;
+    });
+    return ['## 你自己的记忆（只属于你，不要向同事透露）', ...lines].join('\n');
+  }
+
+  // ── Agent Teams 镜像（让官方 agent-team 面板看到「谁在干什么」） ──────────
+  // 官方 agent-team 面板读的是当前会话日志里 team/member 与 team/task 事件
+  // 折叠出来的投影。我们把员工与任务镜像成这两类事件写进 CEO 所在的会话，
+  // 面板里就能直接看到谁在干什么；事件写在哪个会话，就只影响哪个会话。
+  const mirrorMembers = new Map(); // sessionId -> Map<memberId, {name, description, provider, phase}>
+  const mirrorTasks = new Map(); // taskId -> 已写入的 revision
+  let mirrorSessionId = '';
+
+  /** 找到 CEO 当前所在的会话（命令/派单时记住，后续镜像都写这里）。 */
+  function rememberMirrorSession(agent) {
+    const usable = (candidate) =>
+      candidate && candidate.session && typeof candidate.session.append === 'function' ? candidate.session : undefined;
+    const remember = (candidate) => {
+      const session = usable(candidate);
+      if (!session) return undefined;
+      mirrorSessionId = session.id;
+      return session;
+    };
+    try {
+      const found = remember(agent) || remember(ctx.agents.currentInitiator?.());
+      if (found) return found;
+    } catch {
+      /* ignore */
+    }
+    if (mirrorSessionId) {
+      try {
+        const session = ctx.sessions.get(mirrorSessionId);
+        if (session && typeof session.append === 'function') return session;
+      } catch {
+        /* ignore */
+      }
+    }
+    // 退而求其次：找当前还活着的根会话（CEO 会话），把镜像写进去。
+    try {
+      const roots = ctx.agents.roots?.() || [];
+      for (const root of roots) {
+        const found = remember(root);
+        if (found) return found;
+      }
+    } catch {
+      /* ignore */
+    }
+    return undefined;
+  }
+
+  /** 追加一条 team 事件；失败只记日志，不影响主流程。 */
+  function appendTeamEvent(type, payload, agent) {
+    const session = rememberMirrorSession(agent);
+    if (!session) return false;
+    try {
+      session.append(type, payload);
+      Promise.resolve(ctx.sessions.flush?.(session)).catch(() => {});
+      return true;
+    } catch (error) {
+      logger.warn?.(`dsh-company: team mirror append failed (${error?.message ?? error})`);
+      return false;
+    }
+  }
+
+  /** 成员名在同一个会话里必须唯一（投影对重名会直接失败），冲突时加后缀。 */
+  function mirrorMemberName(sessionId, memberId, employee) {
+    const table = mirrorMembers.get(sessionId) || new Map();
+    const taken = new Set([...table.values()].map((item) => item.name));
+    let name = employee.name;
+    if (taken.has(name)) {
+      const titled = `${employee.name}（${employee.title || employee.role}）`;
+      name = taken.has(titled) ? `${employee.name} #${table.size + 1}` : titled;
+    }
+    return name;
+  }
+
+  /**
+   * 把员工镜像成 team/member。投影要求 provisioning → active 两步，
+   * 且 name/provider/context 一经写入不可更改，所以这里先记下身份字段。
+   */
+  function mirrorEmployeeMember(employee, agentSessionId, agent) {
+    if (!agentSessionId) return;
+    const session = rememberMirrorSession(agent);
+    if (!session) return;
+    const key = session.id;
+    const table = mirrorMembers.get(key) || new Map();
+    mirrorMembers.set(key, table);
+    let entry = table.get(agentSessionId);
+    if (!entry) {
+      entry = {
+        name: mirrorMemberName(key, agentSessionId, employee),
+        description: `${employee.title || employee.role}`,
+        provider: employee.provider || 'company',
+        phase: 'provisioning',
+      };
+      table.set(agentSessionId, entry);
+      const ok = appendTeamEvent(
+        'team/member',
+        {
+          version: 2,
+          teamId: key,
+          member: {
+            id: agentSessionId,
+            name: entry.name,
+            description: entry.description,
+            provider: entry.provider,
+            context: 'fresh',
+            phase: 'provisioning',
+          },
+        },
+        agent,
+      );
+      if (!ok) return;
+    }
+    if (entry.phase !== 'provisioning') return;
+    const ok = appendTeamEvent(
+      'team/member',
+      {
+        version: 2,
+        teamId: key,
+        member: {
+          id: agentSessionId,
+          name: entry.name,
+          description: entry.description,
+          provider: entry.provider,
+          context: 'fresh',
+          phase: 'active',
+        },
+      },
+      agent,
+    );
+    if (ok) entry.phase = 'active';
+  }
+
+  function mirrorTaskId(missionId, employeeId) {
+    return `company-${missionId}-${employeeId}`;
+  }
+
+  /**
+   * 把「某员工在某任务里的进展」镜像成 team/task。
+   * 官方 TaskCard 会显示 description 全文与 ownerName，这正是「谁在干什么」。
+   */
+  function mirrorMissionTask(mission, employee, status, description, agent) {
+    const session = rememberMirrorSession(agent);
+    if (!session) return;
+    const key = session.id;
+    const id = mirrorTaskId(mission.id, employee.id);
+    const revision = mirrorTasks.get(id) || 0;
+    const ownerId = runtimes.get(employee.id)?.sessionId || '';
+    const task = {
+      id,
+      revision: revision + 1,
+      subject: mission.title,
+      description,
+      status,
+      blockedBy: [],
+      writeScopes: [],
+    };
+    if (ownerId) task.ownerId = ownerId;
+    const ok = appendTeamEvent('team/task', { version: 2, teamId: key, task }, agent);
+    if (ok) mirrorTasks.set(id, revision + 1);
+  }
+
+  /** 任务被删除时，把镜像任务标成 deleted（官方投影会把它折叠掉）。 */
+  function mirrorRemoveMission(mission, agent) {
+    const session = rememberMirrorSession(agent);
+    if (!session) return;
+    for (const employeeId of mission.employeeIds || []) {
+      const employee = employees.get(employeeId);
+      if (!employee) continue;
+      mirrorMissionTask(mission, employee, 'deleted', '任务已删除', agent);
     }
   }
 
@@ -447,11 +729,32 @@ export function apply(ctx, config = {}) {
     const role = ROLE_BY_ID.get(employee.role);
     return {
       ...employee,
+      skills: Array.isArray(employee.skills) ? [...employee.skills] : [],
       roleName: role ? role.name : employee.role,
       accent: role ? role.accent : '#4C8DFF',
       status: runtime ? runtime.status : 'idle',
       sessionId: runtime ? runtime.sessionId : '',
+      activity: activityOf(employee),
+      memoryPath: memoryDirFor(employee.id),
+      memoryEntries: memoryEntriesOf(employee.id).length,
     };
+  }
+
+  /** 员工此刻在干什么：认单 / 执行 / 空闲。 */
+  function activityOf(employee) {
+    const mission = employee.currentMissionId ? missions.get(employee.currentMissionId) : undefined;
+    if (mission) {
+      const slot = (mission.results || []).find((item) => item.employeeId === employee.id);
+      if (slot) {
+        if (slot.bid === 'thinking') return `正在认单：${mission.title}`;
+        if (slot.status === 'running') return `正在执行：${mission.title}`;
+        if (slot.status === 'done') return `已交付：${mission.title}`;
+      }
+      return `参与任务：${mission.title}`;
+    }
+    const runtime = runtimes.get(employee.id);
+    if (runtime && runtime.status === 'running') return '工作中';
+    return '空闲';
   }
 
   function rosterText(excludeId) {
@@ -497,6 +800,12 @@ export function apply(ctx, config = {}) {
               '你是 CEO 下属的一名员工智能体，在自己的独立会话里工作。' +
               '团队派活时，先用你收到的任务内容判断该不该你接：不在职责范围内、或者有更合适的人，就明确不接并指出该谁接。' +
               `接下的活要独立完成，最后用一段可直接汇报给 CEO 的结论收尾。\n\n${persona}`,
+          });
+          // 记忆是动态的：每次装配 system prompt 时重新求值，员工的记忆立刻可见。
+          agentCtx.systemPrompt.section({
+            name: `company:memory:${employee.id}`,
+            order: base + 2,
+            text: () => memoryDigest(employee.id),
           });
         } catch (error) {
           logger.warn?.(`dsh-company: persona injection failed (${error?.message ?? error})`);
@@ -612,6 +921,8 @@ export function apply(ctx, config = {}) {
       runtime.status = 'running';
       employee.currentMissionId = mission.id;
       saveEmployee(employee);
+      mirrorEmployeeMember(employee, runtime.sessionId, controller.agent);
+      mirrorMissionTask(mission, employee, 'in_progress', `${employee.name} 正在认单：${mission.title}`, controller.agent);
 
       const turn = await turnOnce(runtime, bidPrompt(mission, employee), bidTimeoutMs, '认单');
       if (turn.error && !turn.text) throw new Error(turn.error);
@@ -632,6 +943,18 @@ export function apply(ctx, config = {}) {
         kind: accepted ? 'accept' : 'decline',
         text: turn.text,
       });
+      mirrorMissionTask(
+        mission,
+        employee,
+        accepted ? 'in_progress' : 'completed',
+        accepted
+          ? `${employee.name} 接了单：${truncate(turn.text, 120)}`
+          : `${employee.name} 拒绝接单：${truncate(turn.text, 120)}`,
+        controller.agent,
+      );
+      if (accepted) {
+        await appendMemory(employee.id, 'bid', `${mission.title}\n${truncate(turn.text, 600)}`).catch(() => {});
+      }
       return accepted;
     } catch (error) {
       const message = error && error.message ? error.message : String(error);
@@ -667,6 +990,8 @@ export function apply(ctx, config = {}) {
       runtime.status = 'running';
       employee.currentMissionId = mission.id;
       saveEmployee(employee);
+      mirrorEmployeeMember(employee, runtime.sessionId, controller.agent);
+      mirrorMissionTask(mission, employee, 'in_progress', `${employee.name} 正在执行：${mission.title}`, controller.agent);
 
       const turn = await turnOnce(runtime, workPrompt(mission, employee, accepted), workTimeoutMs, '执行');
       if (turn.error && !turn.text) throw new Error(turn.error);
@@ -680,6 +1005,14 @@ export function apply(ctx, config = {}) {
         kind: 'deliver',
         text: turn.text,
       });
+      mirrorMissionTask(
+        mission,
+        employee,
+        'completed',
+        `${employee.name} 已交付：${truncate(turn.text, 160)}`,
+        controller.agent,
+      );
+      await appendMemory(employee.id, 'deliver', `${mission.title}\n${truncate(turn.text, 1200)}`).catch(() => {});
     } catch (error) {
       const message = error && error.message ? error.message : String(error);
       mark({ status: controller.signal.aborted ? 'cancelled' : 'failed', error: message, finishedAt: Date.now() });
@@ -883,6 +1216,11 @@ export function apply(ctx, config = {}) {
       missions.set(mission.id, mission);
       saveMission(mission);
       const controller = new AbortController();
+      // 记下派单者所在的会话：镜像事件写回这个会话，官方 agent-team 面板才看得到。
+      if (source.agent && source.agent.session && source.agent.session.id) {
+        mirrorSessionId = source.agent.session.id;
+        controller.agent = source.agent;
+      }
       missionRuntime.set(mission.id, { abort: controller });
       runMission(mission, controller).catch((error) => {
         mission.status = 'failed';
@@ -899,6 +1237,64 @@ export function apply(ctx, config = {}) {
       const runtime = missionRuntime.get(id);
       if (runtime) runtime.abort.abort();
       return publicMission(mission);
+    },
+
+    /** 删除任务：停掉正在跑的、移除记录，并在官方 agent-team 面板里把镜像任务折叠掉。 */
+    remove(input) {
+      const source = input && typeof input === 'object' ? input : {};
+      const id = typeof source.id === 'string' ? source.id : '';
+      const mission = missions.get(id);
+      if (!mission) throw new Error('找不到这个任务');
+      const runtime = missionRuntime.get(id);
+      if (runtime) {
+        runtime.abort.abort();
+        missionRuntime.delete(id);
+      }
+      missions.delete(id);
+      if (store) Promise.resolve(store.deleteRecord('missions', id)).catch(() => {});
+      mirrorRemoveMission(mission, source.agent);
+      return { id };
+    },
+
+    /** 读取某名员工的独立记忆目录内容。 */
+    memory(input) {
+      const source = input && typeof input === 'object' ? input : {};
+      const employeeId = typeof source.employeeId === 'string' ? source.employeeId : '';
+      const employee = employees.get(employeeId);
+      if (!employee) throw new Error('找不到这名员工');
+      return {
+        employeeId,
+        name: employee.name,
+        path: memoryDirFor(employeeId),
+        entries: memoryEntriesOf(employeeId).map((entry) => ({
+          id: entry.id,
+          at: entry.at,
+          kind: entry.kind,
+          text: entry.text,
+        })),
+      };
+    },
+
+    /** 给某名员工追加一条记忆（CEO 手动记一笔）。 */
+    async appendMemoryNote(input) {
+      const source = input && typeof input === 'object' ? input : {};
+      const employeeId = typeof source.employeeId === 'string' ? source.employeeId : '';
+      const text = typeof source.text === 'string' ? source.text.trim() : '';
+      const employee = employees.get(employeeId);
+      if (!employee) throw new Error('找不到这名员工');
+      if (!text) throw new Error('记忆内容不能为空');
+      await appendMemory(employeeId, 'note', text);
+      return {
+        employeeId,
+        name: employee.name,
+        path: memoryDirFor(employeeId),
+        entries: memoryEntriesOf(employeeId).map((entry) => ({
+          id: entry.id,
+          at: entry.at,
+          kind: entry.kind,
+          text: entry.text,
+        })),
+      };
     },
   };
 
@@ -933,6 +1329,12 @@ export function apply(ctx, config = {}) {
   route('/api/dsh-company/fire', (body) => service.fire(body.id));
   route('/api/dsh-company/dispatch', (body) => service.dispatch(body));
   route('/api/dsh-company/cancel', (body) => service.cancel(body.id));
+  route('/api/dsh-company/remove', (body) => service.remove(body));
+  route('/api/dsh-company/memory', (body) =>
+    typeof body.text === 'string' && body.text.trim()
+      ? service.appendMemoryNote(body)
+      : service.memory(body),
+  );
 
   ctx.effect(() =>
     ctx.connection.fetch.register({
@@ -983,7 +1385,7 @@ export function apply(ctx, config = {}) {
           return [{ type: 'text', text: `已派单 ${value && value.missionId}，通知：${names.join('、')}（正在各自认单）` }];
         },
       },
-      execute(args) {
+      execute(args, exec) {
         const roster = activeEmployees();
         const wanted = String(args.employees || '')
           .split(/[,，\s]+/)
@@ -997,6 +1399,7 @@ export function apply(ctx, config = {}) {
           title: args.title,
           brief: args.brief || '',
           employeeIds: selected.map((employee) => employee.id),
+          agent: exec && exec.agent,
         });
         return Promise.resolve({ missionId: mission.id, notified: mission.results.map((item) => item.name) });
       },
@@ -1004,6 +1407,69 @@ export function apply(ctx, config = {}) {
     ctx.effect(() => off);
   } catch (error) {
     logger.warn?.(`dsh-company: agent tool unavailable (${error?.message ?? error})`);
+  }
+
+  // ── 斜杠命令：在当前对话框直接给公司派活 ────────────────────────────────
+  // 用法：/dsh-company 标题 | 说明 | 员工A,员工B
+  //   只写标题          → 派给全员
+  //   标题 | 说明       → 派给全员
+  //   标题 | 说明 | 员工 → 只派给指定员工
+  // 留空                → 只看当前公司状态
+  try {
+    const commands = ctx.get('commands');
+    const off = commands.register({
+      name: 'dsh-company',
+      description: '给公司团队派活：/dsh-company 标题 | 说明 | 员工A,员工B（省略员工则派给全员）',
+      input: { hint: '标题 | 说明 | 员工A,员工B' },
+      handler(invocation) {
+        try {
+          const raw = String(invocation.rawInput || '').trim();
+          if (!raw) {
+            const roster = activeEmployees()
+              .map((employee) => `- ${employee.name}（${employee.title || employee.role}）：${activityOf(employee)}`)
+              .join('\n');
+            const running = [...missions.values()].filter((mission) => mission.status === 'bidding' || mission.status === 'working');
+            return {
+              kind: 'success',
+              text: [
+                `「${companyName}」当前 ${activeEmployees().length} 名员工：`,
+                roster || '- （暂无员工）',
+                running.length ? `进行中的任务：${running.map((mission) => mission.title).join('、')}` : '进行中的任务：无',
+                '用法：/dsh-company 标题 | 说明 | 员工A,员工B',
+              ].join('\n'),
+            };
+          }
+          const parts = raw.split('|').map((part) => part.trim());
+          const title = parts[0] || '';
+          const brief = parts[1] || '';
+          const names = (parts[2] || '')
+            .split(/[,，、\s]+/)
+            .map((item) => item.trim())
+            .filter(Boolean);
+          const roster = activeEmployees();
+          const selected =
+            names.length === 0
+              ? roster
+              : roster.filter((employee) => names.includes(employee.name) || names.includes(employee.id));
+          if (selected.length === 0) throw new Error(`没找到叫「${names.join('、')}」的员工`);
+          const mission = service.dispatch({
+            title,
+            brief,
+            employeeIds: selected.map((employee) => employee.id),
+            agent: invocation.agent,
+          });
+          return {
+            kind: 'success',
+            text: `已派单「${mission.title}」，通知 ${selected.length} 名员工：${selected.map((employee) => employee.name).join('、')}。他们正在各自认单，接单的人会并行开工。`,
+          };
+        } catch (error) {
+          return { kind: 'error', text: error && error.message ? error.message : String(error) };
+        }
+      },
+    });
+    ctx.effect(() => off);
+  } catch (error) {
+    logger.warn?.(`dsh-company: slash command unavailable (${error?.message ?? error})`);
   }
 
   // ── 生命周期 ─────────────────────────────────────────────────────────────
