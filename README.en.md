@@ -2,11 +2,15 @@
 
 English · [简体中文](README.md)
 
-A tiny company of employee agents for [DeepSeek Harness](https://github.com/deepseek-ai).
+![version](https://img.shields.io/badge/version-0.5.0-2f6feb) ![license](https://img.shields.io/badge/license-MIT-4c1) ![DSH plugin](https://img.shields.io/badge/DSH-plugin-8a63d2)
+
+A tiny company of employee agents for [DeepSeek Harness](https://github.com/deepseek-ai): **seven employees, you dispatch work, they decide whether to take it, acceptors run in parallel** — and you can wire them into a pipeline on an n8n-style canvas.
+
+![Mission board: employees bid on their own](docs/screenshots/bids.jpg)
+
+The mission is broadcast, Engineering and Analytics accept and start working, Product declines and names the right owner — not a pipeline, a bidding market.
 
 If it helps, a ⭐ star on the repo means a lot.
-
-You are the CEO. Everybody below you **is a real agent session** with its own identity, its own model and its own tool whitelist. You dispatch work; **they decide whether to take it**. Whoever accepts runs in their own session, in parallel; whoever declines has to say who should take it instead. Everything lands in one team timeline — it reads like a group chat, not an assembly line.
 
 ## Why it is not a pipeline
 
@@ -20,18 +24,19 @@ Most multi-agent setups chain roles: product → tech lead → engineer → QA, 
 
 ## Features
 
-- **Seven built-in roles** — Project Director, Product Manager, Tech Lead, Engineer, Data Analyst, QA Engineer, Reviewer. Every persona, title, skill set and model is editable; hire your own too.
-- **Bidding-based collaboration** — self-assignment with an owner suggestion on decline; accepted work is mutually visible.
-- **Team timeline** — bids, declines and deliverables folded into one readable stream.
-- **Employee transcripts** — click anyone under Employees to read *their own session*, tool calls included.
-- **Real model picker** — the dropdown is fed by the Harness model catalog, the same source DSH's own model selection uses; set per employee.
-- **Skill whitelist** — tick the tools an employee may use; everything else is restricted away inside that agent's scope.
-- **`/dsh-company` slash command** — dispatch straight from any conversation: `/dsh-company title | brief | Alice,Bob`; type only `/dsh-company` to see the company status.
-- **agent-team panel link** — employees and missions are mirrored into Harness' own agent-team panel, so you can see who is doing what.
-- **Deletable missions** — one click removes a mission from the board; the mirrored task folds away in the official panel too.
-- **Private memory per employee** — every employee owns a separate memory directory; bid reasons and deliveries are archived there and can be written by hand.
-- **Workflow orchestration (v0.5)** — an n8n-style canvas: drag start and employee nodes, connect them into a pipeline, hit run. Same-layer nodes run in parallel, a failed upstream skips its downstream automatically, and `{{input}}` placeholders feed each step the previous step's output.
-- **Two entry points** — the management page, or the `company_dispatch` tool so the CEO assistant can dispatch from chat. One implementation behind both.
+| | |
+| --- | --- |
+| **Seven built-in roles** | Project Director, Product Manager, Tech Lead, Engineer, Data Analyst, QA Engineer, Reviewer. Every persona, title and skill set is editable; hire your own too. |
+| **Bidding-based collaboration** | Employees decide for themselves; declines must name an owner; accepted work is mutually visible. |
+| **n8n-style workflows** | Drag start and employee nodes onto a canvas, wire them into a pipeline, hit run. Same-layer nodes run in parallel, the same employee queues serially, a failed upstream skips its downstream, and `{{input}}` feeds each step the previous step's output. |
+| **Team timeline** | Bids, declines and deliverables folded into one readable stream, like a group chat. |
+| **Employee transcripts** | Click anyone to read *their own session*, tool calls included. |
+| **Real model picker** | The dropdown is fed by the Harness model catalog, the same source DSH's own model selection uses; set per employee. |
+| **Skill whitelist** | Tick the tools an employee may use; everything else is restricted away inside that agent's scope. |
+| **`/dsh-company` slash command** | Dispatch straight from any conversation: `/dsh-company title \| brief \| Alice,Bob`; type only `/dsh-company` to see the company status. |
+| **agent-team panel link** | Employees and missions are mirrored into Harness' own agent-team panel, so you can see who is doing what. |
+| **Deletable missions** | One click removes a mission from the board; the mirrored task folds away in the official panel too. |
+| **Private memory per employee** | Every employee owns a separate memory directory; bid reasons and deliveries are archived there and can be written by hand. |
 
 ## Screenshots
 
@@ -39,9 +44,13 @@ Most multi-agent setups chain roles: product → tech lead → engineer → QA, 
 
 ![Employees](docs/screenshots/roster.jpg)
 
-**Mission board** — after dispatching, employees bid on their own: Engineering and Analytics accept, Product declines with an owner suggestion
+**Workflows** — an n8n-style canvas: drag nodes, connect ports, reference upstream output with `{{input}}`, then run — same-layer nodes execute in parallel
 
-![Mission board](docs/screenshots/bids.jpg)
+![Workflow canvas](docs/screenshots/workflow.png)
+
+**agent-team link** — employees and missions mirrored into the official agent-team panel, one task card per person showing the current step
+
+![agent-team panel](docs/screenshots/agent-team.jpg)
 
 **Hire** — open a new seat from a role template; persona, model and skill whitelist are all editable
 
@@ -53,8 +62,18 @@ Most multi-agent setups chain roles: product → tech lead → engineer → QA, 
 
 Requires DeepSeek Harness (with the `plugin_manager` tool) and Node ≥ 20.
 
+**Option 1 · Plugin market (recommended)**: open the Harness plugin market, search `dsh-company`, install.
+
+**Option 2 · One command**:
+
 ```bash
-git clone <this-repo> dsh-company
+dsh plugin --profile web add "https://github.com/makooslee/dsh-company/releases/download/v0.5.0/dsh-company-0.5.0.tgz"
+```
+
+**Option 3 · From source**:
+
+```bash
+git clone https://github.com/makooslee/dsh-company.git dsh-company
 ```
 
 Then, from a Harness agent:
@@ -65,7 +84,7 @@ use plugin_manager install_bundle with target = <absolute path>/dsh-company
 
 Reload the page: an org-chart icon appears in the sidebar. If it does not, restart DSH Desktop once.
 
-> Upgrading requires `remove_bundle` → `install_bundle`; reinstalling the same package name is rejected.
+> Upgrading requires `remove_bundle` → `install_bundle` (or `dsh plugin remove` → `add`); reinstalling the same package name is rejected.
 
 ## Usage
 
@@ -85,6 +104,8 @@ Reload the page: an org-chart icon appears in the sidebar. If it does not, resta
 
 - omit the third part to notify everyone;
 - type only `/dsh-company` to see the company status (who is doing what, which missions are running).
+
+You can also just say "dispatch this to the tech lead and the engineer" — the model calls the `company_dispatch` tool, same implementation.
 
 **See "who is doing what" in the agent-team panel**: the plugin mirrors employees and missions into Harness' own agent-team data, so your crew shows up in the agent-team panel next to the conversation title — one task card per person, stating the current step (bidding / working / delivered). The mirror only lives in the session that dispatched it, so it never leaks into other conversations.
 
