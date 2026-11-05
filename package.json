@@ -1,9 +1,9 @@
 {
   "name": "dsh-company",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "private": false,
   "type": "module",
-  "description": "A tiny company of employee agents for DeepSeek Harness: each has its own identity, model and skills, and they bid for work instead of being piped through it.",
+  "description": "Multi-agent agent team of employee AI subagents for DeepSeek Harness: employee management, CEO mission bidding, and n8n-style workflow orchestration (drag and drop employee nodes onto a canvas, wire them, run the graph in parallel). Seven built-in roles, each with its own persona, model and tools.",
   "license": "MIT",
   "icon": "icon.svg",
   "keywords": [
@@ -13,7 +13,21 @@
     "cordis",
     "multi-agent",
     "agent-team",
-    "ai-company"
+    "ai-company",
+    "multi agent",
+    "agent team",
+    "subagent",
+    "sub-agent",
+    "workflow",
+    "orchestration",
+    "n8n",
+    "employee",
+    "team",
+    "ceo",
+    "company",
+    "agents",
+    "workflow-automation",
+    "drag-and-drop"
   ],
   "exports": {
     ".": "./index.js",
