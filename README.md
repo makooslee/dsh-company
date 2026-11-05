@@ -2,7 +2,7 @@
 
 [English](README.en.md) · 简体中文
 
-![version](https://img.shields.io/badge/version-0.5.0-2f6feb) ![license](https://img.shields.io/badge/license-MIT-4c1) ![DSH plugin](https://img.shields.io/badge/DSH-plugin-8a63d2)
+![version](https://img.shields.io/badge/version-0.5.1-2f6feb) ![license](https://img.shields.io/badge/license-MIT-4c1) ![DSH plugin](https://img.shields.io/badge/DSH-plugin-8a63d2)
 
 给 [DeepSeek Harness](https://github.com/deepseek-ai) 装一家只有一位 CEO 的小公司：**七个员工智能体，你派活，他们自己决定接不接，接单的人并行开工**——还可以像 n8n 一样把员工排成工作流。
 
@@ -73,7 +73,7 @@ CEO 派单
 
 要求：DeepSeek Harness（含 `plugin_manager` 工具）与 Node ≥ 20。
 
-**方式一 · 插件市场（推荐）**：打开 Harness 的插件市场，搜索 `dsh-company`，一键安装。
+**方式一 · 插件市场（推荐）**：打开 Harness 的插件市场，搜索 `dsh-company`（或 `公司` / `员工` / `多智能体` / `工作流`），一键安装。
 
 **方式二 · 一行命令**（包已发布到 npm，Harness 可直接装）：
 
@@ -84,13 +84,13 @@ dsh plugin --profile web add dsh-company
 或指定版本：
 
 ```bash
-dsh plugin --profile web add dsh-company@0.5.0
+dsh plugin --profile web add dsh-company@0.5.1
 ```
 
 不想用 npm 源，就走 release tarball：
 
 ```bash
-dsh plugin --profile web add "https://github.com/makooslee/dsh-company/releases/download/v0.5.0/dsh-company-0.5.0.tgz"
+dsh plugin --profile web add "https://github.com/makooslee/dsh-company/releases/download/v0.5.1/dsh-company-0.5.1.tgz"
 ```
 
 **方式三 · 源码安装**：

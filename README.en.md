@@ -2,7 +2,7 @@
 
 English · [简体中文](README.md)
 
-![version](https://img.shields.io/badge/version-0.5.0-2f6feb) ![license](https://img.shields.io/badge/license-MIT-4c1) ![DSH plugin](https://img.shields.io/badge/DSH-plugin-8a63d2)
+![version](https://img.shields.io/badge/version-0.5.1-2f6feb) ![license](https://img.shields.io/badge/license-MIT-4c1) ![DSH plugin](https://img.shields.io/badge/DSH-plugin-8a63d2)
 
 A tiny company of employee agents for [DeepSeek Harness](https://github.com/deepseek-ai): **seven employees, you dispatch work, they decide whether to take it, acceptors run in parallel** — and you can wire them into a pipeline on an n8n-style canvas.
 
@@ -62,7 +62,7 @@ Most multi-agent setups chain roles: product → tech lead → engineer → QA, 
 
 Requires DeepSeek Harness (with the `plugin_manager` tool) and Node ≥ 20.
 
-**Option 1 · Plugin market (recommended)**: open the Harness plugin market, search `dsh-company`, install.
+**Option 1 · Plugin market (recommended)**: open the Harness plugin market, search `dsh-company` (or `company` / `employee` / `multi-agent` / `workflow`), install.
 
 **Option 2 · One command** (the package is published on npm, Harness installs it directly):
 
@@ -73,13 +73,13 @@ dsh plugin --profile web add dsh-company
 Pin a version:
 
 ```bash
-dsh plugin --profile web add dsh-company@0.5.0
+dsh plugin --profile web add dsh-company@0.5.1
 ```
 
 Prefer the release tarball instead of the npm registry:
 
 ```bash
-dsh plugin --profile web add "https://github.com/makooslee/dsh-company/releases/download/v0.5.0/dsh-company-0.5.0.tgz"
+dsh plugin --profile web add "https://github.com/makooslee/dsh-company/releases/download/v0.5.1/dsh-company-0.5.1.tgz"
 ```
 
 **Option 3 · From source**:
