@@ -64,7 +64,19 @@ Requires DeepSeek Harness (with the `plugin_manager` tool) and Node ≥ 20.
 
 **Option 1 · Plugin market (recommended)**: open the Harness plugin market, search `dsh-company`, install.
 
-**Option 2 · One command**:
+**Option 2 · One command** (the package is published on npm, Harness installs it directly):
+
+```bash
+dsh plugin --profile web add dsh-company
+```
+
+Pin a version:
+
+```bash
+dsh plugin --profile web add dsh-company@0.5.0
+```
+
+Prefer the release tarball instead of the npm registry:
 
 ```bash
 dsh plugin --profile web add "https://github.com/makooslee/dsh-company/releases/download/v0.5.0/dsh-company-0.5.0.tgz"

@@ -75,7 +75,19 @@ CEO 派单
 
 **方式一 · 插件市场（推荐）**：打开 Harness 的插件市场，搜索 `dsh-company`，一键安装。
 
-**方式二 · 一行命令**：
+**方式二 · 一行命令**（包已发布到 npm，Harness 可直接装）：
+
+```bash
+dsh plugin --profile web add dsh-company
+```
+
+或指定版本：
+
+```bash
+dsh plugin --profile web add dsh-company@0.5.0
+```
+
+不想用 npm 源，就走 release tarball：
 
 ```bash
 dsh plugin --profile web add "https://github.com/makooslee/dsh-company/releases/download/v0.5.0/dsh-company-0.5.0.tgz"
