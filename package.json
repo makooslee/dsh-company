@@ -1,6 +1,6 @@
 {
   "name": "dsh-company",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "private": false,
   "type": "module",
   "description": "Multi-agent agent team of employee AI subagents for DeepSeek Harness: employee management, CEO mission bidding, and n8n-style workflow orchestration (drag and drop employee nodes onto a canvas, wire them, run the graph in parallel). Seven built-in roles, each with its own persona, model and tools.",

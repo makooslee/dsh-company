@@ -222,14 +222,37 @@ function transcriptOf(session) {
   return rows;
 }
 
-/** 解析认单决定：第一行出现「接单 / 不接」即认定。 */
+/** 认单表态词：拒单类必须排在接单类前面，否则「不接单」里的「接单」会先命中。 */
+const BID_DECLINE_WORDS = [
+  '不接单', '不能接', '不接受', '不认领', '无法接', '没法接', '不想接', '不打算接', '接不了', '接不下',
+  '做不了', '不干', '算了吧', '不接', '拒接', '拒单', '拒绝',
+];
+const BID_ACCEPT_WORDS = [
+  '接单', '接受', '答应', '认领', '我来接', '我来', '我接', '算我一个', '交给我', '包在我身上',
+];
+const BID_MARKER_RE = new RegExp(`(${BID_DECLINE_WORDS.join('|')}|${BID_ACCEPT_WORDS.join('|')})`);
+const BID_DECLINE_SET = new Set(BID_DECLINE_WORDS);
+const BID_EN_DECLINE_RE = /^\W*(i\s+)?(can'?t|cannot|won'?t|will\s+not|declin\w*|pass|refuse\w*)\b/i;
+const BID_EN_ACCEPT_RE = /^\W*(i\s+)?(accept|take|taking|on\s+it|got\s+it|hand\s+it|i'?ll)\b/i;
+
+/**
+ * 解析认单决定。
+ * 优先级：
+ * 1. 第一行出现中文表态词（拒单词优先）→ 采用；
+ * 2. 正文任意位置出现中文表态词 → 采用；
+ * 3. 第一行以英文表态词开头（accept / decline / pass，带词边界）→ 采用；
+ * 4. 都不匹配 → 'unclear'（调用方按「宁可有人干」处理成接单）。
+ * 关键点：正文里的 pass / decline 只是理由叙述，**不能**据此判拒单 —— 那是把「不会 pass 给别人」误读成拒单的老 bug。
+ */
 function parseBid(text) {
-  const head = String(text || '').trimStart().slice(0, 40);
-  const normalised = head.replace(/[【】\[\]（）()\s]/g, '');
-  const decline = normalised.startsWith('不接') || /decline|pass/i.test(normalised);
-  if (decline) return 'decline';
-  const accept = normalised.startsWith('接单') || /accept|take/i.test(normalised);
-  if (accept) return 'accept';
+  const raw = String(text || '');
+  const firstLine = raw.split('\n', 1)[0] || '';
+  const firstMatch = firstLine.match(BID_MARKER_RE);
+  if (firstMatch) return BID_DECLINE_SET.has(firstMatch[1]) ? 'decline' : 'accept';
+  const anyMatch = raw.match(BID_MARKER_RE);
+  if (anyMatch) return BID_DECLINE_SET.has(anyMatch[1]) ? 'decline' : 'accept';
+  if (BID_EN_DECLINE_RE.test(firstLine)) return 'decline';
+  if (BID_EN_ACCEPT_RE.test(firstLine)) return 'accept';
   return 'unclear';
 }
 
@@ -992,6 +1015,8 @@ export function apply(ctx, config = {}) {
       return accepted;
     } catch (error) {
       const message = error && error.message ? error.message : String(error);
+      // 认单失败（模型报错 / 超时 / 网络故障）**不等于拒单**：
+      // 这里返回 null 表示「没结论」，让 runMission 区分「真拒单」与「没跑成」。
       mark({ bid: 'error', bidReason: message, error: message });
       pushEvent(mission, {
         employeeId: employee.id,
@@ -1001,7 +1026,7 @@ export function apply(ctx, config = {}) {
         kind: 'error',
         text: message,
       });
-      return false;
+      return null;
     } finally {
       if (runtime) runtime.status = 'idle';
       employee.currentMissionId = '';
@@ -1230,7 +1255,39 @@ export function apply(ctx, config = {}) {
       return;
     }
 
+    // 认单失败（模型报错 / 超时 / 网络故障）不是拒单：这些人再试一次。
+    // 老版本把 error 也算成「不接」，于是模型一出问题就表现为「全员拒单」。
+    const failedSlots = mission.results.filter((item) => item.bid === 'error');
+    if (failedSlots.length > 0 && failedSlots.length < targets.length) {
+      const retryTargets = failedSlots
+        .map((item) => targets.find((employee) => employee.id === item.employeeId))
+        .filter(Boolean);
+      if (retryTargets.length > 0) {
+        pushEvent(mission, {
+          kind: 'system',
+          name: '系统',
+          text: `${retryTargets.length} 人认单失败（模型报错或超时），重试一次。`,
+        });
+        await Promise.all(retryTargets.map((employee) => runBid(mission, employee, controller)));
+      }
+    }
+
     let accepted = mission.results.filter((item) => item.bid === 'accept');
+    const errored = mission.results.filter((item) => item.bid === 'error');
+    if (accepted.length === 0 && errored.length > 0) {
+      // 一个都没接，而且有人根本没跑成：不能算「全员拒单」，如实报失败。
+      mission.status = 'failed';
+      mission.phase = 'closed';
+      mission.finishedAt = Date.now();
+      pushEvent(mission, {
+        kind: 'system',
+        name: '系统',
+        text: `没人接单，而且 ${errored.length} 人认单失败（模型报错或超时，不是拒单）。任务失败 —— 请检查员工所用模型/网络，或在派单时直接指定负责人。`,
+      });
+      saveMission(mission);
+      missionRuntime.delete(mission.id);
+      return;
+    }
     if (accepted.length === 0) {
       // issue #1：全员拒单不再直接关单，先请项目总监强行指派一个人。
       pushEvent(mission, {

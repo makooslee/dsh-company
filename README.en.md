@@ -2,7 +2,7 @@
 
 English · [简体中文](README.md)
 
-![version](https://img.shields.io/badge/version-0.5.2-2f6feb) ![license](https://img.shields.io/badge/license-MIT-4c1) ![DSH plugin](https://img.shields.io/badge/DSH-plugin-8a63d2) [![Listed on dsh-plugin.org](https://dsh-plugin.org/badges/listed.svg)](https://dsh-plugin.org/plugins/makooslee/dsh-company)
+![version](https://img.shields.io/badge/version-0.5.3-2f6feb) ![license](https://img.shields.io/badge/license-MIT-4c1) ![DSH plugin](https://img.shields.io/badge/DSH-plugin-8a63d2) [![Listed on dsh-plugin.org](https://dsh-plugin.org/badges/listed.svg)](https://dsh-plugin.org/plugins/makooslee/dsh-company)
 
 A tiny company of employee agents for [DeepSeek Harness](https://github.com/deepseek-ai): **seven employees, you dispatch work, they decide whether to take it, acceptors run in parallel** — and you can wire them into a pipeline on an n8n-style canvas.
 
@@ -114,6 +114,11 @@ Reload the page: an org-chart icon appears in the sidebar. If it does not, resta
 1. **Name an owner** — pick one person at dispatch time and bidding is skipped entirely; the task goes straight to them and they cannot decline.
 2. **Director arbitration** — if everyone still declines, the task is handed to the project director (role=director, or a title matching 总监/主管/Lead) who **force-assigns** it to the most suitable person.
 3. **No buck-passing in bidding** — the bid prompt explicitly forbids ping-pong: take the job if you basically can, only decline when you genuinely cannot or someone is clearly better suited. "Not my job" alone counts as accepted. Better someone does it than nobody does.
+
+**Bid verdicts are no longer misread** (v0.5.3+, the actual root cause of issue #1):
+
+- **Explicit intent wins** — as soon as the first line carries a Chinese verdict word (接单 / 不接 …), that verdict is used. A stray English `pass` / `decline` mentioned later in the body ("I won't pass it to anyone", "I'd never decline") no longer counts as a refusal — that is exactly how the old version turned "I accept" into a decline.
+- **A failed bid is not a decline** — model errors, timeouts and network failures are recorded as "bid failed" and **retried once automatically**, instead of being tallied as declines. When nobody could even run, the mission is marked **failed** with a hint to check the model/network, rather than falsely reported as "nobody took it".
 
 **Dispatch with a slash command** (v0.4+): in any conversation type
 

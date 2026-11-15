@@ -2,7 +2,7 @@
 
 [English](README.en.md) · 简体中文
 
-![version](https://img.shields.io/badge/version-0.5.2-2f6feb) ![license](https://img.shields.io/badge/license-MIT-4c1) ![DSH plugin](https://img.shields.io/badge/DSH-plugin-8a63d2) [![Listed on dsh-plugin.org](https://dsh-plugin.org/badges/listed.svg)](https://dsh-plugin.org/plugins/makooslee/dsh-company)
+![version](https://img.shields.io/badge/version-0.5.3-2f6feb) ![license](https://img.shields.io/badge/license-MIT-4c1) ![DSH plugin](https://img.shields.io/badge/DSH-plugin-8a63d2) [![Listed on dsh-plugin.org](https://dsh-plugin.org/badges/listed.svg)](https://dsh-plugin.org/plugins/makooslee/dsh-company)
 
 给 [DeepSeek Harness](https://github.com/deepseek-ai) 装一家只有一位 CEO 的小公司：**七个员工智能体，你派活，他们自己决定接不接，接单的人并行开工**——还可以像 n8n 一样把员工排成工作流。
 
@@ -125,6 +125,11 @@ git clone https://github.com/makooslee/dsh-company.git dsh-company
 1. **指定负责人**：派单时直接点名一个人，跳过认单环节，任务压给他、不能再拒。
 2. **项目总监裁决**：万一全员还是拒单，自动交给「项目总监」（role=director，或职位带 总监/主管/Lead）**强行指派**给最合适的人——CEO 授权他在这一步不必再问本人意见。
 3. **认单反踢皮球**：认单提示里明确「禁止踢皮球」——只要具备基本能力就该接，只有真做不了、或有人明显更合适才写【不接】；理由只是「感觉不太归我管」的一律算接单。宁可有人干，不能没人干。
+
+**认单判定不再误判**（v0.5.3 起，修 issue #1 的根因）：
+
+- **显式表态优先**：只要第一行出现「接单 / 不接」这类中文表态词，就按它判定；正文里顺带提到的英文 `pass` / `decline`（例如「我不会 pass 给别人」「绝不会 decline」）**不再**被当成拒单——旧版正是因此把「明明说接单」判成拒单。
+- **认单失败 ≠ 拒单**：模型报错、超时、网络失败会被记为「认单失败」并**自动重试一次**，不再算进「不接」名单。全员都没跑成时，任务标为**失败**并提示检查模型/网络，而不是谎报「没人接单」。
 
 **用斜杠命令派单**（v0.4 起）：在任意对话框输入
 
