@@ -2,7 +2,7 @@
 
 [English](README.en.md) · 简体中文
 
-![version](https://img.shields.io/badge/version-0.5.1-2f6feb) ![license](https://img.shields.io/badge/license-MIT-4c1) ![DSH plugin](https://img.shields.io/badge/DSH-plugin-8a63d2) [![Listed on dsh-plugin.org](https://dsh-plugin.org/badges/listed.svg)](https://dsh-plugin.org/plugins/makooslee/dsh-company)
+![version](https://img.shields.io/badge/version-0.5.2-2f6feb) ![license](https://img.shields.io/badge/license-MIT-4c1) ![DSH plugin](https://img.shields.io/badge/DSH-plugin-8a63d2) [![Listed on dsh-plugin.org](https://dsh-plugin.org/badges/listed.svg)](https://dsh-plugin.org/plugins/makooslee/dsh-company)
 
 给 [DeepSeek Harness](https://github.com/deepseek-ai) 装一家只有一位 CEO 的小公司：**七个员工智能体，你派活，他们自己决定接不接，接单的人并行开工**——还可以像 n8n 一样把员工排成工作流。
 
@@ -39,6 +39,7 @@ CEO 派单
 | --- | --- |
 | **七个内置角色** | 项目总监、产品经理、技术总监、工程师、数据分析师、测试工程师、审核员；人设、技能、职位都可改，也可自己招聘新员工 |
 | **认单制协作** | 员工自主判断接不接，不接要给出归属建议；接单者之间互相可见 |
+| **三层兜底不空转** | 可指定负责人跳过认单；全员拒单时由项目总监强行指派；认单提示禁止踢皮球 |
 | **n8n 式工作流** | 画布上拖「开始」+「员工」节点、拉连线成管线，一键运行；同层并行、同员工串行、上游失败下游自动跳过、`{{input}}` 把上一步输出喂给下一步 |
 | **团队时间线** | 认单、拒单、交付按时间汇成一条可读的流，像群聊一样 |
 | **员工对话详情** | 点开任何一个人，看**他自己那个会话**的完整对话（含工具调用） |
@@ -113,11 +114,17 @@ git clone https://github.com/makooslee/dsh-company.git dsh-company
 
 **员工管理**：七个角色已就位。点卡片看这个人的对话记录；点「编辑」改姓名、职位、人设、模型、技能；点「招聘员工」加人。
 
-**任务板**：写标题 + 说明 → 勾选要通知谁 → 「下发任务」。随后你会看到：
+**任务板**：写标题 + 说明 → 勾选要通知谁 → （可选）指定负责人 → 「下发任务」。随后你会看到：
 
 - `认单中`：每个人在回复 `【接单】` / `【不接】` + 理由；
 - `执行中`：接单的人并行干活，谁接了单在标题旁有计数；
 - `已完成` / `没人接单` / `已取消`。
+
+**三层兜底，杜绝「全员拒单」空转**（v0.5.2 起）：
+
+1. **指定负责人**：派单时直接点名一个人，跳过认单环节，任务压给他、不能再拒。
+2. **项目总监裁决**：万一全员还是拒单，自动交给「项目总监」（role=director，或职位带 总监/主管/Lead）**强行指派**给最合适的人——CEO 授权他在这一步不必再问本人意见。
+3. **认单反踢皮球**：认单提示里明确「禁止踢皮球」——只要具备基本能力就该接，只有真做不了、或有人明显更合适才写【不接】；理由只是「感觉不太归我管」的一律算接单。宁可有人干，不能没人干。
 
 **用斜杠命令派单**（v0.4 起）：在任意对话框输入
 
@@ -126,6 +133,7 @@ git clone https://github.com/makooslee/dsh-company.git dsh-company
 ```
 
 - 省略第三段 = 派给全员；
+- 第四段填负责人 = 跳过认单直接开工：`/dsh-company 标题 | 说明 | 员工A | 负责人`；
 - 只写 `/dsh-company` = 看公司现状（谁在干什么、有哪些任务在跑）。
 
 也可以说「把这事派给技术总监和工程师」——模型会调 `company_dispatch` 工具，同一份实现。

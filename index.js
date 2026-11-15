@@ -885,6 +885,12 @@ export function apply(ctx, config = {}) {
       '',
       '## 先做一个决定',
       '这活该不该你接？依据：职责范围、你是否能独立完成、团队里是否有更合适的人。',
+      '',
+      '**禁止踢皮球**：只要你具备做这件事的基本能力，就该接——哪怕它严格来说不算你的“分内事”。',
+      '只有两种情况才写【不接】：① 你确实做不了（缺权限 / 缺数据 / 超出能力）；',
+      '② 团队里有一个人明显比你更合适，且交给他比你硬扛更快。',
+      '如果理由只是“感觉不太归我管”，一律【接单】。CEO 的要求是：宁可有人干，不能没人干。',
+      '',
       '第一行必须只写下面二者之一，前后不要加任何其他字符：',
       '【接单】',
       '【不接】',
@@ -1059,11 +1065,163 @@ export function apply(ctx, config = {}) {
     }
   }
 
+  /** 解析「指派：<员工名>」：命中候选人就返回它，否则 null。 */
+  function parseAssign(text, candidates) {
+    const head = String(text || '').trimStart().slice(0, 80);
+    const normalised = head.replace(/[【】\[\]（）()\s]/g, '');
+    if (!/^(指派|assign)/i.test(normalised)) return null;
+    const body = normalised.replace(/^(指派|assign)[:：]?/i, '');
+    return (
+      candidates.find((employee) => body.includes(employee.name)) ||
+      candidates.find((employee) => body.includes(String(employee.id))) ||
+      null
+    );
+  }
+
+  /**
+   * 全员拒单时的兜底（issue #1）：由「项目总监」类角色强行指派最合适的人。
+   * 返回被指派的员工；没有合适总监或他定不下人就返回 null。
+   */
+  async function assignByDirector(mission, targets, controller) {
+    const roster = activeEmployees();
+    const director =
+      roster.find((employee) => employee.role === 'director') ||
+      roster.find((employee) => /总监|主管|lead/i.test(employee.title || ''));
+    if (!director) return null;
+
+    const candidates = targets.length ? targets : roster;
+    const reasonList = mission.results
+      .map((item) => `- ${item.name}（${item.roleName}）：${truncate(item.bidReason || '（无理由）', 160)}`)
+      .join('\n');
+    const prompt = [
+      `# 全员拒单，请你强行指派：${mission.title}`,
+      '',
+      mission.brief || '（CEO 没写额外说明。）',
+      '',
+      '## 各人的拒单理由',
+      reasonList || '（暂无）',
+      '',
+      '## 候选人（必须从中选一个）',
+      candidates.map((employee) => `- ${employee.name}（${employee.title || employee.role}）`).join('\n'),
+      '',
+      '## 你要做的',
+      '你是项目总监，CEO 授权你在这一步把活儿**强行指派**给最合适的人，被指派的人不能再拒绝。',
+      '宁可有人干，不能没人干；不要因为「不是他的分内事」而空转。',
+      '第一行必须只写 `指派：<员工名>`，前后不要加任何其他字符。',
+      '第二行起写 2-4 行：为什么是他、要交付什么、什么算完成。',
+    ].join('\n');
+
+    let runtime;
+    try {
+      runtime = await ensureRuntime(director);
+      if (controller.signal.aborted) return null;
+      runtime.status = 'running';
+      director.currentMissionId = mission.id;
+      saveEmployee(director);
+      mirrorEmployeeMember(director, runtime.sessionId, controller.agent);
+      mirrorMissionTask(
+        mission,
+        director,
+        'in_progress',
+        `${director.name} 正在裁决指派：${mission.title}`,
+        controller.agent,
+      );
+      const turn = await turnOnce(runtime, prompt, bidTimeoutMs, '裁决');
+      if (turn.error && !turn.text) throw new Error(turn.error);
+
+      const picked = parseAssign(turn.text, candidates);
+      const accent = ROLE_BY_ID.get(director.role)?.accent ?? '#8B7BF0';
+      if (!picked) {
+        pushEvent(mission, {
+          employeeId: director.id,
+          name: director.name,
+          roleName: director.title || director.role,
+          accent,
+          kind: 'system',
+          text: `项目总监没能在候选人里定下人选：${truncate(turn.text, 160)}`,
+        });
+        return null;
+      }
+
+      const slot = mission.results.find((item) => item.employeeId === picked.id);
+      if (slot) {
+        Object.assign(slot, {
+          bid: 'accept',
+          bidVerdict: 'assigned',
+          bidReason: truncate(turn.text, 400),
+          bidOutput: turn.text,
+        });
+      }
+      pushEvent(mission, {
+        employeeId: director.id,
+        name: director.name,
+        roleName: director.title || director.role,
+        accent,
+        kind: 'accept',
+        text: `全员拒单，项目总监强行指派给 ${picked.name}。\n${truncate(turn.text, 300)}`,
+      });
+      mirrorMissionTask(
+        mission,
+        picked,
+        'in_progress',
+        `${director.name} 强行指派「${mission.title}」给 ${picked.name}`,
+        controller.agent,
+      );
+      await appendMemory(director.id, 'bid', `裁决指派 ${mission.title}\n${truncate(turn.text, 600)}`).catch(() => {});
+      return picked;
+    } catch (error) {
+      const message = error && error.message ? error.message : String(error);
+      pushEvent(mission, {
+        employeeId: director.id,
+        name: director.name,
+        roleName: director.title || director.role,
+        accent: ROLE_BY_ID.get(director.role)?.accent ?? '#8B7BF0',
+        kind: 'error',
+        text: `项目总监裁决失败：${message}`,
+      });
+      return null;
+    } finally {
+      if (runtime) runtime.status = 'idle';
+      director.currentMissionId = '';
+      saveEmployee(director);
+    }
+  }
+
   async function runMission(mission, controller) {
     const targets = mission.employeeIds.map((id) => employees.get(id)).filter((employee) => employee && !employee.fired);
 
+    // CEO 指定了负责人：跳过认单环节，直接开工（issue #1「全员拒单」的最快解法）。
+    const owner = mission.assigneeId ? employees.get(mission.assigneeId) : null;
+    if (owner && !owner.fired) {
+      const slot = mission.results.find((item) => item.employeeId === owner.id);
+      if (slot) {
+        Object.assign(slot, {
+          bid: 'accept',
+          bidVerdict: 'assigned',
+          bidReason: 'CEO 指定负责人',
+          bidOutput: '',
+        });
+      }
+      pushEvent(mission, {
+        kind: 'system',
+        name: '系统',
+        text: `CEO 指定「${owner.name}」为负责人，跳过认单直接开工。`,
+      });
+      mission.phase = 'working';
+      mission.status = 'working';
+      saveMission(mission);
+      await runWork(mission, owner, mission.results.filter((item) => item.bid === 'accept'), controller);
+      mission.status = controller.signal.aborted ? 'cancelled' : 'done';
+      mission.phase = 'closed';
+      mission.finishedAt = Date.now();
+      pushEvent(mission, { kind: 'system', name: '系统', text: '任务结束。' });
+      saveMission(mission);
+      missionRuntime.delete(mission.id);
+      return;
+    }
+
     pushEvent(mission, { kind: 'system', name: '系统', text: `任务已下发，${targets.length} 名员工开始认单。` });
-    const verdicts = await Promise.all(targets.map((employee) => runBid(mission, employee, controller)));
+    await Promise.all(targets.map((employee) => runBid(mission, employee, controller)));
     if (controller.signal.aborted) {
       mission.status = 'cancelled';
       mission.finishedAt = Date.now();
@@ -1072,16 +1230,38 @@ export function apply(ctx, config = {}) {
       return;
     }
 
-    const accepted = mission.results.filter((item) => item.bid === 'accept');
+    let accepted = mission.results.filter((item) => item.bid === 'accept');
     if (accepted.length === 0) {
-      mission.status = 'unclaimed';
-      mission.phase = 'closed';
-      mission.finishedAt = Date.now();
-      pushEvent(mission, { kind: 'system', name: '系统', text: '没人接单。任务关闭，理由见上面各人的回复。' });
-      saveMission(mission);
-      missionRuntime.delete(mission.id);
-      void verdicts;
-      return;
+      // issue #1：全员拒单不再直接关单，先请项目总监强行指派一个人。
+      pushEvent(mission, {
+        kind: 'system',
+        name: '系统',
+        text: '全员拒单，交由项目总监裁决强行指派。',
+      });
+      const picked = await assignByDirector(mission, targets, controller);
+      if (controller.signal.aborted) {
+        mission.status = 'cancelled';
+        mission.finishedAt = Date.now();
+        saveMission(mission);
+        missionRuntime.delete(mission.id);
+        return;
+      }
+      accepted = mission.results.filter((item) => item.bid === 'accept');
+      if (accepted.length === 0) {
+        mission.status = 'unclaimed';
+        mission.phase = 'closed';
+        mission.finishedAt = Date.now();
+        pushEvent(mission, {
+          kind: 'system',
+          name: '系统',
+          text: picked
+            ? '没人接单。任务关闭，理由见上面各人的回复。'
+            : '没人接单，也没有项目总监可以裁决。任务关闭 —— 在派单时直接指定负责人，或在员工管理里任命一位项目总监。',
+        });
+        saveMission(mission);
+        missionRuntime.delete(mission.id);
+        return;
+      }
     }
 
     mission.phase = 'working';
@@ -1119,6 +1299,7 @@ export function apply(ctx, config = {}) {
       createdAt: mission.createdAt,
       finishedAt: mission.finishedAt || 0,
       employeeIds: [...mission.employeeIds],
+      assigneeId: mission.assigneeId || '',
       results: (mission.results || []).map((item) => ({ ...item })),
       events: (mission.events || []).map((item) => ({ ...item })),
     };
@@ -1476,11 +1657,25 @@ export function apply(ctx, config = {}) {
         return Boolean(employee) && !employee.fired;
       }))];
       if (employeeIds.length === 0) throw new Error('至少要通知一名员工');
+
+      // 强制指派（issue #1）：CEO 直接点名负责人，跳过认单环节，杜绝「全员拒单」空转。
+      const assigneeSource = typeof source.assignee === 'string' ? source.assignee.trim() : '';
+      let assigneeId = '';
+      if (assigneeSource) {
+        const pool = [...activeEmployees(), ...employeeIds.map((id) => employees.get(id))];
+        const hit = pool.find((item) => item && (item.id === assigneeSource || item.name === assigneeSource));
+        if (!hit) throw new Error(`没找到叫「${assigneeSource}」的员工`);
+        if (hit.fired) throw new Error(`「${hit.name}」已解雇，不能指定为负责人`);
+        if (!employeeIds.includes(hit.id)) employeeIds.push(hit.id);
+        assigneeId = hit.id;
+      }
+
       const mission = {
         id: randomUUID(),
         title,
         brief: typeof source.brief === 'string' ? source.brief : '',
         employeeIds,
+        assigneeId,
         status: 'bidding',
         phase: 'bidding',
         error: '',
@@ -1724,7 +1919,9 @@ export function apply(ctx, config = {}) {
     const off = ctx.tools.register({
       name: 'company_dispatch',
       description:
-        '把一项任务派给公司团队。任务先由员工各自认单（自己判断该不该接），接单的人再并行开工；不指定员工时默认全员收到派单。返回任务号与已通知成员。',
+        '把一项任务派给公司团队。默认由员工各自认单（自己判断该不该接），接单的人并行开工；' +
+        '全员拒单时由项目总监裁决强行指派一个人。填 assignee 可跳过认单直接指定负责人。' +
+        '不指定员工时默认全员收到派单。返回任务号与已通知成员。',
       parameters: {
         type: 'object',
         additionalProperties: false,
@@ -1732,6 +1929,10 @@ export function apply(ctx, config = {}) {
           title: { type: 'string', description: '一句话的任务标题' },
           brief: { type: 'string', description: '任务说明：背景、要什么、交付标准' },
           employees: { type: 'string', description: '逗号分隔的员工名字；留空表示全员' },
+          assignee: {
+            type: 'string',
+            description: '负责人名字：填了就跳过认单环节，直接把这个任务指派给他（不会再被拒单）',
+          },
         },
         required: ['title'],
       },
@@ -1764,6 +1965,7 @@ export function apply(ctx, config = {}) {
           title: args.title,
           brief: args.brief || '',
           employeeIds: selected.map((employee) => employee.id),
+          assignee: typeof args.assignee === 'string' ? args.assignee.trim() : '',
           agent: exec && exec.agent,
         });
         return Promise.resolve({ missionId: mission.id, notified: mission.results.map((item) => item.name) });
@@ -1775,17 +1977,18 @@ export function apply(ctx, config = {}) {
   }
 
   // ── 斜杠命令：在当前对话框直接给公司派活 ────────────────────────────────
-  // 用法：/dsh-company 标题 | 说明 | 员工A,员工B
-  //   只写标题          → 派给全员
-  //   标题 | 说明       → 派给全员
-  //   标题 | 说明 | 员工 → 只派给指定员工
-  // 留空                → 只看当前公司状态
+  // 用法：/dsh-company 标题 | 说明 | 员工A,员工B | 负责人
+  //   只写标题              → 派给全员
+  //   标题 | 说明           → 派给全员
+  //   标题 | 说明 | 员工     → 只派给指定员工
+  //   标题 | 说明 | 员工 | X → 指定 X 为负责人，跳过认单直接开工
+  // 留空                    → 只看当前公司状态
   try {
     const commands = ctx.get('commands');
     const off = commands.register({
       name: 'dsh-company',
-      description: '给公司团队派活：/dsh-company 标题 | 说明 | 员工A,员工B（省略员工则派给全员）',
-      input: { hint: '标题 | 说明 | 员工A,员工B' },
+      description: '给公司团队派活：/dsh-company 标题 | 说明 | 员工A,员工B | 负责人（末段填负责人则跳过认单直接开工）',
+      input: { hint: '标题 | 说明 | 员工A,员工B | 负责人' },
       handler(invocation) {
         try {
           const raw = String(invocation.rawInput || '').trim();
@@ -1813,6 +2016,7 @@ export function apply(ctx, config = {}) {
             .split(/[,，、\s]+/)
             .map((item) => item.trim())
             .filter(Boolean);
+          const assignee = (parts[3] || '').replace(/^@/, '').trim();
           const roster = activeEmployees();
           const selected =
             names.length === 0
@@ -1823,11 +2027,14 @@ export function apply(ctx, config = {}) {
             title,
             brief,
             employeeIds: selected.map((employee) => employee.id),
+            assignee,
             agent: invocation.agent,
           });
           return {
             kind: 'success',
-            text: `已派单「${mission.title}」，通知 ${selected.length} 名员工：${selected.map((employee) => employee.name).join('、')}。他们正在各自认单，接单的人会并行开工。`,
+            text: assignee
+              ? `已派单「${mission.title}」，指定 ${assignee} 为负责人，跳过认单直接开工。`
+              : `已派单「${mission.title}」，通知 ${selected.length} 名员工：${selected.map((employee) => employee.name).join('、')}。他们正在各自认单，接单的人会并行开工；全员拒单则由项目总监强行指派。`,
           };
         } catch (error) {
           return { kind: 'error', text: error && error.message ? error.message : String(error) };

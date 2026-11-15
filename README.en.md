@@ -2,7 +2,7 @@
 
 English · [简体中文](README.md)
 
-![version](https://img.shields.io/badge/version-0.5.1-2f6feb) ![license](https://img.shields.io/badge/license-MIT-4c1) ![DSH plugin](https://img.shields.io/badge/DSH-plugin-8a63d2) [![Listed on dsh-plugin.org](https://dsh-plugin.org/badges/listed.svg)](https://dsh-plugin.org/plugins/makooslee/dsh-company)
+![version](https://img.shields.io/badge/version-0.5.2-2f6feb) ![license](https://img.shields.io/badge/license-MIT-4c1) ![DSH plugin](https://img.shields.io/badge/DSH-plugin-8a63d2) [![Listed on dsh-plugin.org](https://dsh-plugin.org/badges/listed.svg)](https://dsh-plugin.org/plugins/makooslee/dsh-company)
 
 A tiny company of employee agents for [DeepSeek Harness](https://github.com/deepseek-ai): **seven employees, you dispatch work, they decide whether to take it, acceptors run in parallel** — and you can wire them into a pipeline on an n8n-style canvas.
 
@@ -28,6 +28,7 @@ Most multi-agent setups chain roles: product → tech lead → engineer → QA, 
 | --- | --- |
 | **Seven built-in roles** | Project Director, Product Manager, Tech Lead, Engineer, Data Analyst, QA Engineer, Reviewer. Every persona, title and skill set is editable; hire your own too. |
 | **Bidding-based collaboration** | Employees decide for themselves; declines must name an owner; accepted work is mutually visible. |
+| **Three-layer anti-stall** | Name an owner to skip bidding; on total decline the project director force-assigns; bid prompts forbid buck-passing. |
 | **n8n-style workflows** | Drag start and employee nodes onto a canvas, wire them into a pipeline, hit run. Same-layer nodes run in parallel, the same employee queues serially, a failed upstream skips its downstream, and `{{input}}` feeds each step the previous step's output. |
 | **Team timeline** | Bids, declines and deliverables folded into one readable stream, like a group chat. |
 | **Employee transcripts** | Click anyone to read *their own session*, tool calls included. |
@@ -102,11 +103,17 @@ Reload the page: an org-chart icon appears in the sidebar. If it does not, resta
 
 **Employees** — the seven roles are in place. Click a card to read that person's transcript; click "edit" to change name, title, persona, model or skills; click "Hire" to add someone.
 
-**Mission board** — write a title + brief → tick who should be notified → "Dispatch". You then see:
+**Mission board** — write a title + brief → tick who should be notified → (optionally) name an owner → "Dispatch". You then see:
 
 - `Bidding` — each person answers `【接单】` / `【不接】` plus a reason;
 - `Working` — accepted employees run in parallel, with a count of who took it;
 - `Done` / `Unclaimed` / `Cancelled`.
+
+**Three-layer fallback against "everyone declines"** (v0.5.2+):
+
+1. **Name an owner** — pick one person at dispatch time and bidding is skipped entirely; the task goes straight to them and they cannot decline.
+2. **Director arbitration** — if everyone still declines, the task is handed to the project director (role=director, or a title matching 总监/主管/Lead) who **force-assigns** it to the most suitable person.
+3. **No buck-passing in bidding** — the bid prompt explicitly forbids ping-pong: take the job if you basically can, only decline when you genuinely cannot or someone is clearly better suited. "Not my job" alone counts as accepted. Better someone does it than nobody does.
 
 **Dispatch with a slash command** (v0.4+): in any conversation type
 
@@ -115,6 +122,7 @@ Reload the page: an org-chart icon appears in the sidebar. If it does not, resta
 ```
 
 - omit the third part to notify everyone;
+- add a fourth part to name an owner and skip bidding: `/dsh-company title | brief | Alice | Owner`;
 - type only `/dsh-company` to see the company status (who is doing what, which missions are running).
 
 You can also just say "dispatch this to the tech lead and the engineer" — the model calls the `company_dispatch` tool, same implementation.

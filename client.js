@@ -46,6 +46,9 @@ window.__ModuleLoader__.load({
         assignees: '通知谁',
         selectAll: '全选',
         clearAll: '清空',
+        assigneeLabel: '指定负责人（可选）',
+        assigneeNone: '不指定 · 让大家认单',
+        assigneeHint: '填了就跳过认单环节，直接把任务压给这个人，不会被拒单。全员拒单时也会由项目总监强行指派。',
         noAssignee: '至少要通知一名员工',
         noTitle: '请先写任务标题',
         employeeName: '姓名',
@@ -181,6 +184,9 @@ window.__ModuleLoader__.load({
         assignees: 'Notify',
         selectAll: 'All',
         clearAll: 'None',
+        assigneeLabel: 'Assign an owner (optional)',
+        assigneeNone: 'No owner · let the team bid',
+        assigneeHint: 'If set, bidding is skipped and the task goes straight to this person — they cannot decline. If everyone declines anyway, the project director force-assigns it.',
         noAssignee: 'Notify at least one employee',
         noTitle: 'Mission title is required',
         employeeName: 'Name',
@@ -1788,6 +1794,7 @@ window.__ModuleLoader__.load({
       const [title, setTitle] = useState('');
       const [brief, setBrief] = useState('');
       const [picked, setPicked] = useState(() => new Set());
+      const [assignee, setAssignee] = useState('');
       const [busy, setBusy] = useState(false);
       const [toast, setToast] = useState('');
       const [models, setModels] = useState(EMPTY);
@@ -1874,10 +1881,16 @@ window.__ModuleLoader__.load({
         }
         setBusy(true);
         try {
-          await call('dispatch', { title: title.trim(), brief, employeeIds: ids });
+          await call('dispatch', {
+            title: title.trim(),
+            brief,
+            employeeIds: ids,
+            assignee: assignee.trim(),
+          });
           setTitle('');
           setBrief('');
           setPicked(new Set());
+          setAssignee('');
           setTab('missions');
           await refresh();
         } catch (caught) {
@@ -2311,6 +2324,24 @@ window.__ModuleLoader__.load({
                         ),
                       ),
                     ),
+                  ),
+                  h(
+                    'div',
+                    null,
+                    h('div', { className: 'dsc-label' }, t('assigneeLabel')),
+                    h(
+                      'select',
+                      {
+                        className: 'dsc-input',
+                        value: assignee,
+                        onChange: (event) => setAssignee(event.target.value),
+                      },
+                      h('option', { value: '' }, t('assigneeNone')),
+                      employees.map((employee) =>
+                        h('option', { key: employee.id, value: employee.name }, employee.name),
+                      ),
+                    ),
+                    h('div', { className: 'dsc-hint' }, t('assigneeHint')),
                   ),
                   h(
                     'button',
