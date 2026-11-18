@@ -1,0 +1,84 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1800" viewBox="0 0 1800 1800"><defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#60758d" /></marker></defs><rect width="1800" height="1800" fill="#f4f7fc" /><style>text{font-family:'Noto Sans CJK SC','Noto Sans CJK JP',sans-serif;fill:#20334e}.title{font-size:42px;font-weight:700}.h{font-size:27px;font-weight:700}.body{font-size:22px}.small{font-size:18px}.tag{font-size:19px;font-weight:700;fill:#526b83}.line{stroke:#60758d;stroke-width:3;fill:none;marker-end:url(#arrow)}</style>
+<text x="60" y="75" class="title" font-size="40" style=";font-size:40px">dsh-company · System Architecture</text>
+<text x="60" y="116" class="body" font-size="19" style=";font-size:19px">v0.6.0 static diagram: browser → orchestration → Harness agents → models and tools</text>
+<rect x="1370" y="41" width="370" height="53" rx="26" fill="#fff1d8" />
+<text x="1393" y="77" class="tag" font-size="17" style=";font-size:17px">v0.6.0 · GitHub release</text>
+<rect x="60" y="165" width="790" height="230" rx="18" fill="#eaf2ff" stroke="#b5caea" stroke-width="2" />
+<text x="85" y="208" class="h" font-size="25" style=";font-size:25px">① Browser Client · client.js</text>
+<text x="85" y="250" class="body" font-size="20" style=";font-size:20px">React plugin panels inside the Harness Web UI</text>
+<text x="85" y="286" class="body" font-size="20" style=";font-size:20px">Employees / editing · Missions · Workflows · Transcripts</text>
+<text x="85" y="322" class="body" font-size="20" style=";font-size:20px">Same-origin cookies; periodic state and transcript refresh</text>
+<text x="85" y="358" class="body" font-size="20" style=";font-size:20px">Sidebar and main-view registration through ctx.slots</text>
+<rect x="950" y="165" width="790" height="230" rx="18" fill="#e8f5f0" stroke="#b8d9cc" stroke-width="2" />
+<text x="975" y="208" class="h" font-size="25" style=";font-size:25px">② DeepSeek Harness Host · Cordis</text>
+<text x="975" y="250" class="body" font-size="20" style=";font-size:20px">Profile / Loader loads cordis.patch.yml and the npm package</text>
+<text x="975" y="286" class="body" font-size="20" style=";font-size:20px">connection: HTTP routes; agents: employee instances</text>
+<text x="975" y="322" class="body" font-size="19" style=";font-size:19px">sessions: conversation data; tools / systemPrompt: capabilities</text>
+<text x="975" y="358" class="body" font-size="20" style=";font-size:20px">llm catalog / default model; commands / storage services</text>
+<path d="M950 225 H850" class="line" />
+<text x="865" y="211" class="small" font-size="17" style=";font-size:17px">Mount</text>
+<rect x="60" y="475" width="1680" height="450" rx="24" fill="#ffffff" stroke="#adbed4" stroke-width="2" />
+<text x="85" y="520" class="h" font-size="25" style=";font-size:25px">③ dsh-company Host Plugin · index.js</text>
+<text x="1140" y="520" class="tag" font-size="17" style=";font-size:17px">Business logic, state, scheduling and reliability</text>
+<rect x="85" y="550" width="400" height="330" rx="18" fill="#f4f7fb" stroke="#cbd6e4" stroke-width="2" />
+<text x="110" y="593" class="h" font-size="25" style=";font-size:25px">Entry Points and State</text>
+<text x="110" y="635" class="body" font-size="20" style=";font-size:20px">POST /api/dsh-company/*</text>
+<text x="110" y="671" class="body" font-size="20" style=";font-size:20px">state / hire / dispatch / cancel</text>
+<text x="110" y="707" class="body" font-size="20" style=";font-size:20px">transcript / memory / workflow</text>
+<text x="110" y="743" class="body" font-size="20" style=";font-size:20px">Company tool and slash commands</text>
+<text x="110" y="779" class="body" font-size="20" style=";font-size:20px">Employee / mission / workflow Maps</text>
+<text x="110" y="815" class="body" font-size="20" style=";font-size:20px">Persistence via host storage</text>
+<rect x="545" y="550" width="620" height="330" rx="18" fill="#f4f7fb" stroke="#cbd6e4" stroke-width="2" />
+<text x="570" y="593" class="h" font-size="25" style=";font-size:25px">Mission and Workflow Orchestration</text>
+<text x="570" y="635" class="body" font-size="20" style=";font-size:20px">Missions: bid → accepted workers run → aggregate</text>
+<text x="570" y="671" class="body" font-size="20" style=";font-size:20px">Assigned owner: skip bidding and execute directly</text>
+<text x="570" y="707" class="body" font-size="20" style=";font-size:20px">All decline: director assigns; otherwise unclaimed</text>
+<text x="570" y="743" class="body" font-size="20" style=";font-size:20px">Workflows: schedule nodes by graph dependencies</text>
+<text x="570" y="779" class="body" font-size="20" style=";font-size:20px">Results, event timeline, deliverables and memories</text>
+<text x="570" y="815" class="body" font-size="20" style=";font-size:20px">Done only when all accepted workers deliver</text>
+<rect x="1225" y="550" width="490" height="330" rx="18" fill="#eef1ff" stroke="#bbc5e8" stroke-width="2" />
+<text x="1250" y="593" class="h" font-size="25" style=";font-size:25px">Employee Runtime and Turns</text>
+<text x="1250" y="635" class="body" font-size="18" style=";font-size:18px">Independent Agent + Session per employee</text>
+<text x="1250" y="671" class="body" font-size="18" style=";font-size:18px">Persona / memory → systemPrompt</text>
+<text x="1250" y="707" class="body" font-size="18" style=";font-size:18px">Empty skills deny global tools; model choice</text>
+<text x="1250" y="743" class="body" font-size="18" style=";font-size:18px">Creation deduplication + turn ownership</text>
+<text x="1250" y="779" class="body" font-size="18" style=";font-size:18px">Turn completion / timeout / cancellation</text>
+<text x="1250" y="815" class="body" font-size="18" style=";font-size:18px">Quarantine failures; rebuild to isolate late events</text>
+<path d="M455 395 V475" class="line" />
+<text x="115" y="443" class="small" font-size="17" style=";font-size:17px">HTTP JSON request / response</text>
+<path d="M1480 395 V475" class="line" />
+<text x="1510" y="441" class="small" font-size="17" style=";font-size:17px">Service injection</text>
+<path d="M485 704 H545" class="line" />
+<path d="M1165 704 H1225" class="line" />
+<path d="M280 925 V1010" class="line" />
+<text x="310" y="971" class="small" font-size="17" style=";font-size:17px">State persistence / memory</text>
+<path d="M1400 925 V965 H935 V1010" class="line" />
+<text x="1000" y="951" class="small" font-size="17" style=";font-size:17px">Model requests</text>
+<path d="M1550 925 V1010" class="line" />
+<text x="1580" y="971" class="small" font-size="17" style=";font-size:17px">Tool calls</text>
+<rect x="60" y="1010" width="560" height="260" rx="18" fill="#fff5e8" stroke="#e6cfac" stroke-width="2" />
+<text x="85" y="1053" class="h" font-size="25" style=";font-size:25px">④ Data and Persistence</text>
+<text x="85" y="1095" class="body" font-size="20" style=";font-size:20px">Host JSON KV: employees / missions</text>
+<text x="85" y="1131" class="body" font-size="20" style=";font-size:20px">memories / workflows; in-memory fallback</text>
+<text x="85" y="1167" class="body" font-size="20" style=";font-size:20px">Employee files: memory.md + memory/*.json</text>
+<text x="85" y="1203" class="body" font-size="20" style=";font-size:20px">Conversation events: Harness Session</text>
+<text x="85" y="1239" class="body" font-size="20" style=";font-size:20px">Mission mirror: host team conversation</text>
+<rect x="680" y="1010" width="500" height="260" rx="18" fill="#edf5ff" stroke="#b9d1e9" stroke-width="2" />
+<text x="705" y="1053" class="h" font-size="25" style=";font-size:25px">⑤ Model Services</text>
+<text x="705" y="1095" class="body" font-size="20" style=";font-size:20px">Harness LLM adapter → provider API</text>
+<text x="705" y="1131" class="body" font-size="20" style=";font-size:20px">Employee-selected or host-default model</text>
+<text x="705" y="1167" class="body" font-size="20" style=";font-size:20px">No bundled model or free API credits</text>
+<text x="705" y="1203" class="body" font-size="20" style=";font-size:20px">Tested: real adapter + official local mock</text>
+<text x="705" y="1239" class="body" font-size="20" style=";font-size:20px">Not real-model quality validation</text>
+<rect x="1240" y="1010" width="500" height="260" rx="18" fill="#f0f5ed" stroke="#c4d8b8" stroke-width="2" />
+<text x="1265" y="1053" class="h" font-size="25" style=";font-size:25px">⑥ Host Tools</text>
+<text x="1265" y="1095" class="body" font-size="18" style=";font-size:18px">Registered tools: read / write / bash, etc.</text>
+<text x="1265" y="1131" class="body" font-size="18" style=";font-size:18px">Global allowlist; restriction errors abort setup</text>
+<text x="1265" y="1167" class="body" font-size="18" style=";font-size:18px">Host permissions and sandbox govern execution</text>
+<text x="1265" y="1203" class="body" font-size="18" style=";font-size:18px">Cancellation cannot undo completed side effects</text>
+<text x="1265" y="1239" class="body" font-size="18" style=";font-size:18px">Integration tests did not invoke model tools</text>
+<rect x="60" y="1310" width="1680" height="90" rx="16" fill="#233a57" />
+<text x="85" y="1345" class="body" style="fill:#ffffff;font-size:19px" font-size="19">Reliability: no false success · deduplicated creation · cancel/timeout isolation · failed cleanup retains tracking</text>
+<text x="85" y="1380" class="small" style="fill:#d9e5f3;font-size:17px" font-size="17">Validation: 66 tests + real Mac UI / official local mock. Static, not live; not real-model quality validation.</text>
+</svg>

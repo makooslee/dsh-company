@@ -14,6 +14,12 @@ The screenshot shows a local mock test with an explicit owner, bypassing bidding
 
 If it helps, a ⭐ star on the repo means a lot.
 
+## System architecture diagrams
+
+[English PNG](docs/architecture/dsh-company-architecture-en.png) · [Editable SVG](docs/architecture/dsh-company-architecture-en.svg) · [中文](docs/architecture/dsh-company-architecture.png)
+
+These are **static v0.6.0 architecture diagrams**, not live monitoring or model reasoning traces. See the real UI screenshots below for the interactive overview and execution particles. The diagrams are supplemental v0.6.0 Release assets; the original tag and `.tgz` remain unchanged, and that original package does not contain these standalone diagrams. See [scope and limits](docs/architecture/README.md).
+
 ## Why it is not a pipeline
 
 Most multi-agent setups chain roles: product → tech lead → engineer → QA, and one stuck stage stalls everything. dsh-company uses **bidding** instead:

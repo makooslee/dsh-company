@@ -14,6 +14,12 @@
 
 如果它有用，欢迎给仓库点个 ⭐ Star——那比什么都管用。
 
+## 整体架构图
+
+[中文 PNG](docs/architecture/dsh-company-architecture.png) · [可编辑 SVG](docs/architecture/dsh-company-architecture.svg) · [English](docs/architecture/dsh-company-architecture-en.png)
+
+这是 **v0.6.0 静态架构示意**，不是实时监测，也不是模型推理过程。交互式架构总览与运行粒子见下方真实 UI 截图。图作为补充附件加入 v0.6.0 Release；原 tag 和 `.tgz` 未更改，原安装包不含这些独立静态图。详见[边界说明](docs/architecture/README.md)。
+
 ## 它解决什么
 
 多智能体最常见的做法是「流水线」：产品→技术→开发→测试，一环卡住全停。dsh-company 换成**认单制**：
