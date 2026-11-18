@@ -182,20 +182,24 @@ function collectTurn(session, fromSeq) {
   try {
     events = session.snapshotEvents(fromSeq);
   } catch {
-    return { text: '', error: '' };
+    return { text: '', error: '', completed: false };
   }
   let text = '';
   let error = '';
+  let completed = false;
   for (const event of events) {
     if (event.type === 'assistant/message') {
       const part = textOf(event.data && event.data.message && event.data.message.content);
       if (part) text = part;
     } else if (event.type === 'turn/end') {
+      completed = true;
       const reason = event.data && event.data.reason;
-      if (reason && reason.kind === 'error' && reason.error && reason.error.message) error = reason.error.message;
+      if (reason?.kind === 'error') error = reason.error?.message || '模型执行失败';
+      else if (reason?.kind !== 'completed') error = `执行未成功完成：${reason?.kind || 'unknown'}`;
+      break; // Never combine output from multiple turns.
     }
   }
-  return { text, error };
+  return { text, error, completed };
 }
 
 /** 把整段会话日志折成可读的对话记录（员工详情用）。 */
@@ -239,21 +243,185 @@ const BID_EN_ACCEPT_RE = /^\W*(i\s+)?(accept|take|taking|on\s+it|got\s+it|hand\s
  * 解析认单决定。
  * 优先级：
  * 1. 第一行出现中文表态词（拒单词优先）→ 采用；
- * 2. 正文任意位置出现中文表态词 → 采用；
- * 3. 第一行以英文表态词开头（accept / decline / pass，带词边界）→ 采用；
+ * 2. 第一行以英文表态词开头（accept / decline / pass，带词边界）→ 采用；
+ * 3. 正文任意位置出现中文表态词 → 采用；
  * 4. 都不匹配 → 'unclear'（调用方按「宁可有人干」处理成接单）。
  * 关键点：正文里的 pass / decline 只是理由叙述，**不能**据此判拒单 —— 那是把「不会 pass 给别人」误读成拒单的老 bug。
  */
-function parseBid(text) {
-  const raw = String(text || '');
+export function parseBid(text) {
+  const raw = String(text || '').trimStart();
   const firstLine = raw.split('\n', 1)[0] || '';
   const firstMatch = firstLine.match(BID_MARKER_RE);
   if (firstMatch) return BID_DECLINE_SET.has(firstMatch[1]) ? 'decline' : 'accept';
-  const anyMatch = raw.match(BID_MARKER_RE);
-  if (anyMatch) return BID_DECLINE_SET.has(anyMatch[1]) ? 'decline' : 'accept';
   if (BID_EN_DECLINE_RE.test(firstLine)) return 'decline';
   if (BID_EN_ACCEPT_RE.test(firstLine)) return 'accept';
+  const anyMatch = raw.match(BID_MARKER_RE);
+  if (anyMatch) return BID_DECLINE_SET.has(anyMatch[1]) ? 'decline' : 'accept';
   return 'unclear';
+}
+
+/** A partial answer followed by a failed turn is not a successful delivery. */
+export function validateTurn(turn, label = '执行') {
+  if (turn?.error) throw new Error(String(turn.error));
+  if (!String(turn?.text || '').trim()) throw new Error(`${label}未返回有效输出，请检查模型或网络`);
+  return turn;
+}
+
+/** Only every accepted worker delivering successfully can complete a mission. */
+export function missionCompletionStatus(results, cancelled = false) {
+  if (cancelled) return 'cancelled';
+  const accepted = results.filter((item) => item.bid === 'accept');
+  return accepted.length > 0 && accepted.every((item) => item.status === 'done') ? 'done' : 'failed';
+}
+
+/** Fail closed for global tools. Scope-local tools follow the host's separate rules. */
+export function restrictEmployeeTools(agentCtx, skills, knownNames) {
+  const known = new Set(knownNames);
+  const allow = [...new Set((Array.isArray(skills) ? skills : []).filter(name => known.has(name)))];
+  // Empty allow is intentional: it does not mean all global tools.
+  // Propagate errors so the host rolls back unpublished agent setup.
+  agentCtx.tools.restrict({ allow });
+  return allow;
+}
+
+/** Synchronous ownership is acquired before runtime creation or state mutation. */
+export function createEmployeeOwnership() {
+  const owners = new Map();
+  return { acquire(id) {
+    if (owners.has(id)) throw new Error('员工正在执行其他任务，请稍后重试');
+    const token = Symbol(id); owners.set(id, token);
+    return { owns: () => owners.get(id) === token, release() { if (owners.get(id) === token) owners.delete(id); } };
+  } };
+}
+
+export const WORKFLOW_PROMPT_LIMIT = 32000;
+export function boundedJoin(parts, separator = '', limit = WORKFLOW_PROMPT_LIMIT) {
+  let size = 0; const accepted = [];
+  for (const value of parts) {
+    const part = String(value);
+    size += part.length + (accepted.length ? separator.length : 0);
+    if (size > limit) throw new Error(`工作流输入超过 ${limit} 字符预算；未发送给模型，请减少上游输入`);
+    accepted.push(part);
+  }
+  return accepted.join(separator);
+}
+export function expandWorkflowInput(instruction, upstream, limit = WORKFLOW_PROMPT_LIMIT) {
+  const parts = instruction.split('{{input}}');
+  if (parts.length === 1) return boundedJoin(upstream ? ['上游传来的输入/结果：\n---\n',upstream,'\n---\n\n你的任务：\n',instruction] : ['你的任务：\n',instruction], '', limit);
+  const replacement = upstream || '（本次没有上游输入）';
+  const size = instruction.length - (parts.length - 1) * 9 + (parts.length - 1) * replacement.length;
+  if (size > limit) throw new Error(`工作流输入展开超过 ${limit} 字符预算；未发送给模型`);
+  return parts.join(replacement);
+}
+export function validateWorkflowOutput(text, limit = 6000) {
+  if (text.length > limit) throw new Error(`工作流交付超过 ${limit} 字符预算；未截断为成功结果，未传给下游`);
+  return text;
+}
+
+const activeTurnAgents = new WeakSet();
+// A cancelled/timed-out dispatch may still emit late events. Never reuse it.
+const quarantinedAgents = new WeakSet();
+
+/** Wait for this turn's completion event, not an easily missed running state. */
+export async function turnOnce(runtime, text, timeoutMs, label, signal) {
+  const agent = runtime.agent;
+  if (signal?.aborted) throw new Error('任务已取消');
+  if (quarantinedAgents.has(agent)) throw new Error('员工上轮执行尚未安全结束，需要重建运行实例');
+  if (activeTurnAgents.has(agent) || agent.status === 'running') throw new Error('员工正在执行其他任务，请稍后重试');
+  activeTurnAgents.add(agent);
+  try {
+    const session = agent.session;
+    const fromSeq = typeof session.seq === 'number' ? session.seq : 0;
+    let followupError;
+    // followup may throw synchronously or reject asynchronously; do not wait on it
+    // before starting the timeout/cancellation monitor.
+    Promise.resolve(agent.followup({ id: randomUUID(), role: 'user', content: [{ type: 'text', text }], source: { kind: 'user' } }))
+      .catch((error) => { followupError = error instanceof Error ? error : new Error(String(error)); });
+    const deadline = Date.now() + timeoutMs;
+    const cancel = (kind) => {
+      quarantinedAgents.add(agent);
+      try { Promise.resolve(agent.cancel?.({ kind })).catch(() => {}); } catch { /* best effort */ }
+    };
+    for (;;) {
+      if (signal?.aborted) {
+        cancel('user');
+        throw new Error('任务已取消');
+      }
+      if (followupError) {
+        quarantinedAgents.add(agent);
+        throw followupError;
+      }
+      const turn = collectTurn(session, fromSeq);
+      if (turn.completed) return validateTurn(turn, label);
+      if (Date.now() >= deadline) {
+        cancel('parent');
+        throw new Error(`${label}超时，未收到完成事件，请检查模型或网络`);
+      }
+      await sleep(Math.min(40, Math.max(1, deadline - Date.now())));
+    }
+  } catch (error) {
+    // Fail closed: even a rejected dispatch may have started provider work.
+    quarantinedAgents.add(agent);
+    throw error;
+  } finally {
+    activeTurnAgents.delete(agent);
+  }
+}
+
+/** Serialize replacement/creation per employee; unrelated employees stay parallel. */
+export function createRuntimeEnsurer({ runtimes, fingerprint, spawn, available = () => true }) {
+  const pending = new Map();
+  let closed = false;
+  function enqueue(key, operation) {
+    const previous = pending.get(key) || Promise.resolve();
+    const task = previous.catch(() => {}).then(operation);
+    pending.set(key, task);
+    const cleanup = () => { if (pending.get(key) === task) pending.delete(key); };
+    task.then(cleanup, cleanup);
+    return task;
+  }
+  async function release(key) {
+    const runtime = runtimes.get(key);
+    if (!runtime) return;
+    quarantinedAgents.add(runtime.agent);
+    // Do not delete the reference or report success until disposal resolves.
+    await runtime.handle.dispose();
+    if (runtimes.get(key) === runtime) runtimes.delete(key);
+  }
+  function ensure(employee) {
+    const key = employee.id;
+    const usable = () => !closed && available(employee);
+    return enqueue(key, async () => {
+      if (!usable()) throw new Error('员工或插件已停用');
+      const existing = runtimes.get(key);
+      if (existing && !quarantinedAgents.has(existing.agent) && existing.fingerprint === fingerprint(employee)) return existing;
+      if (existing) await release(key);
+      if (!usable()) throw new Error('员工或插件已停用');
+      const runtime = await spawn(employee);
+      runtimes.set(key, runtime);
+      if (!usable()) {
+        await release(key);
+        throw new Error('员工或插件已停用');
+      }
+      return runtime;
+    });
+  }
+  ensure.release = key => enqueue(key, () => release(key));
+  ensure.close = async () => {
+    closed = true;
+    // Include in-flight creations, not just the agents already in the map.
+    const keys = new Set([...runtimes.keys(), ...pending.keys()]);
+    const results = await Promise.allSettled([...keys].map(key => ensure.release(key)));
+    const errors = results.filter(result => result.status === 'rejected').map(result => result.reason);
+    if (errors.length) throw new AggregateError(errors, '部分员工运行实例释放失败，仍保留引用');
+  };
+  return ensure;
+}
+
+/** Keep storage available until all runtime disposal has succeeded. */
+export async function closeRuntimeResources(closeRuntimes, store) {
+  await closeRuntimes();
+  if (store && typeof store.close === 'function') await store.close();
 }
 
 export function apply(ctx, config = {}) {
@@ -817,7 +985,7 @@ export function apply(ctx, config = {}) {
 
   // ── 员工智能体 ───────────────────────────────────────────────────────────
   function fingerprintOf(employee) {
-    return JSON.stringify([employee.title, employee.persona, employee.skills, employee.provider, employee.model]);
+    return JSON.stringify([employee.name, employee.title, employee.persona, employee.skills, employee.provider, employee.model]);
   }
 
   function agentOptionsFor(employee) {
@@ -830,7 +998,7 @@ export function apply(ctx, config = {}) {
 
   async function spawnEmployeeAgent(employee) {
     const known = new Set(availableTools().map((tool) => tool.name));
-    const allow = employee.skills.filter((name) => known.has(name));
+
     const persona = employee.persona;
     const title = employee.title;
     const displayName = employee.name;
@@ -841,6 +1009,7 @@ export function apply(ctx, config = {}) {
       meta: config.cwd ? { cwd: String(config.cwd) } : {},
       agentOptions: agentOptionsFor(employee),
       setup(agentCtx) {
+        restrictEmployeeTools(agentCtx, employee.skills, known);
         try {
           const base = agentCtx.systemPrompt.getSectionOrder('DEPLOYMENT_PERSONA_PREFIX');
           agentCtx.systemPrompt.section({
@@ -861,38 +1030,20 @@ export function apply(ctx, config = {}) {
         } catch (error) {
           logger.warn?.(`dsh-company: persona injection failed (${error?.message ?? error})`);
         }
-        if (allow.length > 0) {
-          try {
-            agentCtx.tools.restrict({ allow });
-          } catch (error) {
-            logger.warn?.(`dsh-company: tool restriction failed (${error?.message ?? error})`);
-          }
-        }
+
       },
     });
 
     return { handle, agent: handle.agent, fingerprint: fingerprintOf(employee), status: 'idle', sessionId };
   }
 
-  async function ensureRuntime(employee) {
-    const existing = runtimes.get(employee.id);
-    if (existing && existing.fingerprint === fingerprintOf(employee)) return existing;
-    if (existing) {
-      runtimes.delete(employee.id);
-      try {
-        await existing.handle.dispose();
-      } catch {
-        /* 已释放 */
-      }
-    }
-    const runtime = await spawnEmployeeAgent(employee);
-    runtimes.set(employee.id, runtime);
-    return runtime;
-  }
-
-  function userMessage(text) {
-    return { id: randomUUID(), role: 'user', content: [{ type: 'text', text }], source: { kind: 'user' } };
-  }
+  const employeeOwnership = createEmployeeOwnership();
+  const ensureRuntime = createRuntimeEnsurer({
+    runtimes,
+    fingerprint: fingerprintOf,
+    spawn: spawnEmployeeAgent,
+    available: (employee) => !disposed && !employee.fired && employees.has(employee.id),
+  });
 
   function bidPrompt(mission, employee) {
     return [
@@ -941,21 +1092,6 @@ export function apply(ctx, config = {}) {
     ].join('\n');
   }
 
-  async function turnOnce(runtime, text, timeoutMs, label) {
-    const session = runtime.agent.session;
-    let fromSeq = 0;
-    try {
-      fromSeq = typeof session.seq === 'number' ? session.seq : 0;
-    } catch {
-      fromSeq = 0;
-    }
-    runtime.agent.followup(userMessage(text));
-    const deadline = Date.now() + timeoutMs;
-    while (Date.now() < deadline && runtime.agent.status !== 'running') await sleep(40);
-    while (Date.now() < deadline && runtime.agent.status === 'running') await sleep(250);
-    if (runtime.agent.status === 'running') throw new Error(`${label}超过 ${Math.round(timeoutMs / 60000)} 分钟仍未结束`);
-    return collectTurn(session, fromSeq);
-  }
 
   function pushEvent(mission, event) {
     mission.events.push({ id: randomUUID(), at: Date.now(), ...event });
@@ -971,8 +1107,9 @@ export function apply(ctx, config = {}) {
     };
     mark({ bid: 'thinking', startedAt: Date.now() });
 
-    let runtime;
+    let runtime, ownership;
     try {
+      ownership = employeeOwnership.acquire(employee.id);
       runtime = await ensureRuntime(employee);
       if (controller.signal.aborted) throw new Error('任务已取消');
       runtime.status = 'running';
@@ -981,12 +1118,12 @@ export function apply(ctx, config = {}) {
       mirrorEmployeeMember(employee, runtime.sessionId, controller.agent);
       mirrorMissionTask(mission, employee, 'in_progress', `${employee.name} 正在认单：${mission.title}`, controller.agent);
 
-      const turn = await turnOnce(runtime, bidPrompt(mission, employee), bidTimeoutMs, '认单');
-      if (turn.error && !turn.text) throw new Error(turn.error);
+      const turn = await turnOnce(runtime, bidPrompt(mission, employee), bidTimeoutMs, '认单', controller.signal);
 
       const verdict = parseBid(turn.text);
       const accepted = verdict !== 'decline';
       mark({
+        error: '',
         bid: accepted ? 'accept' : 'decline',
         bidVerdict: verdict,
         bidReason: truncate(turn.text, 400),
@@ -1028,9 +1165,12 @@ export function apply(ctx, config = {}) {
       });
       return null;
     } finally {
-      if (runtime) runtime.status = 'idle';
-      employee.currentMissionId = '';
-      saveEmployee(employee);
+      if (ownership?.owns()) {
+        if (runtime) runtime.status = 'idle';
+        employee.currentMissionId = '';
+        saveEmployee(employee);
+        ownership.release();
+      }
     }
   }
 
@@ -1042,8 +1182,9 @@ export function apply(ctx, config = {}) {
     };
     mark({ status: 'running', startedAt: Date.now() });
 
-    let runtime;
+    let runtime, ownership;
     try {
+      ownership = employeeOwnership.acquire(employee.id);
       runtime = await ensureRuntime(employee);
       if (controller.signal.aborted) throw new Error('任务已取消');
       runtime.status = 'running';
@@ -1052,8 +1193,7 @@ export function apply(ctx, config = {}) {
       mirrorEmployeeMember(employee, runtime.sessionId, controller.agent);
       mirrorMissionTask(mission, employee, 'in_progress', `${employee.name} 正在执行：${mission.title}`, controller.agent);
 
-      const turn = await turnOnce(runtime, workPrompt(mission, employee, accepted), workTimeoutMs, '执行');
-      if (turn.error && !turn.text) throw new Error(turn.error);
+      const turn = await turnOnce(runtime, workPrompt(mission, employee, accepted), workTimeoutMs, '执行', controller.signal);
       employee.lastReport = turn.text;
       mark({ status: 'done', output: turn.text, finishedAt: Date.now() });
       pushEvent(mission, {
@@ -1084,9 +1224,12 @@ export function apply(ctx, config = {}) {
         text: message,
       });
     } finally {
-      if (runtime) runtime.status = 'idle';
-      employee.currentMissionId = '';
-      saveEmployee(employee);
+      if (ownership?.owns()) {
+        if (runtime) runtime.status = 'idle';
+        employee.currentMissionId = '';
+        saveEmployee(employee);
+        ownership.release();
+      }
     }
   }
 
@@ -1136,8 +1279,9 @@ export function apply(ctx, config = {}) {
       '第二行起写 2-4 行：为什么是他、要交付什么、什么算完成。',
     ].join('\n');
 
-    let runtime;
+    let runtime, ownership;
     try {
+      ownership = employeeOwnership.acquire(director.id);
       runtime = await ensureRuntime(director);
       if (controller.signal.aborted) return null;
       runtime.status = 'running';
@@ -1151,8 +1295,7 @@ export function apply(ctx, config = {}) {
         `${director.name} 正在裁决指派：${mission.title}`,
         controller.agent,
       );
-      const turn = await turnOnce(runtime, prompt, bidTimeoutMs, '裁决');
-      if (turn.error && !turn.text) throw new Error(turn.error);
+      const turn = await turnOnce(runtime, prompt, bidTimeoutMs, '裁决', controller.signal);
 
       const picked = parseAssign(turn.text, candidates);
       const accent = ROLE_BY_ID.get(director.role)?.accent ?? '#8B7BF0';
@@ -1206,9 +1349,12 @@ export function apply(ctx, config = {}) {
       });
       return null;
     } finally {
-      if (runtime) runtime.status = 'idle';
-      director.currentMissionId = '';
-      saveEmployee(director);
+      if (ownership?.owns()) {
+        if (runtime) runtime.status = 'idle';
+        director.currentMissionId = '';
+        saveEmployee(director);
+        ownership.release();
+      }
     }
   }
 
@@ -1236,10 +1382,10 @@ export function apply(ctx, config = {}) {
       mission.status = 'working';
       saveMission(mission);
       await runWork(mission, owner, mission.results.filter((item) => item.bid === 'accept'), controller);
-      mission.status = controller.signal.aborted ? 'cancelled' : 'done';
+      mission.status = missionCompletionStatus(mission.results, controller.signal.aborted);
       mission.phase = 'closed';
       mission.finishedAt = Date.now();
-      pushEvent(mission, { kind: 'system', name: '系统', text: '任务结束。' });
+      pushEvent(mission, { kind: 'system', name: '系统', text: mission.status === 'failed' ? '任务未全部完成，请检查失败员工的记录；已成功的交付仍然保留。' : '任务结束。' });
       saveMission(mission);
       missionRuntime.delete(mission.id);
       return;
@@ -1337,10 +1483,10 @@ export function apply(ctx, config = {}) {
       }),
     );
 
-    mission.status = controller.signal.aborted ? 'cancelled' : 'done';
+    mission.status = missionCompletionStatus(mission.results, controller.signal.aborted);
     mission.phase = 'closed';
     mission.finishedAt = Date.now();
-    pushEvent(mission, { kind: 'system', name: '系统', text: '任务结束。' });
+    pushEvent(mission, { kind: 'system', name: '系统', text: mission.status === 'failed' ? '任务未全部完成，请检查失败员工的记录；已成功的交付仍然保留。' : '任务结束。' });
     saveMission(mission);
     missionRuntime.delete(mission.id);
   }
@@ -1379,6 +1525,8 @@ export function apply(ctx, config = {}) {
       finishedAt: run.finishedAt || 0,
       input: run.input || '',
       error: run.error || '',
+      // The immutable execution graph lets clients distinguish edited drafts from this run.
+      graph: run.graph ? { name: run.graph.name || '', nodes: run.graph.nodes.map(node => ({ ...node })), edges: run.graph.edges.map(edge => ({ ...edge })) } : null,
       nodeRuns: (run.nodeRuns || []).map((slot) => ({ ...slot })),
     };
   }
@@ -1484,29 +1632,25 @@ export function apply(ctx, config = {}) {
   function workflowUpstream(workflow, run, nodeId) {
     const byId = new Map((run.nodeRuns || []).map((slot) => [slot.nodeId, slot]));
     const sources = workflow.edges.filter((edge) => edge.target === nodeId).map((edge) => edge.source);
-    if (!sources.length) return run.input || '';
-    const parts = sources.map((source) => {
+    if (!sources.length) return boundedJoin([run.input || '']);
+    const parts = (function* () { for (const source of sources) {
       const slot = byId.get(source);
       const node = workflow.nodes.find((item) => item.id === source);
       const label = node?.title || node?.employeeId || source;
-      return `### 上游节点「${label}」的输出\n${slot?.output || '（无输出）'}`;
-    });
-    return parts.join('\n\n');
+      yield boundedJoin([`### 上游节点「${label}」的输出\n`,slot?.output || '（无输出）']);
+    } })();
+    return boundedJoin(parts, '\n\n');
   }
 
   function workflowNodePrompt(workflow, node, upstream) {
     const employee = employees.get(node.employeeId);
     const instruction = String(node.instruction || '').trim() || '按你的职责完成这一步，直接给出结果。';
-    const body = instruction.includes('{{input}}')
-      ? instruction.split('{{input}}').join(upstream || '（本次没有上游输入）')
-      : upstream
-        ? `上游传来的输入/结果：\n---\n${upstream}\n---\n\n你的任务：\n${instruction}`
-        : `你的任务：\n${instruction}`;
-    return (
+    const body = expandWorkflowInput(instruction, upstream);
+    return boundedJoin([
       `你在公司「${companyName}」执行工作流「${workflow.name}」的节点` +
-      `「${node.title || '未命名节点'}」。你是${employee?.name || '该节点负责人'}（${employee?.title || employee?.role || ''}）。\n\n` +
-      `${body}\n\n要求：只输出这一步的交付结果，不要寒暄，不要复述任务。`
-    );
+      `「${node.title || '未命名节点'}」。你是${employee?.name || '该节点负责人'}（${employee?.title || employee?.role || ''}）。\n\n`,
+      body, '\n\n要求：只输出这一步的交付结果，不要寒暄，不要复述任务。'
+    ]);
   }
 
   /**
@@ -1540,7 +1684,7 @@ export function apply(ctx, config = {}) {
       touch(slot);
       try {
         if (node.type === 'start') {
-          slot.output = String(run.input || '');
+          slot.output = boundedJoin([run.input || '']);
           slot.status = 'done';
         } else {
           const employee = employees.get(node.employeeId);
@@ -1549,15 +1693,19 @@ export function apply(ctx, config = {}) {
           const prompt = workflowNodePrompt(workflow, node, upstream);
           await withEmployeeLock(employee.id, async () => {
             if (controller.signal.aborted) throw new Error('运行已取消');
-            const runtime = await ensureRuntime(employee);
-            runtime.status = 'running';
+            const ownership = employeeOwnership.acquire(employee.id);
+            let runtime;
             try {
-              const turn = await turnOnce(runtime, prompt, workTimeoutMs, '工作流执行');
+              runtime = await ensureRuntime(employee);
+              runtime.status = 'running';
+              const turn = await turnOnce(runtime, prompt, workTimeoutMs, '工作流执行', controller.signal);
               const text = String(turn.text || '').trim();
-              if (turn.error && !text) throw new Error(turn.error);
-              slot.output = truncate(text || '（无输出）', WORKFLOW_OUTPUT_LIMIT);
+              slot.output = validateWorkflowOutput(text, WORKFLOW_OUTPUT_LIMIT);
             } finally {
-              runtime.status = 'idle';
+              if (ownership.owns()) {
+                if (runtime) runtime.status = 'idle';
+                ownership.release();
+              }
             }
           });
         }
@@ -1649,6 +1797,7 @@ export function apply(ctx, config = {}) {
           repo: repoUrl,
           sponsorImage: sponsorReady ? SPONSOR_ROUTE : '',
           sponsorText,
+          sponsorTextIsDefault: !(typeof config.sponsorText === 'string' && config.sponsorText.trim()),
           version: pluginVersion,
         },
         version: pluginVersion,
@@ -1691,14 +1840,10 @@ export function apply(ctx, config = {}) {
       const employee = employees.get(id);
       employee.fired = true;
       saveEmployee(employee);
-      const runtime = runtimes.get(id);
-      if (runtime) {
-        runtimes.delete(id);
-        try {
-          await runtime.handle.dispose();
-        } catch {
-          /* ignore */
-        }
+      try {
+        await ensureRuntime.release(id);
+      } catch (error) {
+        throw new Error(`员工已停用，但运行实例释放失败：${error?.message || error}`);
       }
       return { id };
     },
@@ -1878,6 +2023,7 @@ export function apply(ctx, config = {}) {
       if (!workflow) throw new Error('找不到这个工作流');
       if (workflowRuntime.has(id)) throw new Error('工作流正在运行中');
       // 运行前再过一遍校验：员工可能在上次保存后被解雇
+      const runInput = boundedJoin([typeof source.input === 'string' ? source.input : ''], '', 20000);
       const normalized = normalizeWorkflow(workflow);
       workflows.set(normalized.id, normalized);
       const run = {
@@ -1885,8 +2031,9 @@ export function apply(ctx, config = {}) {
         status: 'running',
         startedAt: Date.now(),
         finishedAt: 0,
-        input: typeof source.input === 'string' ? source.input.slice(0, 20000) : '',
+        input: runInput,
         error: '',
+        graph: { name: normalized.name, nodes: normalized.nodes.map(node => ({ ...node })), edges: normalized.edges.map(edge => ({ ...edge })) },
         nodeRuns: normalized.nodes.map((node) => ({
           nodeId: node.id,
           status: 'pending',
@@ -2104,23 +2251,21 @@ export function apply(ctx, config = {}) {
   }
 
   // ── 生命周期 ─────────────────────────────────────────────────────────────
-  ctx.effect(() => () => {
+  ctx.effect(() => async () => {
     disposed = true;
     for (const runtime of missionRuntime.values()) runtime.abort.abort();
     missionRuntime.clear();
     for (const runtime of workflowRuntime.values()) runtime.abort.abort();
     workflowRuntime.clear();
-    for (const runtime of runtimes.values()) {
-      try {
-        if (runtime.agent && runtime.agent.cancel) runtime.agent.cancel({ kind: 'disposed' });
-      } catch {
-        /* ignore */
-      }
-      Promise.resolve(runtime.handle && runtime.handle.dispose ? runtime.handle.dispose() : undefined).catch(() => {});
+    // Cordis awaits asynchronous effect disposers. Preserve failed references
+    // and keep storage open if a live runtime could still depend on it.
+    try {
+      await closeRuntimeResources(() => ensureRuntime.close(), store);
+      store = null;
+    } catch (error) {
+      logger.warn?.(`dsh-company: resource cleanup failed (${error?.message || error})`);
+      throw error;
     }
-    runtimes.clear();
-    if (store && typeof store.close === 'function') Promise.resolve(store.close()).catch(() => {});
-    store = null;
   });
 
   (async () => {

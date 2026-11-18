@@ -2,13 +2,15 @@
 
 English · [简体中文](README.md)
 
-![version](https://img.shields.io/badge/version-0.5.3-2f6feb) ![license](https://img.shields.io/badge/license-MIT-4c1) ![DSH plugin](https://img.shields.io/badge/DSH-plugin-8a63d2) [![Listed on dsh-plugin.org](https://dsh-plugin.org/badges/listed.svg)](https://dsh-plugin.org/plugins/makooslee/dsh-company)
+![version](https://img.shields.io/badge/version-0.6.0-2f6feb) ![license](https://img.shields.io/badge/license-MIT-4c1) ![DSH plugin](https://img.shields.io/badge/DSH-plugin-8a63d2) [![Listed on dsh-plugin.org](https://dsh-plugin.org/badges/listed.svg)](https://dsh-plugin.org/plugins/makooslee/dsh-company)
+
+> **v0.6.0 release package**: architecture/runtime UI, reliability and tool-permission fixes. Install this version from the `.tgz` in the [GitHub Release](https://github.com/makooslee/dsh-company/releases/tag/v0.6.0); when using npm, verify that the installed version is 0.6.0 rather than an older package. Empty skills now deny global tools; oversized inputs or outputs fail explicitly.
 
 A tiny company of employee agents for [DeepSeek Harness](https://github.com/deepseek-ai): **seven employees, you dispatch work, they decide whether to take it, acceptors run in parallel** — and you can wire them into a pipeline on an n8n-style canvas.
 
-![Mission board: employees bid on their own](docs/screenshots/bids.jpg)
+![Mission board: local mock with an explicit owner](docs/screenshots/en/missions.jpg)
 
-The mission is broadcast, Engineering and Analytics accept and start working, Product declines and names the right owner — not a pipeline, a bidding market.
+The screenshot shows a local mock test with an explicit owner, bypassing bidding. It is not a production task or a real-model delivery. Bidding remains a separate optional path.
 
 If it helps, a ⭐ star on the repo means a lot.
 
@@ -20,7 +22,7 @@ Most multi-agent setups chain roles: product → tech lead → engineer → QA, 
 2. **Bid** — each replies with `【接单】` / `【不接】` on the first line and reasons below; declining requires naming a better owner.
 3. **Work** — only those who accepted get a second turn, and they are told who else is working so they do not duplicate each other.
 
-"Nobody took it" is a legitimate outcome: the mission is closed as `unclaimed` with the reasons left on the timeline, instead of being forced onto someone.
+If everyone declines, the plugin first asks the project director to assign an owner. It closes as `unclaimed` only if that arbitration cannot select one; the reasons remain on the timeline.
 
 ## Features
 
@@ -41,23 +43,62 @@ Most multi-agent setups chain roles: product → tech lead → engineer → QA, 
 
 ## Screenshots
 
-**Employees** — built-in roles in place; every card shows status and skills, click through for the full transcript
+> Captured from real Harness 0.2.2-rc.1 on Mac with the official local mock in an isolated profile, without paid model calls. These screenshots show an pre-release working tree for v0.6.0, not the current npm package. Default Chinese role data and historical messages retain their stored language.
 
-![Employees](docs/screenshots/roster.jpg)
+**Architecture**
 
-**Workflows** — an n8n-style canvas: drag nodes, connect ports, reference upstream output with `{{input}}`, then run — same-layer nodes execute in parallel
+![Architecture](docs/screenshots/en/architecture.jpg)
 
-![Workflow canvas](docs/screenshots/workflow.png)
+**Employees**
 
-**agent-team link** — employees and missions mirrored into the official agent-team panel, one task card per person showing the current step
+![Employees](docs/screenshots/en/roster.jpg)
 
-![agent-team panel](docs/screenshots/agent-team.jpg)
+**Workflow: real execution state and edge particles**
 
-**Hire** — open a new seat from a role template; persona, model and skill whitelist are all editable
+![Workflow: real execution state and edge particles](docs/screenshots/en/workflow-running.jpg)
 
-![Hire](docs/screenshots/hire.jpg)
+**Add / hire an employee: model, persona and skills**
 
-> Screenshots are from the Chinese UI; an English localisation ships in the same bundle.
+![Add / hire an employee: model, persona and skills](docs/screenshots/en/hire-actions.jpg)
+
+[Initial hire form view](docs/screenshots/en/hire.jpg)
+
+<details>
+<summary>All pages and dialogs</summary>
+
+**Architecture execution paths**
+
+![Architecture execution paths](docs/screenshots/en/architecture-detail.jpg)
+
+**Mission board and delivery**
+
+![Mission board and delivery](docs/screenshots/en/missions.jpg)
+
+**Workflow list**
+
+![Workflow list](docs/screenshots/en/workflow-list.jpg)
+
+**Completed workflow**
+
+![Completed workflow](docs/screenshots/en/workflow-completed.jpg)
+
+**Edit employee**
+
+![Edit employee](docs/screenshots/en/employee-edit.jpg)
+
+**Employee transcript and memory**
+
+![Employee transcript and memory](docs/screenshots/en/employee-detail.jpg)
+
+**Sponsor dialog**
+
+![Sponsor dialog](docs/screenshots/en/sponsor.jpg)
+
+</details>
+
+**agent-team integration:** its panel was not available in the host sidebar of this isolated profile, so this integration was not photographed or verified in this run. The old example image is no longer presented as current evidence.
+
+[Validation scope and limitations](docs/mac-ui-validation.md)
 
 ## Install
 
@@ -74,14 +115,10 @@ dsh plugin --profile web add dsh-company
 Pin a version:
 
 ```bash
-dsh plugin --profile web add dsh-company@0.5.1
+dsh plugin --profile web add dsh-company@0.5.3
 ```
 
-Prefer the release tarball instead of the npm registry:
-
-```bash
-dsh plugin --profile web add "https://github.com/makooslee/dsh-company/releases/download/v0.5.1/dsh-company-0.5.1.tgz"
-```
+For a release tarball, select an existing package from [Releases](https://github.com/makooslee/dsh-company/releases), copy its `.tgz` asset URL, and run `dsh plugin --profile web add "<asset URL>"`. Check the package version rather than reusing an old tutorial's pinned link.
 
 **Option 3 · From source**:
 
@@ -98,6 +135,18 @@ use plugin_manager install_bundle with target = <absolute path>/dsh-company
 Reload the page: an org-chart icon appears in the sidebar. If it does not, restart DSH Desktop once.
 
 > Upgrading requires `remove_bundle` → `install_bundle` (or `dsh plugin remove` → `add`); reinstalling the same package name is rejected.
+
+## First-run checklist
+
+1. Confirm that a model can answer a normal Harness conversation, then select it for one employee. The plugin does not include model API credits; each employee makes separate model calls.
+2. Test with one employee and explicitly assign them as the owner. Example: turn three pasted, fictional requirements into an acceptance checklist, without browsing or modifying files.
+3. Inspect the employee's response and final mission status before adding more employees or workflow nodes. Enable only the tools needed for the task. Do not paste API keys into task descriptions.
+
+Troubleshooting: refresh or restart if the sidebar is missing; check the model and network for errors or empty responses. A failed accepted worker makes the mission fail, while successful workers' deliverables remain available. A turn that never starts or emits no completion event times out. Cancellation requests stopping the current model turn, but cannot undo tool actions already performed. Failed, timed-out, or cancelled runtime instances are not reused; the next call rebuilds the runtime to prevent late events from contaminating a new task, so the employee runtime conversation may restart.
+
+## Development checks
+
+With Node 20+, run `npm run check`. No extra dependencies are required. This checks both JavaScript entry points and runs `node:test` regressions for bid parsing, error/empty responses, timeouts, cancellation, and mission completion. These tests do not replace live Harness, model, or browser end-to-end testing.
 
 ## Usage
 

@@ -21,13 +21,41 @@ window.__ModuleLoader__.load({
 
     const DICT = {
       zh: {
+        tabArchitecture: '架构总览',
+        architectureTitle: '从目标到交付，看清团队如何协作',
+        architectureIntro: '派单与工作流是两条独立执行路径，共用员工、模型与会话能力。',
+        architectureCEO: '目标与编排',
+        architectureCEOText: '在任务板直接指定负责人，或让团队认单；在工作流中用连线定义先后关系。',
+        architectureTeam: '员工执行层',
+        architectureTeamText: '每位员工使用自己的角色、模型和工具配置，执行结果保留在会话中。',
+        architectureHost: 'Harness 运行层',
+        architectureHostText: '宿主提供 AgentLoop、模型适配器、工具和会话；本插件负责派单、节点编排与展示。',
+        architectureResults: '结果与状态',
+        architectureResultsText: '任务板查看交付与失败记录，工作流查看每个节点的输出。页面定期刷新宿主状态。',
+        architectureRoutes: '选择执行路径',
+        architectureMissionText: '目标驱动：认单 → 执行 → 汇总。也可指定负责人，跳过认单。',
+        architectureWorkflowText: '依赖驱动：开始 → 员工节点 → 下游节点。上游失败时，下游可跳过。',
+        architectureSnapshot: '当前工作区快照',
+        architectureScope: '这是插件的功能架构，不代表模型推理过程或实时网络拓扑。',
+        workflowActive: '执行 / 等待员工',
+        workflowGraphMismatch: '草稿与运行快照不一致，或该历史记录没有快照。画布不叠加运行状态；下方计数仍是最近一次运行。',
+        workflowLive: '运行态监测',
+        workflowHistory: '最近一次运行',
+        workflowSettled: '已结束节点',
+        workflowWaiting: '等待执行',
+        workflowMotion: '连线动效',
+        workflowMotionHint: '仅在上游完成、下游执行或等待员工时显示；系统减少动态设置优先。',
+        workflowPolling: '状态来自宿主，约每 2.5 秒刷新。粒子表示节点执行或等待员工，不表示 token 或实际网络流量。',
+        workflowEdgeLabel: '选择连线',
         title: '公司',
         subtitle: 'CEO 工作台',
         star: 'Star',
         starHint: '给项目点个 Star，比什么都管用。',
         sponsor: '赞赏',
         sponsorTitle: '赞赏支持',
-        sponsorThanks: '谢谢你看完这一段。',
+        sponsorThanks: '谢谢你的支持。',
+        sponsorDescription: '赞赏完全自愿，不影响插件使用，也不包含额外服务。可使用微信扫描下方二维码；付款前请核对微信展示的收款方及金额。',
+        sponsorImageError: '二维码加载失败，请稍后重试。未验证收款账户或到账，请勿仅凭截图付款。',
         tabRoster: '员工管理',
         tabMissions: '任务板',
         hire: '招聘员工',
@@ -68,7 +96,7 @@ window.__ModuleLoader__.load({
         employees: '员工',
         runningCount: '进行中',
         doneCount: '已完成',
-        skillsHint: '勾选这名员工可以使用的工具；不勾就是全部可用。',
+        skillsHint: '勾选允许使用的全局工具；不勾选则不允许全局工具。宿主的会话内工具另行管理。',
         loadFailed: '连不上插件后端',
         retry: '重试',
         loading: '加载中…',
@@ -159,13 +187,42 @@ window.__ModuleLoader__.load({
         workflowAddNode: '添加员工节点',
       },
       en: {
+        tabArchitecture: 'Architecture',
+        architectureTitle: 'From a goal to delivery',
+        architectureIntro: 'Missions and workflows are separate execution paths sharing employee, model and session capabilities.',
+        architectureCEO: 'Goals & orchestration',
+        architectureCEOText: 'Assign an owner or invite bids on the mission board. Use workflow edges to define dependencies.',
+        architectureTeam: 'Employee execution',
+        architectureTeamText: 'Each employee uses its role, model and tool configuration. Results remain in its session.',
+        architectureHost: 'Harness runtime',
+        architectureHostText: 'The host provides AgentLoop, model adapters, tools and sessions. This plugin dispatches, orchestrates and displays work.',
+        architectureResults: 'Results & status',
+        architectureResultsText: 'Inspect deliveries and failures on the mission board, and per-node outputs in workflows. Host state is polled periodically.',
+        architectureRoutes: 'Choose an execution path',
+        architectureMissionText: 'Goal-driven: bid → execute → collect. An explicit owner skips bidding.',
+        architectureWorkflowText: 'Dependency-driven: start → employee → downstream nodes. Failed upstream work can skip dependent nodes.',
+        architectureSnapshot: 'Workspace snapshot',
+        architectureScope: 'A map of plugin capabilities, not model reasoning or a live network topology.',
+        workflowActive: 'Executing / waiting',
+        workflowGraphMismatch: 'The draft differs from the run snapshot, or this older run has no snapshot. Canvas status is hidden; counts still describe the latest run.',
+        workflowLive: 'Execution monitor',
+        workflowHistory: 'Latest run',
+        workflowSettled: 'Settled nodes',
+        workflowWaiting: 'Waiting',
+        workflowMotion: 'Edge animation',
+        workflowMotionHint: 'Only shown from completed upstream nodes to nodes executing or waiting for an employee. System reduced-motion settings take priority.',
+        workflowPolling: 'Host status refreshes about every 2.5 seconds. Particles indicate execution or waiting for an employee, not tokens or network traffic.',
+        workflowEdgeLabel: 'Select connection',
+
         title: 'Company',
         subtitle: 'CEO console',
         star: 'Star',
         starHint: 'A star on the repo helps more than you think.',
         sponsor: 'Sponsor',
         sponsorTitle: 'Support this plugin',
-        sponsorThanks: 'Thanks for reading this far.',
+        sponsorThanks: 'Thank you for your support.',
+        sponsorDescription: 'Support is optional, does not affect plugin access, and includes no additional services. Scan with WeChat and verify the recipient and amount before paying.',
+        sponsorImageError: 'The QR image could not load. Please try again later. Recipient and payment receipt have not been verified; do not pay based on a screenshot alone.',
         tabRoster: 'Employees',
         tabMissions: 'Missions',
         hire: 'Hire',
@@ -206,7 +263,7 @@ window.__ModuleLoader__.load({
         employees: 'Employees',
         runningCount: 'Active',
         doneCount: 'Done',
-        skillsHint: 'Tick the tools this employee may use; none ticked means all tools.',
+        skillsHint: 'Select allowed global tools. None selected blocks global tools; host scope-local tools are managed separately.',
         loadFailed: 'Cannot reach the plugin backend',
         retry: 'Retry',
         loading: 'Loading…',
@@ -479,6 +536,47 @@ window.__ModuleLoader__.load({
 .dsc-wf-inspector{width:300px;flex:none;overflow:auto;display:flex;flex-direction:column;gap:10px;padding:12px;border:.5px solid var(--dsw-alias-border-l2, rgba(128,128,128,.3));border-radius:12px;background:var(--dsw-alias-bg-layer-2, rgba(128,128,128,.08))}
 .dsc-wf-inspector-title{font-size:12px;font-weight:600;color:var(--dsw-alias-label-primary, CanvasText);display:flex;align-items:center;gap:6px}
 .dsc-wf-runlog{margin:0;max-height:220px;overflow:auto;padding:8px 10px;border-radius:8px;background:var(--dsw-alias-bg-layer-1, Canvas);border:.5px solid var(--dsw-alias-border-l1, rgba(128,128,128,.24));font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;line-height:1.7;white-space:pre-wrap;word-break:break-word;color:var(--dsw-alias-label-primary, CanvasText)}
+/* Architecture and execution monitor: container-responsive inside host panels. */
+.dsc-architecture,.dsc-wf-editor{container-type:inline-size}
+.dsc-arch-hero{padding:24px;border:1px solid var(--dsw-alias-border-l2,#bbc5d5);border-radius:16px;background:linear-gradient(120deg,rgba(76,141,255,.12),rgba(47,163,124,.06));margin-bottom:18px}
+.dsc-arch-hero h2{font-size:24px;line-height:1.35;margin:0 0 10px;letter-spacing:-.5px}
+.dsc-arch-hero p,.dsc-arch-layer p,.dsc-arch-route p{line-height:1.75;margin:8px 0;color:var(--dsw-alias-label-secondary,CanvasText)}
+.dsc-arch-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:16px 0}
+.dsc-arch-kpi{padding:12px 16px;border-radius:12px;background:var(--dsw-alias-bg-layer-2,rgba(128,128,128,.1));display:flex;flex-direction:column;gap:4px}
+.dsc-arch-kpi b{font-size:26px;font-variant-numeric:tabular-nums}
+.dsc-arch-layers{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:16px 0 24px;list-style:none;padding:0}
+.dsc-arch-layer{border:1px solid var(--dsw-alias-border-l2,#bbc5d5);border-radius:12px;padding:16px;min-width:0}
+.dsc-arch-layer h3{font-size:14px;margin:12px 0 8px}
+.dsc-arch-number{font:600 12px ui-monospace,monospace;color:var(--dsw-alias-brand-primary,#326bcb);padding:5px 8px;border-radius:7px;background:rgba(76,141,255,.12)}
+.dsc-arch-routes{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px}
+.dsc-arch-route{padding:18px;border-radius:12px;border:1px solid var(--dsw-alias-border-l2,#bbc5d5);display:flex;flex-direction:column;align-items:flex-start;gap:8px}
+.dsc-arch-route p{flex:1}
+.dsc-wf-monitor{padding:12px 14px;border:1px solid var(--dsw-alias-border-l2,#bbc5d5);border-radius:12px;background:var(--dsw-alias-bg-layer-2,rgba(128,128,128,.07));flex:none}
+.dsc-wf-monitor-top,.dsc-wf-metrics{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.dsc-wf-monitor-top{justify-content:space-between;margin-bottom:10px}
+.dsc-wf-metrics{font-size:12px;margin:8px 0}
+.dsc-wf-metric{display:inline-flex;gap:6px;align-items:center}
+.dsc-wf-meter{height:6px;border-radius:6px;overflow:hidden;background:rgba(128,128,128,.16)}
+.dsc-wf-meter span{display:block;height:100%;background:var(--dsw-alias-brand-primary,#4C8DFF)}
+.dsc-wf-motion{display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer}
+.dsc-wf-particles{fill:none;stroke:var(--dsw-alias-state-business-primary,#4C8DFF);stroke-width:4;stroke-linecap:round;stroke-dasharray:1 19;pointer-events:none;animation:dsc-flow 2s linear infinite}
+@keyframes dsc-flow{to{stroke-dashoffset:-100}}
+.dsc-wf-node[data-run="running"]{border-color:var(--dsw-alias-brand-primary,#4C8DFF);box-shadow:0 0 0 2px rgba(76,141,255,.18)}
+.dsc-wf-node[data-run="failed"]{border-color:var(--dsw-alias-state-error-primary,#E5484D)}
+.dsc-wf-node[data-run="done"]{border-color:var(--dsw-alias-state-success-primary,#2FA37C)}
+.dsc-wf-node-status{position:static;display:block;padding:0 9px 8px}
+.dsc-wf-node:focus-visible,.dsc-wf-edge-hit:focus-visible{outline:2px solid var(--dsw-alias-brand-primary,#4C8DFF);outline-offset:3px}
+.dsc-wf-edge-hit:focus-visible{stroke:rgba(76,141,255,.3)}
+.dsc-wf-monitor .dsc-hint{margin-top:8px;line-height:1.6}
+@media(prefers-reduced-motion:reduce){.dsc-wf-particles{animation:none;display:none}}
+@container(max-width:820px){.dsc-arch-layers{grid-template-columns:1fr 1fr}.dsc-wf-canvas-wrap{flex-direction:column;flex:none}.dsc-wf-inspector{width:auto;max-height:340px}.dsc-wf-canvas{height:400px;min-height:400px;flex:none}}
+@container(max-width:480px){.dsc-arch-routes,.dsc-arch-layers{grid-template-columns:1fr}.dsc-arch-hero{padding:16px}.dsc-arch-hero h2{font-size:20px}.dsc-arch-kpi{padding:10px}.dsc-arch-kpi b{font-size:22px}.dsc-wf-toolbar input,.dsc-wf-runinput{max-width:100%}.dsc-wf-metrics{gap:8px}}
+.dsc-wf-editor{overflow:auto}
+@media(max-width:600px){.dsc-head{flex-wrap:wrap;padding:12px}.dsc-tabs{overflow-x:auto;padding-left:12px}.dsc-tab{white-space:nowrap}.dsc-body{padding:12px}.dsc-stats{flex-wrap:wrap}}
+
+.dsc-wf-node{height:96px;box-sizing:border-box}
+.dsc-wf-node-body{height:38px;min-height:0;box-sizing:border-box}
+
 `;
 
     function initial(text) {
@@ -529,7 +627,8 @@ window.__ModuleLoader__.load({
         (key) => {
           if (typeof translate === 'function') {
             const value = translate(key);
-            if (value && value !== key) return value;
+            // English labels may intentionally equal their keys (done, failed, skipped).
+            if (value) return value;
           }
           return dict[key] || key;
         },
@@ -936,6 +1035,7 @@ window.__ModuleLoader__.load({
     }
 
     function SponsorModal({ links, onClose, t }) {
+      const [imageFailed, setImageFailed] = useState(false);
       const ref = useRef(null);
       useEffect(() => {
         const onKey = (event) => {
@@ -965,10 +1065,11 @@ window.__ModuleLoader__.load({
             h('div', { className: 'dsc-modal-title' }, t('sponsorTitle')),
             h('button', { className: 'dsc-btn', 'data-kind': 'ghost', onClick: onClose }, t('close')),
           ),
-          links.sponsorImage
-            ? h('img', { className: 'dsc-qr', src: links.sponsorImage, alt: 'WeChat sponsor QR', loading: 'lazy' })
+          links.sponsorImage && !imageFailed
+            ? h('img', { className: 'dsc-qr', src: links.sponsorImage, alt: 'WeChat sponsor QR', loading: 'lazy', onError: () => setImageFailed(true) })
             : null,
-          links.sponsorText ? h('div', { className: 'dsc-sponsor-text' }, links.sponsorText) : null,
+          imageFailed ? h('div', { className: 'dsc-sponsor-text', role: 'alert' }, t('sponsorImageError')) : null,
+          h('div', { className: 'dsc-sponsor-text' }, links.sponsorTextIsDefault ? t('sponsorDescription') : (links.sponsorText || t('sponsorDescription'))),
           links.repo
             ? h(
                 'a',
@@ -1130,7 +1231,7 @@ window.__ModuleLoader__.load({
     }
 
     const WF_NODE_W = 210;
-    const WF_NODE_H = 68;
+    const WF_NODE_H = 96;
     const WF_STAGE_W = 1500;
     const WF_STAGE_H = 950;
 
@@ -1316,10 +1417,43 @@ window.__ModuleLoader__.load({
       );
     }
 
+    // Layout is editable without invalidating execution identity; topology and instructions are not.
+    function wfExecutionSignature(graph) {
+      if (!graph || !Array.isArray(graph.nodes) || !Array.isArray(graph.edges)) return '';
+      const nodes = graph.nodes.map(n => [n.id, n.type, n.title || '', n.employeeId || '', n.instruction || '']);
+      // Incoming edge order changes the order of upstream text in the prompt.
+      const edges = graph.edges.map(e => [e.source, e.target]);
+      return JSON.stringify([graph.name || '', nodes, edges]);
+    }
+
+    function ArchitectureView({ employees, missions, workflows, t, onNavigate }) {
+      const layers = ['CEO', 'Team', 'Host', 'Results'];
+      return h('section', { className: 'dsc-architecture', 'aria-label': t('tabArchitecture') },
+        h('header', { className: 'dsc-arch-hero' },
+          h('div', { className: 'dsc-sub' }, t('subtitle')),
+          h('h2', null, t('architectureTitle')),
+          h('p', null, t('architectureIntro'))),
+        h('h3', null, t('architectureSnapshot')),
+        h('div', { className: 'dsc-arch-kpis' },
+          [[employees.length, 'tabRoster'], [missions.length, 'tabMissions'], [workflows.length, 'tabWorkflow']].map(([count, label]) =>
+            h('div', { className: 'dsc-arch-kpi', key: label }, h('b', null, count), h('span', null, t(label))))),
+        h('ol', { className: 'dsc-arch-layers' }, layers.map((layer, index) =>
+          h('li', { className: 'dsc-arch-layer', key: layer },
+            h('span', { className: 'dsc-arch-number' }, `0${index + 1}`),
+            h('h3', null, t(`architecture${layer}`)), h('p', null, t(`architecture${layer}Text`))))),
+        h('h3', null, t('architectureRoutes')),
+        h('div', { className: 'dsc-arch-routes' },
+          [['missions', 'tabMissions', 'architectureMissionText'], ['workflow', 'tabWorkflow', 'architectureWorkflowText']].map(([route, label, text]) =>
+            h('article', { className: 'dsc-arch-route', key: route }, h('strong', null, t(label)), h('p', null, t(text)),
+              h('button', { className: 'dsc-btn', 'data-kind': 'primary', onClick: () => onNavigate(route) }, t(label) + ' →')))),
+        h('p', { className: 'dsc-hint' }, t('architectureScope')));
+    }
+
     function WorkflowEditor({ draft, employees, lastRun, t, onPatch, onBack, onSave, onRun, onToast }) {
       const [selectedNodeId, setSelectedNodeId] = useState('');
       const [selectedEdgeId, setSelectedEdgeId] = useState('');
       const [runInput, setRunInput] = useState('');
+      const [motionEnabled, setMotionEnabled] = useState(true);
       const [confirmNodeId, setConfirmNodeId] = useState('');
       const [linking, setLinking] = useState(null);
       const [busy, setBusy] = useState(false);
@@ -1330,6 +1464,8 @@ window.__ModuleLoader__.load({
       const edges = wfEdges(draft);
       const selectedNode = wfNodeById(nodes, selectedNodeId);
       const runState = lastRun && lastRun.status ? lastRun.status : '';
+      const graphMatchesRun = Boolean(lastRun?.graph && wfExecutionSignature(lastRun.graph) === wfExecutionSignature(draft));
+      const statusLabel = status => status === 'running' ? t('workflowActive') : t(status);
 
       const nodeRuns = useMemo(() => {
         const map = new Map();
@@ -1505,14 +1641,19 @@ window.__ModuleLoader__.load({
 
       const edgeRunState = (edge) => {
         const run = nodeRuns.get(edge.target);
-        if (!run || !run.status) return '';
+        if (!graphMatchesRun || !run || !run.status) return '';
         return run.status;
       };
+      const edgeIsActive = (edge) => graphMatchesRun && runState === 'running' &&
+        nodeRuns.get(edge.source)?.status === 'done' && nodeRuns.get(edge.target)?.status === 'running';
+      const runSlots = lastRun && Array.isArray(lastRun.nodeRuns) ? lastRun.nodeRuns : [];
+      const countStatus = (status) => runSlots.filter(slot => slot.status === status).length;
+      const settled = runSlots.filter(slot => ['done', 'failed', 'skipped', 'cancelled'].includes(slot.status)).length;
 
       const nodeCard = (node) => {
         const employee = node.type === 'employee' ? wfEmployeeById(employees, node.employeeId) : null;
         const nodeRun = nodeRuns.get(node.id);
-        const status = nodeRun && nodeRun.status ? nodeRun.status : '';
+        const status = graphMatchesRun && nodeRun && nodeRun.status ? nodeRun.status : '';
         const title =
           String((node && node.title) || '') ||
           (node.type === 'start' ? t('workflowNodeStart') : employee ? employee.name : t('workflowSelectEmployee'));
@@ -1522,6 +1663,16 @@ window.__ModuleLoader__.load({
             key: node.id,
             className: 'dsc-wf-node',
             'data-node-id': node.id,
+            'data-run': status,
+            role: 'button',
+            tabIndex: 0,
+            'aria-label': `${title}${status ? ': ' + statusLabel(status) : ''}`,
+            'aria-pressed': selectedNodeId === node.id,
+            onKeyDown: (event) => {
+              if (event.target === event.currentTarget && (event.key === 'Enter' || event.key === ' ')) {
+                event.preventDefault(); setSelectedNodeId(node.id); setSelectedEdgeId('');
+              }
+            },
             'data-sel': selectedNodeId === node.id ? '1' : '0',
             style: { left: `${Number(node.x) || 0}px`, top: `${Number(node.y) || 0}px` },
             onClick: (event) => {
@@ -1530,13 +1681,6 @@ window.__ModuleLoader__.load({
               setSelectedEdgeId('');
             },
           },
-          status
-            ? h(
-                'span',
-                { className: 'dsc-wf-node-status' },
-                h('span', { className: 'dsc-badge', 'data-s': status }, t(status) || status),
-              )
-            : null,
           h(
             'div',
             {
@@ -1561,6 +1705,13 @@ window.__ModuleLoader__.load({
                   h('span', null, employee ? `${employee.name}${employee.title ? ' · ' + employee.title : ''}` : t('workflowSelectEmployee')),
                 ),
           ),
+          status
+            ? h(
+                'span',
+                { className: 'dsc-wf-node-status' },
+                h('span', { className: 'dsc-badge', 'data-s': status }, statusLabel(status) || status),
+              )
+            : null,
           node.type === 'start'
             ? null
             : h('span', { className: 'dsc-wf-port', 'data-port': 'in' }),
@@ -1605,6 +1756,13 @@ window.__ModuleLoader__.load({
                 h('path', {
                   className: 'dsc-wf-edge-hit',
                   d: path,
+                  tabIndex: 0, role: 'button',
+                  'aria-label': `${t('workflowEdgeLabel')}: ${source.title || source.id} → ${target.title || target.id}`,
+                  onKeyDown: (event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault(); setSelectedEdgeId(edge.id); setSelectedNodeId('');
+                    }
+                  },
                   onClick: (event) => {
                     event.stopPropagation();
                     setSelectedEdgeId(edge.id);
@@ -1617,6 +1775,9 @@ window.__ModuleLoader__.load({
                   'data-sel': selectedEdgeId === edge.id ? '1' : '0',
                   'data-run': runStateOfEdge,
                 }),
+                motionEnabled && edgeIsActive(edge) ? h('path', {
+                  className: 'dsc-wf-particles', d: path, pathLength: 100, 'aria-hidden': true,
+                }) : null,
               );
             }),
             linking
@@ -1635,7 +1796,7 @@ window.__ModuleLoader__.load({
         ),
       );
 
-      const nodeRun = selectedNode ? nodeRuns.get(selectedNode.id) : null;
+      const nodeRun = graphMatchesRun && selectedNode ? nodeRuns.get(selectedNode.id) : null;
 
       const inspector = h(
         'div',
@@ -1781,6 +1942,22 @@ window.__ModuleLoader__.load({
           h('button', { className: 'dsc-btn', onClick: addEmployeeNode }, t('workflowAddNode')),
           h('button', { className: 'dsc-btn', 'data-kind': 'primary', disabled: busy, onClick: save }, t('save')),
         ),
+        h('section', { className: 'dsc-wf-monitor', 'aria-label': t('workflowLive') },
+          h('div', { className: 'dsc-wf-monitor-top' },
+            h('strong', { role: 'status', 'aria-live': 'polite', 'aria-atomic': true },
+              runState ? `${t('workflowHistory')} · ${t(runState)}` : t('workflowNoRun')),
+            h('label', { className: 'dsc-wf-motion', title: t('workflowMotionHint') },
+              h('input', { type: 'checkbox', checked: motionEnabled, onChange: event => setMotionEnabled(event.target.checked) }),
+              t('workflowMotion'))),
+          lastRun && !graphMatchesRun ? h('p', { className: 'dsc-hint', role: 'status' }, t('workflowGraphMismatch')) : null,
+          h('div', { className: 'dsc-wf-metrics' },
+            h('strong', null, `${t('workflowSettled')} ${settled}/${runSlots.length}`),
+            ['running', 'done', 'failed', 'skipped', 'pending'].map(status => h('span', { className: 'dsc-wf-metric', key: status },
+              h('span', { className: 'dsc-badge', 'data-s': status }, status === 'pending' ? t('workflowWaiting') : statusLabel(status)), countStatus(status)))),
+          h('div', { className: 'dsc-wf-meter', role: 'progressbar', 'aria-label': t('workflowSettled'), 'aria-valuemin': 0,
+            'aria-valuemax': runSlots.length || 1, 'aria-valuenow': settled },
+            h('span', { style: { width: `${runSlots.length ? settled / runSlots.length * 100 : 0}%` } })),
+          h('div', { className: 'dsc-hint' }, t('workflowPolling'))),
         h('div', { className: 'dsc-wf-canvas-wrap' }, canvas, inspector),
       );
     }
@@ -1788,7 +1965,7 @@ window.__ModuleLoader__.load({
     function CompanyPanel({ t: translate }) {
       const [state, setState] = useState(null);
       const [error, setError] = useState('');
-      const [tab, setTab] = useState('roster');
+      const [tab, setTab] = useState('architecture');
       const [editing, setEditing] = useState(null);
       const [detail, setDetail] = useState(null);
       const [title, setTitle] = useState('');
@@ -2031,7 +2208,7 @@ window.__ModuleLoader__.load({
       if (error && !state) {
         return h(
           'div',
-          { className: 'dsc-root' },
+          { className: 'dsc-root', translate: 'no' },
           h('style', null, CSS),
           h(
             'div',
@@ -2044,7 +2221,7 @@ window.__ModuleLoader__.load({
 
       return h(
         'div',
-        { className: 'dsc-root' },
+        { className: 'dsc-root', translate: 'no' },
         h('style', null, CSS),
         h(
           'div',
@@ -2088,6 +2265,7 @@ window.__ModuleLoader__.load({
         h(
           'div',
           { className: 'dsc-tabs' },
+          h('button', { className: 'dsc-tab', 'data-on': tab === 'architecture' ? '1' : '0', onClick: () => setTab('architecture') }, t('tabArchitecture')),
           h(
             'button',
             { className: 'dsc-tab', 'data-on': tab === 'roster' ? '1' : '0', onClick: () => setTab('roster') },
@@ -2114,7 +2292,9 @@ window.__ModuleLoader__.load({
         h(
           'div',
           { className: tab === 'workflow' ? 'dsc-body dsc-body-workflow' : 'dsc-body' },
-          tab === 'roster'
+          tab === 'architecture'
+            ? h(ArchitectureView, { employees, missions, workflows, t, onNavigate: route => { setWorkflowDraft(null); setTab(route); } })
+            : tab === 'roster'
             ? h(
                 'div',
                 null,

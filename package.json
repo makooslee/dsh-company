@@ -1,6 +1,6 @@
 {
   "name": "dsh-company",
-  "version": "0.5.3",
+  "version": "0.6.0",
   "private": false,
   "type": "module",
   "description": "Multi-agent agent team of employee AI subagents for DeepSeek Harness: employee management, CEO mission bidding, and n8n-style workflow orchestration (drag and drop employee nodes onto a canvas, wire them, run the graph in parallel). Seven built-in roles, each with its own persona, model and tools.",
@@ -67,5 +67,12 @@
   "homepage": "https://github.com/makooslee/dsh-company#readme",
   "bugs": {
     "url": "https://github.com/makooslee/dsh-company/issues"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test",
+    "check": "node --check index.js && node --check client.js && node --test"
   }
 }

@@ -2,13 +2,15 @@
 
 [English](README.en.md) · 简体中文
 
-![version](https://img.shields.io/badge/version-0.5.3-2f6feb) ![license](https://img.shields.io/badge/license-MIT-4c1) ![DSH plugin](https://img.shields.io/badge/DSH-plugin-8a63d2) [![Listed on dsh-plugin.org](https://dsh-plugin.org/badges/listed.svg)](https://dsh-plugin.org/plugins/makooslee/dsh-company)
+![version](https://img.shields.io/badge/version-0.6.0-2f6feb) ![license](https://img.shields.io/badge/license-MIT-4c1) ![DSH plugin](https://img.shields.io/badge/DSH-plugin-8a63d2) [![Listed on dsh-plugin.org](https://dsh-plugin.org/badges/listed.svg)](https://dsh-plugin.org/plugins/makooslee/dsh-company)
+
+> **v0.6.0 发行包**：本轮包含架构与运行态 UI、可靠性和工具权限修复。安装本版可使用 [GitHub Release](https://github.com/makooslee/dsh-company/releases/tag/v0.6.0) 的 `.tgz`；使用 npm 时请核对实际安装版本为 0.6.0，旧版不含本次更新。空技能现在禁止全局工具；输入或输出超限明确失败。
 
 给 [DeepSeek Harness](https://github.com/deepseek-ai) 装一家只有一位 CEO 的小公司：**七个员工智能体，你派活，他们自己决定接不接，接单的人并行开工**——还可以像 n8n 一样把员工排成工作流。
 
-![任务板：员工自行认单](docs/screenshots/bids.jpg)
+![任务板：本地 mock 指定负责人测试](docs/screenshots/zh/missions.jpg)
 
-任务广播下去，研发和数据接单开工，产品经理拒单并指出该归谁干——不是流水线，是认单制。
+上图是直接指定负责人、跳过认单的本地 mock 测试实拍，不是生产任务或真实模型交付。认单协作是另一条可选路径。
 
 如果它有用，欢迎给仓库点个 ⭐ Star——那比什么都管用。
 
@@ -20,7 +22,7 @@
 2. **认单**：每人先回答「这活该不该我接」——第一行只能写 `【接单】` 或 `【不接】`，不接的人必须指出该谁接。
 3. **执行**：只有接单的人进入第二轮并行干活，并且知道同期谁也在干（避免重复劳动）。
 
-没人接单也是一个有效结果：任务标成 `没人接单`，理由留在时间线上，而不是硬塞给某个人。
+全员拒单时，插件会先尝试由项目总监指派负责人；只有裁决未能选出负责人时才关闭为 `没人接单`，理由留在时间线上。
 
 ```
 CEO 派单
@@ -52,23 +54,62 @@ CEO 派单
 
 ## 界面
 
-**员工管理** — 内置角色就位，卡片上直接看状态和技能，点开可看该员工的完整对话
+> 以下为 Mac 上真实 Harness 0.2.2-rc.1 + 官方本地 mock 的隔离测试截图，无付费模型调用。截图对应尚未发布的工作树，不代表当前 npm 包；默认中文角色/历史消息保留原始数据。
 
-![员工管理](docs/screenshots/roster.jpg)
+**架构总览**
 
-**工作流** — n8n 式画布：拖节点、拉连线、`{{input}}` 串起上游产出，「运行」后同层并行执行
+![架构总览](docs/screenshots/zh/architecture.jpg)
 
-![工作流画布](docs/screenshots/workflow.png)
+**员工管理**
 
-**agent-team 联动** — 员工与任务镜像进官方 agent-team 面板，每人一张任务卡写着当前进度
+![员工管理](docs/screenshots/zh/roster.jpg)
 
-![agent-team 面板](docs/screenshots/agent-team.jpg)
+**工作流：真实执行状态与连线粒子**
 
-**招聘员工** — 从角色模板开新坑，人设、模型、技能白名单都能改
+![工作流：真实执行状态与连线粒子](docs/screenshots/zh/workflow-running.jpg)
 
-![招聘员工](docs/screenshots/hire.jpg)
+**添加 / 招聘员工：模型、人设与技能配置**
 
-> 截图来自中文界面；英文本地化随包附带（[English](README.en.md)）。
+![添加 / 招聘员工：模型、人设与技能配置](docs/screenshots/zh/hire-actions.jpg)
+
+[添加员工表单初始视图](docs/screenshots/zh/hire.jpg)
+
+<details>
+<summary>全部页面与弹窗</summary>
+
+**架构执行路径**
+
+![架构执行路径](docs/screenshots/zh/architecture-detail.jpg)
+
+**任务板与交付**
+
+![任务板与交付](docs/screenshots/zh/missions.jpg)
+
+**工作流列表**
+
+![工作流列表](docs/screenshots/zh/workflow-list.jpg)
+
+**工作流完成状态**
+
+![工作流完成状态](docs/screenshots/zh/workflow-completed.jpg)
+
+**编辑员工**
+
+![编辑员工](docs/screenshots/zh/employee-edit.jpg)
+
+**员工会话与记忆**
+
+![员工会话与记忆](docs/screenshots/zh/employee-detail.jpg)
+
+**赞赏弹窗**
+
+![赞赏弹窗](docs/screenshots/zh/sponsor.jpg)
+
+</details>
+
+**agent-team 联动**：本轮隔离 profile 的宿主侧栏未出现该面板，未实拍或验证此集成。旧示例图不再用于当前截图展示。
+
+[验证范围与限制](docs/mac-ui-validation.md)
 
 ## 安装
 
@@ -85,14 +126,10 @@ dsh plugin --profile web add dsh-company
 或指定版本：
 
 ```bash
-dsh plugin --profile web add dsh-company@0.5.1
+dsh plugin --profile web add dsh-company@0.5.3
 ```
 
-不想用 npm 源，就走 release tarball：
-
-```bash
-dsh plugin --profile web add "https://github.com/makooslee/dsh-company/releases/download/v0.5.1/dsh-company-0.5.1.tgz"
-```
+不想用 npm 源，可以在 [Releases](https://github.com/makooslee/dsh-company/releases) 中选择实际存在的发布包，复制该版本 `.tgz` 的下载地址后执行 `dsh plugin --profile web add "<下载地址>"`。请确认包版本，不要使用旧教程里的固定链接。
 
 **方式三 · 源码安装**：
 
@@ -109,6 +146,18 @@ git clone https://github.com/makooslee/dsh-company.git dsh-company
 装完刷新页面，左侧栏出现**组织结构图图标**；点开就是公司面板。侧栏没出现图标就重启一次 DSH Desktop。
 
 > 换版本要按 `remove_bundle` → `install_bundle`（或 `dsh plugin remove` → `add`）的顺序走：同一个包名重复安装会被拒绝。
+
+## 首次运行检查
+
+1. 先在 Harness 中确认一个模型能完成普通对话，再给一名员工选择该模型；插件不附赠模型 API 额度，多员工会分别调用模型。
+2. 首次测试只选一名员工，在派单时直接指定其为负责人。示例任务：根据你粘贴的三条虚构需求整理验收清单，不联网、不修改文件。
+3. 在员工详情中核对模型回复与最终任务状态，再逐步增加员工或工作流节点。仅给员工开启该任务所需工具，不要在任务描述中粘贴 API 密钥。
+
+排障：没有侧栏先刷新或重启；模型错误/空响应先检查模型和网络；某位接单员工失败时整个任务显示失败，成功员工的结果仍保留。任务未启动或未出现完成事件会按配置超时失败；取消会请求停止当前模型轮次，但不能撤销已经发生的工具操作。失败、超时或取消后的运行实例不会复用，下次调用将重建实例，避免迟到事件混入新任务；员工运行会话可能因此重新开始。
+
+## 开发验证
+
+无需安装额外依赖，Node 20+ 下运行 `npm run check`：检查两端 JavaScript 语法并执行 `node:test` 回归用例。测试覆盖认单解析、错误/空响应、超时、取消与任务结果汇总；不等同于真实 Harness、模型调用或浏览器端到端验证。
 
 ## 用法
 
