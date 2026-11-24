@@ -16,15 +16,13 @@
 
 交接到具体的独立审核员：运行端确认接收后才显示「审核中」。审核中断且结果不明时，显示运行编号和人工核对入口，不自动重发；审核员结论不等于老板验收或发布授权。
 
-升级、重启和回退已用隔离的 Mac 配置及合成数据验证。旧版 v0.6.0 有一种已复现的情况：界面显示完成的流程重启后可能显示中断，但节点结果仍保留。候选版不会猜测这类旧流程的结论。日常使用建议保留稳定版；体验前关闭宿主、备份现有配置，并在独立配置中安装。下方历史截图不代表候选版。
+升级、重启和回退已用隔离的 Mac 配置及合成数据验证。旧版 v0.6.0 有一种已复现的情况：界面显示完成的流程重启后可能显示中断，但节点结果仍保留。候选版不会猜测这类旧流程的结论。日常使用建议保留稳定版；体验前关闭宿主、备份现有配置，并在独立配置中安装。下方截图来自候选版。
 
 > **v0.6.0 发行包**：本轮包含架构与运行态 UI、可靠性和工具权限修复。安装本版可使用 [GitHub Release](https://github.com/makooslee/dsh-company/releases/tag/v0.6.0) 的 `.tgz`；使用 npm 时请核对实际安装版本为 0.6.0，旧版不含本次更新。空技能现在禁止全局工具；输入或输出超限明确失败。
 
 给 [DeepSeek Harness](https://github.com/deepseek-ai) 装一家只有一位 CEO 的小公司：**七个员工智能体，你派活，他们自己决定接不接，接单的人并行开工**——还可以像 n8n 一样把员工排成工作流。
 
-![任务板：本地 mock 指定负责人测试](docs/screenshots/zh/missions.jpg)
-
-上图是直接指定负责人、跳过认单的本地 mock 测试实拍，不是生产任务或真实模型交付。认单协作是另一条可选路径。
+![v0.7.0-rc.2：3D 公司办公室](docs/screenshots/rc.2/zh/office.jpg)
 
 如果它有用，欢迎给仓库点个 ⭐ Star——那比什么都管用。
 
@@ -74,62 +72,36 @@ CEO 派单
 
 ## 界面
 
-> 以下为 Mac 上真实 Harness 0.2.2-rc.1 + 官方本地 mock 的隔离测试截图，无付费模型调用。截图对应尚未发布的工作树，不代表当前 npm 包；默认中文角色/历史消息保留原始数据。
-
-**架构总览**
-
-![架构总览](docs/screenshots/zh/architecture.jpg)
+> 以下截图直接取自 GitHub 公布的 **v0.7.0-rc.2**，在 Mac 独立配置中运行，使用合成数据和本地模拟模型，不是生产任务。
 
 **员工管理**
 
-![员工管理](docs/screenshots/zh/roster.jpg)
+![员工管理](docs/screenshots/rc.2/zh/employees.jpg)
 
-**工作流：真实执行状态与连线粒子**
+**招聘员工**
 
-![工作流：真实执行状态与连线粒子](docs/screenshots/zh/workflow-running.jpg)
+![招聘员工](docs/screenshots/rc.2/zh/hire.jpg)
 
-**添加 / 招聘员工：模型、人设与技能配置**
+**协作群聊**
 
-![添加 / 招聘员工：模型、人设与技能配置](docs/screenshots/zh/hire-actions.jpg)
+![协作群聊](docs/screenshots/rc.2/zh/group.jpg)
 
-[添加员工表单初始视图](docs/screenshots/zh/hire.jpg)
+**独立审核交接**
+
+![独立审核交接](docs/screenshots/rc.2/zh/review.jpg)
 
 <details>
-<summary>全部页面与弹窗</summary>
+<summary>更多候选版页面</summary>
 
-**架构执行路径**
+**固定工作流**
 
-![架构执行路径](docs/screenshots/zh/architecture-detail.jpg)
+![固定工作流](docs/screenshots/rc.2/zh/workflow.jpg)
 
-**任务板与交付**
+**架构总览**
 
-![任务板与交付](docs/screenshots/zh/missions.jpg)
-
-**工作流列表**
-
-![工作流列表](docs/screenshots/zh/workflow-list.jpg)
-
-**工作流完成状态**
-
-![工作流完成状态](docs/screenshots/zh/workflow-completed.jpg)
-
-**编辑员工**
-
-![编辑员工](docs/screenshots/zh/employee-edit.jpg)
-
-**员工会话与记忆**
-
-![员工会话与记忆](docs/screenshots/zh/employee-detail.jpg)
-
-**赞赏弹窗**
-
-![赞赏弹窗](docs/screenshots/zh/sponsor.jpg)
+![架构总览](docs/screenshots/rc.2/zh/architecture.jpg)
 
 </details>
-
-**agent-team 联动**：本轮隔离 profile 的宿主侧栏未出现该面板，未实拍或验证此集成。旧示例图不再用于当前截图展示。
-
-[验证范围与限制](docs/mac-ui-validation.md)
 
 ## 安装
 

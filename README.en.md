@@ -16,17 +16,13 @@ The candidate adds an interactive 3D office with 2D fallback and separate workin
 
 The handoff names an independent reviewer and shows active review only after runtime acceptance. When interruption makes the outcome uncertain, the run ID and manual inspection steps are available without automatic resend. A reviewer verdict is not owner sign-off or publication authorization.
 
-Upgrade, restart, and backup restoration were tested in isolated Mac profiles with synthetic data. In the old v0.6.0 itself, an apparently completed workflow could reopen as interrupted while retaining its node results. The candidate does not guess the outcome of such older runs. Keep stable for daily use; close the host, back up the existing profile, and use a separate profile to try the candidate. The historical screenshots below do not depict this candidate.
+Upgrade, restart, and backup restoration were tested in isolated Mac profiles with synthetic data. In the old v0.6.0 itself, an apparently completed workflow could reopen as interrupted while retaining its node results. The candidate does not guess the outcome of such older runs. Keep stable for daily use; close the host, back up the existing profile, and use a separate profile to try the candidate. The screenshots below show this candidate.
 
 > **v0.6.0 release package**: architecture/runtime UI, reliability and tool-permission fixes. Install this version from the `.tgz` in the [GitHub Release](https://github.com/makooslee/dsh-company/releases/tag/v0.6.0); when using npm, verify that the installed version is 0.6.0 rather than an older package. Empty skills now deny global tools; oversized inputs or outputs fail explicitly.
 
 A tiny company of employee agents for [DeepSeek Harness](https://github.com/deepseek-ai): **seven employees, you dispatch work, they decide whether to take it, acceptors run in parallel** — and you can wire them into a pipeline on an n8n-style canvas.
 
-![Mission board: local mock with an explicit owner](docs/screenshots/en/missions.jpg)
-
-The screenshot shows a local mock test with an explicit owner, bypassing bidding. It is not a production task or a real-model delivery. Bidding remains a separate optional path.
-
-If it helps, a ⭐ star on the repo means a lot.
+![v0.7.0-rc.2: 3D office](docs/screenshots/rc.2/en/office.jpg)
 
 ## System architecture diagrams
 
@@ -63,62 +59,36 @@ If everyone declines, the plugin first asks the project director to assign an ow
 
 ## Screenshots
 
-> Captured from real Harness 0.2.2-rc.1 on Mac with the official local mock in an isolated profile, without paid model calls. These screenshots show an pre-release working tree for v0.6.0, not the current npm package. Default Chinese role data and historical messages retain their stored language.
+> These screenshots come directly from the published **v0.7.0-rc.2** GitHub archive, running in an isolated Mac profile with synthetic data and a local mock provider. They do not depict production work.
 
-**Architecture**
+**Employee roster**
 
-![Architecture](docs/screenshots/en/architecture.jpg)
+![Employee roster](docs/screenshots/rc.2/en/employees.jpg)
 
-**Employees**
+**Hiring an employee**
 
-![Employees](docs/screenshots/en/roster.jpg)
+![Hiring an employee](docs/screenshots/rc.2/en/hire.jpg)
 
-**Workflow: real execution state and edge particles**
+**Group collaboration**
 
-![Workflow: real execution state and edge particles](docs/screenshots/en/workflow-running.jpg)
+![Group collaboration](docs/screenshots/rc.2/en/group.jpg)
 
-**Add / hire an employee: model, persona and skills**
+**Independent reviewer handoff**
 
-![Add / hire an employee: model, persona and skills](docs/screenshots/en/hire-actions.jpg)
-
-[Initial hire form view](docs/screenshots/en/hire.jpg)
+![Independent reviewer handoff](docs/screenshots/rc.2/en/review.jpg)
 
 <details>
-<summary>All pages and dialogs</summary>
+<summary>More candidate views</summary>
 
-**Architecture execution paths**
+**Fixed workflow**
 
-![Architecture execution paths](docs/screenshots/en/architecture-detail.jpg)
+![Fixed workflow](docs/screenshots/rc.2/en/workflow.jpg)
 
-**Mission board and delivery**
+**Architecture overview**
 
-![Mission board and delivery](docs/screenshots/en/missions.jpg)
-
-**Workflow list**
-
-![Workflow list](docs/screenshots/en/workflow-list.jpg)
-
-**Completed workflow**
-
-![Completed workflow](docs/screenshots/en/workflow-completed.jpg)
-
-**Edit employee**
-
-![Edit employee](docs/screenshots/en/employee-edit.jpg)
-
-**Employee transcript and memory**
-
-![Employee transcript and memory](docs/screenshots/en/employee-detail.jpg)
-
-**Sponsor dialog**
-
-![Sponsor dialog](docs/screenshots/en/sponsor.jpg)
+![Architecture overview](docs/screenshots/rc.2/en/architecture.jpg)
 
 </details>
-
-**agent-team integration:** its panel was not available in the host sidebar of this isolated profile, so this integration was not photographed or verified in this run. The old example image is no longer presented as current evidence.
-
-[Validation scope and limitations](docs/mac-ui-validation.md)
 
 ## Install
 
