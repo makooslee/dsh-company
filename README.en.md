@@ -108,11 +108,19 @@ Or pin the current stable version:
 dsh plugin --profile web add dsh-company@0.6.0
 ```
 
-The candidate is available from GitHub only. Download the `.tgz` above and try it in a **separate new profile** (replace the example path):
+The candidate is available from GitHub only. Download the exact `.tgz` above and replace the example path. Run this in a Mac terminal to use the built-in `web` profile in a temporary directory, without modifying your normal installation.
 
 ```bash
-dsh plugin --profile dsh-company-rc add /absolute/path/dsh-company-0.7.0-rc.2.tgz
+(
+  archive="/absolute/path/dsh-company-0.7.0-rc.2.tgz"
+  isolated="$(mktemp -d)"
+  export HOME="$isolated" DSH_HOME="$isolated/dsh"
+  dsh plugin --profile web add "$archive" &&
+    dsh web --host 127.0.0.1 --port 0 --no-open
+)
 ```
+
+Open the loopback address printed in the terminal on this Mac. When finished, press **Ctrl+C** in the terminal to stop the host. Do not share the printed sign-in URL.
 
 For a release tarball, select an existing package from [Releases](https://github.com/makooslee/dsh-company/releases), copy its `.tgz` asset URL, and run `dsh plugin --profile web add "<asset URL>"`. Check the package version rather than reusing an old tutorial's pinned link.
 

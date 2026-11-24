@@ -121,11 +121,19 @@ dsh plugin --profile web add dsh-company
 dsh plugin --profile web add dsh-company@0.6.0
 ```
 
-候选版仅通过 GitHub 提供。下载上表的 `.tgz` 后，在**新建的独立配置**中试用（请替换下面路径）：
+候选版仅通过 GitHub 提供。下载上表的确切 `.tgz`，把示例路径改成实际下载路径。以下命令在临时目录中使用内置 `web` 配置，不改动日常安装；请在 macOS 终端运行。
 
 ```bash
-dsh plugin --profile dsh-company-rc add /absolute/path/dsh-company-0.7.0-rc.2.tgz
+(
+  archive="/absolute/path/dsh-company-0.7.0-rc.2.tgz"
+  isolated="$(mktemp -d)"
+  export HOME="$isolated" DSH_HOME="$isolated/dsh"
+  dsh plugin --profile web add "$archive" &&
+    dsh web --host 127.0.0.1 --port 0 --no-open
+)
 ```
+
+在本机浏览器打开终端显示的地址。试用结束后，回到终端按 **Ctrl+C** 停止服务。请勿分享打印出的登录地址。
 
 不想用 npm 源，可以在 [Releases](https://github.com/makooslee/dsh-company/releases) 中选择实际存在的发布包，复制该版本 `.tgz` 的下载地址后执行 `dsh plugin --profile web add "<下载地址>"`。请确认包版本，不要使用旧教程里的固定链接。
 
