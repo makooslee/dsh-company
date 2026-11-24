@@ -4,6 +4,20 @@
 
 ![version](https://img.shields.io/badge/version-0.6.0-2f6feb) ![license](https://img.shields.io/badge/license-MIT-4c1) ![DSH plugin](https://img.shields.io/badge/DSH-plugin-8a63d2) [![Listed on dsh-plugin.org](https://dsh-plugin.org/badges/listed.svg)](https://dsh-plugin.org/plugins/makooslee/dsh-company)
 
+
+## 当前版本
+
+| 用途 | 版本 | 获取方式 |
+| --- | --- | --- |
+| 日常使用 | **v0.6.0 稳定版** | npm `latest`，或 [GitHub 稳定版](https://github.com/makooslee/dsh-company/releases/tag/v0.6.0) |
+| 提前体验 | **v0.7.0-rc.2 候选版** | [GitHub 下载 .tgz](https://github.com/makooslee/dsh-company/releases/download/v0.7.0-rc.2/dsh-company-0.7.0-rc.2.tgz) · [英文发行说明](https://github.com/makooslee/dsh-company/releases/tag/v0.7.0-rc.2)；未发布到 npm |
+
+候选版新增 3D 办公室与可操作的 2D 平面图，区分正在工作和等待开始；按指定版本审批后才启动，支持预设的专长并行分工。按员工编号派工可以区分同名员工，群协作记录区分成员身份、实际参与和已保存回复。
+
+交接到具体的独立审核员：运行端确认接收后才显示「审核中」。审核中断且结果不明时，显示运行编号和人工核对入口，不自动重发；审核员结论不等于老板验收或发布授权。
+
+升级、重启和回退已用隔离的 Mac 配置及合成数据验证。旧版 v0.6.0 有一种已复现的情况：界面显示完成的流程重启后可能显示中断，但节点结果仍保留。候选版不会猜测这类旧流程的结论。日常使用建议保留稳定版；体验前关闭宿主、备份现有配置，并在独立配置中安装。下方历史截图不代表候选版。
+
 > **v0.6.0 发行包**：本轮包含架构与运行态 UI、可靠性和工具权限修复。安装本版可使用 [GitHub Release](https://github.com/makooslee/dsh-company/releases/tag/v0.6.0) 的 `.tgz`；使用 npm 时请核对实际安装版本为 0.6.0，旧版不含本次更新。空技能现在禁止全局工具；输入或输出超限明确失败。
 
 给 [DeepSeek Harness](https://github.com/deepseek-ai) 装一家只有一位 CEO 的小公司：**七个员工智能体，你派活，他们自己决定接不接，接单的人并行开工**——还可以像 n8n 一样把员工排成工作流。
@@ -129,10 +143,16 @@ CEO 派单
 dsh plugin --profile web add dsh-company
 ```
 
-或指定版本：
+或明确安装当前稳定版：
 
 ```bash
-dsh plugin --profile web add dsh-company@0.5.3
+dsh plugin --profile web add dsh-company@0.6.0
+```
+
+候选版仅通过 GitHub 提供。下载上表的 `.tgz` 后，在**新建的独立配置**中试用（请替换下面路径）：
+
+```bash
+dsh plugin --profile dsh-company-rc add /absolute/path/dsh-company-0.7.0-rc.2.tgz
 ```
 
 不想用 npm 源，可以在 [Releases](https://github.com/makooslee/dsh-company/releases) 中选择实际存在的发布包，复制该版本 `.tgz` 的下载地址后执行 `dsh plugin --profile web add "<下载地址>"`。请确认包版本，不要使用旧教程里的固定链接。

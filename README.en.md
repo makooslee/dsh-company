@@ -4,6 +4,20 @@ English · [简体中文](README.md)
 
 ![version](https://img.shields.io/badge/version-0.6.0-2f6feb) ![license](https://img.shields.io/badge/license-MIT-4c1) ![DSH plugin](https://img.shields.io/badge/DSH-plugin-8a63d2) [![Listed on dsh-plugin.org](https://dsh-plugin.org/badges/listed.svg)](https://dsh-plugin.org/plugins/makooslee/dsh-company)
 
+
+## Current releases
+
+| Use | Version | Availability |
+| --- | --- | --- |
+| Daily use | **v0.6.0 stable** | npm `latest`, or [GitHub stable release](https://github.com/makooslee/dsh-company/releases/tag/v0.6.0) |
+| Try the next release | **v0.7.0-rc.2 candidate** | [Download the GitHub .tgz](https://github.com/makooslee/dsh-company/releases/download/v0.7.0-rc.2/dsh-company-0.7.0-rc.2.tgz) · [English release notes](https://github.com/makooslee/dsh-company/releases/tag/v0.7.0-rc.2); not published to npm |
+
+The candidate adds an interactive 3D office with 2D fallback and separate working and waiting states. Company plans require approval of the exact revision before starting, with an optional preset for parallel specialist work. Stable employee IDs distinguish people with identical names; group records distinguish membership from actual participation and saved replies.
+
+The handoff names an independent reviewer and shows active review only after runtime acceptance. When interruption makes the outcome uncertain, the run ID and manual inspection steps are available without automatic resend. A reviewer verdict is not owner sign-off or publication authorization.
+
+Upgrade, restart, and backup restoration were tested in isolated Mac profiles with synthetic data. In the old v0.6.0 itself, an apparently completed workflow could reopen as interrupted while retaining its node results. The candidate does not guess the outcome of such older runs. Keep stable for daily use; close the host, back up the existing profile, and use a separate profile to try the candidate. The historical screenshots below do not depict this candidate.
+
 > **v0.6.0 release package**: architecture/runtime UI, reliability and tool-permission fixes. Install this version from the `.tgz` in the [GitHub Release](https://github.com/makooslee/dsh-company/releases/tag/v0.6.0); when using npm, verify that the installed version is 0.6.0 rather than an older package. Empty skills now deny global tools; oversized inputs or outputs fail explicitly.
 
 A tiny company of employee agents for [DeepSeek Harness](https://github.com/deepseek-ai): **seven employees, you dispatch work, they decide whether to take it, acceptors run in parallel** — and you can wire them into a pipeline on an n8n-style canvas.
@@ -118,10 +132,16 @@ Requires DeepSeek Harness (with the `plugin_manager` tool) and Node ≥ 20.
 dsh plugin --profile web add dsh-company
 ```
 
-Pin a version:
+Or pin the current stable version:
 
 ```bash
-dsh plugin --profile web add dsh-company@0.5.3
+dsh plugin --profile web add dsh-company@0.6.0
+```
+
+The candidate is available from GitHub only. Download the `.tgz` above and try it in a **separate new profile** (replace the example path):
+
+```bash
+dsh plugin --profile dsh-company-rc add /absolute/path/dsh-company-0.7.0-rc.2.tgz
 ```
 
 For a release tarball, select an existing package from [Releases](https://github.com/makooslee/dsh-company/releases), copy its `.tgz` asset URL, and run `dsh plugin --profile web add "<asset URL>"`. Check the package version rather than reusing an old tutorial's pinned link.
