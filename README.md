@@ -4,6 +4,8 @@
 
 ![version](https://img.shields.io/badge/version-0.6.0-2f6feb) ![license](https://img.shields.io/badge/license-MIT-4c1) ![DSH plugin](https://img.shields.io/badge/DSH-plugin-8a63d2) [![Listed on dsh-plugin.org](https://dsh-plugin.org/badges/listed.svg)](https://dsh-plugin.org/plugins/makooslee/dsh-company)
 
+> **v0.7.0-rc.2（候选版）**：新工作台、3D/2D 办公室、先审批后执行、按专长拆解、员工群协作与独立审核交接。现有截图及默认安装命令仍以稳定版 v0.6.0 为准；候选版的升级边界见[发行说明](docs/release-0.7.0-rc.2.md)。
+
 > **v0.6.0 发行包**：本轮包含架构与运行态 UI、可靠性和工具权限修复。安装本版可使用 [GitHub Release](https://github.com/makooslee/dsh-company/releases/tag/v0.6.0) 的 `.tgz`；使用 npm 时请核对实际安装版本为 0.6.0，旧版不含本次更新。空技能现在禁止全局工具；输入或输出超限明确失败。
 
 给 [DeepSeek Harness](https://github.com/deepseek-ai) 装一家只有一位 CEO 的小公司：**七个员工智能体，你派活，他们自己决定接不接，接单的人并行开工**——还可以像 n8n 一样把员工排成工作流。

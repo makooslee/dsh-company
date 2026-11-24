@@ -1,0 +1,7 @@
+# Office motion preview
+
+The 3D office illustrates records, rather than pretending it can observe every worker gesture. Ordinary attributable company, mission or fixed-workflow activity drives a typing pose at the desk. Active chat participation moves a character toward the shared collaboration area only after the isolated employee turn has been submitted and accepted by Harness. Assignment, group creation and queued work do not mean the employee joined or took part. An accepted turn does not guarantee a provider response.
+
+A brief message marker always travels from the recorded employee sender toward the shared collaboration area, not a fabricated recipient. It represents a successful text reply to the group, after storage commits the message. A failed answer, initial page load, refresh of the same reply, or unrelated employee does not create a new animation. The server bounds reply freshness; client does not replay historical messages on initial load. The group currently does not support independent joining, direct employee-to-employee messaging, or a guaranteed read receipt. Multiple groups share the same illustrative meeting area.
+
+The motion uses no additional tools or provider calls. Reduced motion preserves readable states; WebGL failure uses the clickable 2D fallback. Real coordinates, visual transitions and output require a compatible browser; this preview is not a live monitoring guarantee at sub-polling timescales.

@@ -1,6 +1,6 @@
 {
   "name": "dsh-company",
-  "version": "0.6.0",
+  "version": "0.7.0-rc.2",
   "private": false,
   "type": "module",
   "description": "Multi-agent agent team of employee AI subagents for DeepSeek Harness: employee management, CEO mission bidding, and n8n-style workflow orchestration (drag and drop employee nodes onto a canvas, wire them, run the graph in parallel). Seven built-in roles, each with its own persona, model and tools.",
@@ -47,7 +47,12 @@
     "README.md",
     "README.en.md",
     "LICENSE",
-    "docs/**"
+    "docs/**",
+    "dual-entry.js",
+    "groups.js",
+    "quant-status.js",
+    "quant-roster.js",
+    "office/**"
   ],
   "dsh": {
     "bundle": {
@@ -73,6 +78,6 @@
   },
   "scripts": {
     "test": "node --test",
-    "check": "node --check index.js && node --check client.js && node --test"
+    "check": "node --check index.js && node --check client.js && node --check dual-entry.js && node --check groups.js && node --check quant-status.js && node --check quant-roster.js && node --check office/office3d.js && node --test"
   }
 }

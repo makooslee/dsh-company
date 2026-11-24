@@ -4,6 +4,8 @@ English · [简体中文](README.md)
 
 ![version](https://img.shields.io/badge/version-0.6.0-2f6feb) ![license](https://img.shields.io/badge/license-MIT-4c1) ![DSH plugin](https://img.shields.io/badge/DSH-plugin-8a63d2) [![Listed on dsh-plugin.org](https://dsh-plugin.org/badges/listed.svg)](https://dsh-plugin.org/plugins/makooslee/dsh-company)
 
+> **v0.7.0-rc.2 (candidate)**: updated workbench, 3D/2D office, explicit plan approval, specialist stages, employee group collaboration, and an independent reviewer handoff. Historical screenshots and default installation commands still describe stable v0.6.0. See [release notes](docs/release-0.7.0-rc.2.md) for upgrade scope.
+
 > **v0.6.0 release package**: architecture/runtime UI, reliability and tool-permission fixes. Install this version from the `.tgz` in the [GitHub Release](https://github.com/makooslee/dsh-company/releases/tag/v0.6.0); when using npm, verify that the installed version is 0.6.0 rather than an older package. Empty skills now deny global tools; oversized inputs or outputs fail explicitly.
 
 A tiny company of employee agents for [DeepSeek Harness](https://github.com/deepseek-ai): **seven employees, you dispatch work, they decide whether to take it, acceptors run in parallel** — and you can wire them into a pipeline on an n8n-style canvas.
