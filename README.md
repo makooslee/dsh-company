@@ -10,7 +10,7 @@
 | 用途 | 版本 | 获取方式 |
 | --- | --- | --- |
 | 日常使用 | **v0.6.0 稳定版** | npm `latest`，或 [GitHub 稳定版](https://github.com/makooslee/dsh-company/releases/tag/v0.6.0) |
-| 提前体验 | **v0.7.0-rc.2 候选版** | [GitHub 下载 .tgz](https://github.com/makooslee/dsh-company/releases/download/v0.7.0-rc.2/dsh-company-0.7.0-rc.2.tgz) · [英文发行说明](https://github.com/makooslee/dsh-company/releases/tag/v0.7.0-rc.2)；未发布到 npm |
+| 提前体验 | **v0.7.0-rc.2 候选版** | [GitHub 下载 .tgz](https://github.com/makooslee/dsh-company/releases/download/v0.7.0-rc.2/dsh-company-0.7.0-rc.2.tgz) · [英文发行说明](https://github.com/makooslee/dsh-company/releases/tag/v0.7.0-rc.2) · [npm 候选版](https://www.npmjs.com/package/dsh-company/v/0.7.0-rc.2)（`next`） |
 
 候选版新增 3D 办公室与可操作的 2D 平面图，区分正在工作和等待开始；按指定版本审批后才启动，支持预设的专长并行分工。按员工编号派工可以区分同名员工，群协作记录区分成员身份、实际参与和已保存回复。
 
@@ -121,7 +121,7 @@ dsh plugin --profile web add dsh-company
 dsh plugin --profile web add dsh-company@0.6.0
 ```
 
-候选版仅通过 GitHub 提供。下载上表的确切 `.tgz`，把示例路径改成实际下载路径。以下命令在临时目录中使用内置 `web` 配置，不改动日常安装；请在 macOS 终端运行。
+下载上表的确切 `.tgz`，把示例路径改成实际下载路径。以下命令在临时目录中使用内置 `web` 配置，不改动日常安装；请在 macOS 终端运行。
 
 ```bash
 (

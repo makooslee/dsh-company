@@ -10,7 +10,7 @@ English · [简体中文](README.md)
 | Use | Version | Availability |
 | --- | --- | --- |
 | Daily use | **v0.6.0 stable** | npm `latest`, or [GitHub stable release](https://github.com/makooslee/dsh-company/releases/tag/v0.6.0) |
-| Try the next release | **v0.7.0-rc.2 candidate** | [Download the GitHub .tgz](https://github.com/makooslee/dsh-company/releases/download/v0.7.0-rc.2/dsh-company-0.7.0-rc.2.tgz) · [English release notes](https://github.com/makooslee/dsh-company/releases/tag/v0.7.0-rc.2); not published to npm |
+| Try the next release | **v0.7.0-rc.2 candidate** | [Download the GitHub .tgz](https://github.com/makooslee/dsh-company/releases/download/v0.7.0-rc.2/dsh-company-0.7.0-rc.2.tgz) · [English release notes](https://github.com/makooslee/dsh-company/releases/tag/v0.7.0-rc.2) · [npm candidate](https://www.npmjs.com/package/dsh-company/v/0.7.0-rc.2) (`next`) |
 
 The candidate adds an interactive 3D office with 2D fallback and separate working and waiting states. Company plans require approval of the exact revision before starting, with an optional preset for parallel specialist work. Stable employee IDs distinguish people with identical names; group records distinguish membership from actual participation and saved replies.
 
@@ -108,7 +108,7 @@ Or pin the current stable version:
 dsh plugin --profile web add dsh-company@0.6.0
 ```
 
-The candidate is available from GitHub only. Download the exact `.tgz` above and replace the example path. Run this in a Mac terminal to use the built-in `web` profile in a temporary directory, without modifying your normal installation.
+Download the exact `.tgz` above and replace the example path. Run this in a Mac terminal to use the built-in `web` profile in a temporary directory, without modifying your normal installation.
 
 ```bash
 (
