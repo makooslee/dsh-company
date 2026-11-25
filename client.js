@@ -21,6 +21,94 @@ window.__ModuleLoader__.load({
 
     const DICT = {
       zh: {
+        quantPeople:'已聘员工',quantPeopleHint:'员工活动来自公司任务、固定流程和群聊记录；下方 TradingAgents 遥测不是员工执行记录。',quantNoPeople:'尚无已聘员工，或员工名单尚未载入。',quantIdle:'暂无进行中的工作记录',quantLastResult:'最近有依据的结果',quantNoResult:'暂无结果记录',quantOwner:'遥测负责人',quantUnassigned:'未分配',quantSaveOwners:'保存负责人分配',quantOwnerHint:'负责人只是职责映射，不会启动员工、不代表员工执行了扫描。上游事件不会触发员工动效。',quantOwnersUnavailable:'此宿主尚不支持保存负责人。',quantOwnerInvalid:'所选员工已不在当前名单，请重新选择。',quantSource_company:'公司任务',quantSource_fixed:'固定流程',quantSource_group:'群聊任务',quantTelemetry:'TradingAgents 原始遥测',quantRosterError:'员工状态读取失败；显示的旧记录不代表当前状态。',quantOwnersSaved:'负责人已保存',
+        quantPlay:'播放真实记录',quantPause:'暂停',quantReset:'重置回放',quantFollow:'跟随最新记录',quantArchive:'历史记录回放 · 非实时执行',quantEventFeed:'真实事件流',quantNoEvents:'尚无事件。不会自动生成演示活动。',quantReplayReady:'点击播放，逐条回放已记录的事件。',quantBeijing:'北京时间',quantSnapshotDetails:'展开快照指标',quantLiveEvents:'只读事件更新 · 首次加载不冒充新活动',
+        quantFlow:'证据处理链',quantFlowHint:'固定职责顺序示意，不代表数据已经通过；状态取自当前快照。',quantLog:'最近活动记录',quantLogHint:'每角色仅展示当前快照中的最近一次活动，不是完整历史日志。',quantNoLog:'没有实际活动时间可供排序。',
+        quantSessionMorning:'上午盘',quantSessionAfternoon:'下午盘',quantSessionLunch:'午间休市',quantSessionClosed:'休市',
+        quantStatus_idle:'空闲',quantStatus_running:'处理中',quantStatus_done:'本次处理完成',quantStatus_blocked:'阻塞',quantStatus_stale:'陈旧',quantStatus_unknown:'未知',quantDelivery:'通知出站箱',quantDryRun:'演练模式，不发送邮件',quantEligible:'符合条件',quantDelivered:'记录的投递数',quantSession:'时段',quantSource:'来源',
+        quantTab: "量化作战室",
+        quantSubtitle: "看见数据、判断与阻塞，不发出交易指令",
+        quantReadOnly: "仅观测 · 无下单操作 · 无收益目标",
+        quantMode: "数据模式",
+        quantReplay: "回放",
+        quantSimulation: "模拟",
+        quantLive: "只读实时",
+        quantUnknown: "未知 / 未提供",
+        quantHeartbeat: "最近实际活动上报",
+        quantFreshness: "行情时间",
+        quantProcessing: "正在处理",
+        quantCounts: "处理计数",
+        quantBlocked: "阻塞原因",
+        quantReported: "上报状态",
+        quantSnapshot: "快照时间",
+        quantMissing: "该角色尚无状态上报。",
+        quantError: "状态读取失败，旧数据不代表当前在线。",
+        quantUnavailable: "尚未接入量化状态源。不会展示模拟在线信号。",
+        quantRefresh: "刷新状态",
+        quantDataRole: "行情质检",
+        quantSentimentRole: "情绪题材",
+        quantOrderbookRole: "盘口候选",
+        quantRiskRole: "风控审核",
+        quantNotificationRole: "通知投递",
+        quantAgo: "秒前",
+        quantFuture: "时间戳领先本机，请检查时钟",
+        quantOffline: "未收到快照",
+        quantHealthNote: "活动上报不是独立心跳。数据时间与接收时间不是同一概念；回放的历史数据不会被标记为实时。缺失指标不会被推断为正常。",
+
+        intakeBoundaries:'范围与禁区（可选）',intakeChecks:'具体验收检查（可选）',intakeTradeoff:'比较顺序与并行方案（仅在取舍重要时）',intakeRevise:'修改并重新提案',intakeEdit:'载入此方案修改',intakeReject:'拒绝方案',intakeRejected:'已拒绝',intakeDefaultBoundary:'不扩大需求范围，不增加权限。',roomDispatch:'下发任务',roomRecommended:'默认推荐：精简方案。检查验收标准与风险后批准，再开始运行。',fixedRunNow:'运行模板',fixedFreshInput:'本次运行输入',fixedRunHint:'模板复用节点与步骤；每次填写新的任务输入。运行可能产生模型费用和工具操作。',
+        roomTitle: "协作工作间",
+        roomEyebrow: "COMPANY / WORKSPACE",
+        roomMembers: "团队成员",
+        roomThreads: "任务会话",
+        roomFeed: "协作记录",
+        roomReview: "审批与证据",
+        roomSource: "以下为任务输入和引擎节点记录，不是员工即时聊天。",
+        roomScope: "每个方案是一条任务会话；当前不提供项目权限隔离。",
+        roomCompose: "发起新任务",
+        roomComposeHint: "描述目标，生成方案后再批准。这里不会直接给员工发送聊天消息。",
+        roomOwner: "任务发起人",
+        roomEngine: "执行引擎",
+        roomWaiting: "等待方案批准与执行，尚无节点记录。",
+        roomLive: "宿主状态 · 定期同步",
+        roomPlanCount: "公司任务运行中",
+        roomDoneCount: "公司任务已完成",
+        roomNoMembers: "尚无员工，请先在员工管理中配置。",
+
+        companyOutcome: '验收标准（可选）', companyAcceptedOutcome: '本方案验收标准', companyRisks: '方案风险', companyRetry: '重试同一已批准方案', companyRetryHint: '重试会重新执行同一方案，不是从失败节点继续；可能再次产生模型费用。最多 5 次尝试，由宿主校验。',
+        companyAssignments: '阶段与负责人',
+        companyMode: "AI 公司", groupMode:"群聊", noActiveWork:"当前没有运行中的步骤", activeWork:"正在处理",
+        fixedMode: "固定流程",
+        companyIntro: "提交目标 → 比较方案 → 批准指定版本 → 单独开始运行",
+        fixedIntro: "打开已有工作流，编辑节点与依赖，重复执行已知流程。",
+        companyRules: "当前方案由规则模板生成，不是模型量身制定；请先检查适用性、风险和员工配置。",
+        companyBrief: "任务目标与约束",
+        companyCreate: "生成待审批方案",
+        companyPlans: "方案历史",
+        companyEmpty: "还没有方案。描述你希望交付什么，以及限制条件。",
+        companyRevision: "版本",
+        companyRisk: "风险",
+        companyFeasibility: "可行性",
+        companyApprove: "批准所选方案与版本",
+        companyRun: "开始已批准的运行",
+        companySeparate: "批准不会启动执行。预览版使用员工模型做文字交付，可能产生模型费用，不会授予员工已配置的全局工具。",
+        companySelected: "已批准方案",
+        companyPromote: "保存成功方案为固定流程",
+        companyPromoteHint: "保存的是可复用文本流程，不包含当前运行结果。",
+        companyCancel: "取消运行",
+        companyUnavailable: "当前宿主尚不支持公司方案，请更新后再试。",
+        companyBusy: "处理中…",
+        companyLegacy: "旧版任务板",
+        companyNoRun: "尚无可核验的运行记录。",
+        companyAwaiting: "待选择与批准",
+        companyApproved: "已批准，尚未运行",
+        companyCompleted: "完成",
+        companyFailed: "失败",
+        companyCancelled: "已取消",
+        companyRunning: "运行中",
+        companyRunStatus: "引擎运行状态",
+        companySelect: "选择方案",
+        companyHistoryHint: "切换方案不会批准或运行；新目标会创建独立方案。",
+
         tabArchitecture: '架构总览',
         architectureTitle: '从目标到交付，看清团队如何协作',
         architectureIntro: '派单与工作流是两条独立执行路径，共用员工、模型与会话能力。',
@@ -187,6 +275,94 @@ window.__ModuleLoader__.load({
         workflowAddNode: '添加员工节点',
       },
       en: {
+        quantPeople:'Hired employees',quantPeopleHint:'Employee activity comes from company tasks, fixed workflows and group records. TradingAgents telemetry below is not employee execution history.',quantNoPeople:'No hired employees, or the roster has not loaded.',quantIdle:'No recorded work in progress',quantLastResult:'Latest grounded result',quantNoResult:'No result recorded',quantOwner:'Telemetry owner',quantUnassigned:'Unassigned',quantSaveOwners:'Save owner assignments',quantOwnerHint:'Ownership is a responsibility mapping only. It neither starts employees nor proves they performed a scan. Upstream events never animate employees.',quantOwnersUnavailable:'This host cannot save owner assignments yet.',quantOwnerInvalid:'A selected employee is no longer in the roster. Choose again.',quantSource_company:'Company task',quantSource_fixed:'Fixed workflow',quantSource_group:'Group task',quantTelemetry:'TradingAgents raw telemetry',quantRosterError:'Employee state fetch failed; previous records do not prove current state.',quantOwnersSaved:'Owner assignments saved',
+        quantPlay:'Play recorded events',quantPause:'Pause',quantReset:'Reset playback',quantFollow:'Follow latest events',quantArchive:'Archive playback · Not live execution',quantEventFeed:'Recorded event stream',quantNoEvents:'No events yet. Demo activity is never generated.',quantReplayReady:'Press Play to step through recorded events.',quantBeijing:'Beijing time',quantSnapshotDetails:'Snapshot metrics',quantLiveEvents:'Read-only event updates · Initial load is not new activity',
+        quantFlow:'Evidence processing path',quantFlowHint:'Responsibility order, not proof that data passed. States come from the snapshot.',quantLog:'Latest activity records',quantLogHint:'One latest activity per role from the current snapshot, not a complete historical log.',quantNoLog:'No actual activity timestamps to order.',
+        quantSessionMorning:'Morning session',quantSessionAfternoon:'Afternoon session',quantSessionLunch:'Lunch break',quantSessionClosed:'Closed',
+        quantStatus_idle:'Idle',quantStatus_running:'Processing',quantStatus_done:'Completed cycle',quantStatus_blocked:'Blocked',quantStatus_stale:'Stale',quantStatus_unknown:'Unknown',quantDelivery:'Notification outbox',quantDryRun:'Dry run, no email sent',quantEligible:'Eligible',quantDelivered:'Recorded deliveries',quantSession:'Session',quantSource:'Source',
+        quantTab: "Quant operations",
+        quantSubtitle: "Observe data, decisions and blockers. No order execution.",
+        quantReadOnly: "Observation only · No orders · No profit targets",
+        quantMode: "Data mode",
+        quantReplay: "Replay",
+        quantSimulation: "Simulation",
+        quantLive: "Read-only live",
+        quantUnknown: "Unknown / not provided",
+        quantHeartbeat: "Last activity report",
+        quantFreshness: "Market data timestamp",
+        quantProcessing: "Processing",
+        quantCounts: "Counters",
+        quantBlocked: "Blocked by",
+        quantReported: "Reported status",
+        quantSnapshot: "Snapshot time",
+        quantMissing: "No status reported for this role yet.",
+        quantError: "Status fetch failed. Previous data does not prove current availability.",
+        quantUnavailable: "No quant status source connected. No simulated online signals are shown.",
+        quantRefresh: "Refresh status",
+        quantDataRole: "Market data quality",
+        quantSentimentRole: "Sentiment & themes",
+        quantOrderbookRole: "Order book candidates",
+        quantRiskRole: "Risk review",
+        quantNotificationRole: "Notification delivery",
+        quantAgo: "seconds ago",
+        quantFuture: "Timestamp is ahead of this device. Check clock alignment.",
+        quantOffline: "No snapshot received",
+        quantHealthNote: "Activity reports are not independent heartbeats. Market data time is not receipt time; replay data is never labeled live. Missing metrics are never treated as healthy.",
+
+        intakeBoundaries:'Scope and exclusions (optional)',intakeChecks:'Concrete acceptance checks (optional)',intakeTradeoff:'Compare sequential and parallel plans when the tradeoff matters',intakeRevise:'Save revised proposal',intakeEdit:'Edit this proposal',intakeReject:'Reject proposal',intakeRejected:'Rejected',intakeDefaultBoundary:'Do not expand the brief or grant permissions.',roomDispatch:'Assign a task',roomRecommended:'Default recommendation: Lean. Review acceptance criteria and risks, approve, then start.',fixedRunNow:'Run template',fixedFreshInput:'Input for this run',fixedRunHint:'A template reuses nodes and steps. Enter a fresh task each time. Running may incur model costs and tool actions.',
+        roomTitle: "Team workspace",
+        roomEyebrow: "COMPANY / WORKSPACE",
+        roomMembers: "People",
+        roomThreads: "Task conversations",
+        roomFeed: "Collaboration log",
+        roomReview: "Approvals & evidence",
+        roomSource: "These are task inputs and engine node records, not live employee chat.",
+        roomScope: "Each proposal is a task conversation. Project permission isolation is not provided.",
+        roomCompose: "Start a new task",
+        roomComposeHint: "Describe the goal, then review and approve the proposal. This does not send a chat message to employees.",
+        roomOwner: "Task owner",
+        roomEngine: "Execution engine",
+        roomWaiting: "Waiting for approval and execution. No node records yet.",
+        roomLive: "Host state · periodic sync",
+        roomPlanCount: "Company tasks running",
+        roomDoneCount: "Company tasks completed",
+        roomNoMembers: "No employees yet. Configure them in People first.",
+
+        companyOutcome: 'Acceptance criteria (optional)', companyAcceptedOutcome: 'Plan acceptance criteria', companyRisks: 'Plan risks', companyRetry: 'Retry the same approved plan', companyRetryHint: 'Retry executes the same plan again, not just the failed node. Model costs may recur. The host enforces a maximum of 5 attempts.',
+        companyAssignments: 'Stages and assignees',
+        companyMode: "AI Company", groupMode:"Group chats", noActiveWork:"No steps running now", activeWork:"Working on",
+        fixedMode: "Fixed flows",
+        companyIntro: "Brief → compare proposals → approve exact revision → start separately",
+        fixedIntro: "Open your workflow library, edit nodes and dependencies, and repeat a known process.",
+        companyRules: "These proposals use rule-based templates, not bespoke model-generated plans. Review fit, risks and employee configuration first.",
+        companyBrief: "Goal and constraints",
+        companyCreate: "Create proposal for review",
+        companyPlans: "Proposal history",
+        companyEmpty: "No proposals yet. Describe the delivery you want and its constraints.",
+        companyRevision: "Revision",
+        companyRisk: "Risk",
+        companyFeasibility: "Feasibility",
+        companyApprove: "Approve selected option and revision",
+        companyRun: "Start approved run",
+        companySeparate: "Approval does not execute. This preview uses employee models for text deliverables and may incur model costs. It does not grant employees their configured global tools.",
+        companySelected: "Approved option",
+        companyPromote: "Save successful plan as fixed flow",
+        companyPromoteHint: "Saves a reusable text workflow, not the current run results.",
+        companyCancel: "Cancel run",
+        companyUnavailable: "This host does not support company proposals yet. Update it to continue.",
+        companyBusy: "Working…",
+        companyLegacy: "Legacy task board",
+        companyNoRun: "No matching engine run is available yet.",
+        companyAwaiting: "Awaiting selection and approval",
+        companyApproved: "Approved, not started",
+        companyCompleted: "Completed",
+        companyFailed: "Failed",
+        companyCancelled: "Cancelled",
+        companyRunning: "Running",
+        companyRunStatus: "Engine run status",
+        companySelect: "Select option",
+        companyHistoryHint: "Switching proposals never approves or runs them. A new brief creates a separate proposal.",
+
         tabArchitecture: 'Architecture',
         architectureTitle: 'From a goal to delivery',
         architectureIntro: 'Missions and workflows are separate execution paths sharing employee, model and session capabilities.',
@@ -404,6 +580,24 @@ window.__ModuleLoader__.load({
     }
 
     const CSS = `
+.dsc-groups{display:grid;grid-template-columns:minmax(160px,.68fr) minmax(280px,2.2fr) minmax(170px,.8fr)}
+.dsc-groups .dsc-room-sectionhead{flex-wrap:wrap}.dsc-groups .dsc-room-feed{min-height:180px}
+.dsc-group-members{border:1px solid var(--room-line);border-radius:10px;display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:8px;padding:12px;margin:12px 0}
+.dsc-group-member{display:flex;align-items:center;flex-wrap:wrap;gap:7px;padding:8px;border:1px solid var(--room-line);border-radius:8px;cursor:pointer}
+.dsc-group-member small{color:var(--room-muted)}.dsc-room-members{display:grid;gap:10px;margin:12px 0;padding:0;list-style:none}
+.dsc-room-members li{display:flex;justify-content:space-between;gap:8px;border-bottom:1px solid var(--room-line);padding:8px 0}
+.dsc-group-nav{text-align:left}.dsc-room-threads{display:grid;gap:7px;max-height:460px;overflow:auto}
+.dsc-work-dot{width:8px;height:8px;background:#13875a;border-radius:100%;display:inline-block;box-shadow:0 0 0 3px #13875a30;margin-left:auto}
+@media(max-width:760px){.dsc-room.dsc-groups{display:flex;flex-direction:column}.dsc-room-threads{max-height:150px}}
+
+.dsc-launch{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;padding:12px 18px}
+.dsc-launch .dsc-card{text-align:start;color:inherit;font:inherit}
+.dsc-launch [aria-pressed="true"]{border-color:var(--dsw-alias-brand-primary,#4C8DFF)}
+.dsc-company{display:flex;flex-direction:column;gap:10px;max-width:1100px;margin:auto;width:100%}
+.dsc-company-plan{display:flex;flex-direction:column;gap:8px;overflow-wrap:anywhere}
+.dsc-company .dsc-card{cursor:default}.dsc-company .dsc-card p{margin:0;white-space:pre-wrap}
+.dsc-company .dsc-card-actions{flex-wrap:wrap}.dsc-company progress{width:100%}
+
 .dsc-root{display:flex;flex-direction:column;height:100%;min-height:0;background:var(--dsw-alias-bg-layer-1, Canvas);color:var(--dsw-alias-label-primary, CanvasText);font-size:13px}
 .dsc-head{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--dsw-alias-border-l1, rgba(128,128,128,.28));flex:none}
 .dsc-name{font-size:15px;font-weight:600;letter-spacing:.2px}
@@ -577,6 +771,122 @@ window.__ModuleLoader__.load({
 .dsc-wf-node{height:96px;box-sizing:border-box}
 .dsc-wf-node-body{height:38px;min-height:0;box-sizing:border-box}
 
+/* Company room: intentionally independent of the fixed-flow canvas. */
+.dsc-room{--room-bg:#f5f6f8;--room-panel:#ffffff;--room-ink:#202734;--room-muted:#596579;--room-line:#dce1e8;--room-accent:#314ed0;max-width:none;gap:0;background:var(--room-bg);color:var(--room-ink);border:1px solid var(--room-line);border-radius:18px;overflow:hidden;font-size:13px;line-height:1.55}
+.dsc-room *{box-sizing:border-box}.dsc-room h2,.dsc-room h3,.dsc-room h4,.dsc-room p{margin:0}.dsc-room h2{font-size:23px;letter-spacing:-.6px;font-weight:650}.dsc-room h3{font-size:13px;font-weight:700}.dsc-room h4{font-size:13px}
+.dsc-room-headeractions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.dsc-room-header{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px 26px;border-bottom:1px solid var(--room-line);background:var(--room-panel)}
+.dsc-room-eyebrow{font-size:10px;letter-spacing:1.8px;color:var(--room-muted);margin-bottom:4px;font-weight:700}.dsc-room-sync{font-size:11px;color:var(--room-muted);border:1px solid var(--room-line);border-radius:20px;padding:5px 10px}
+.dsc-room-columns{display:grid;grid-template-columns:218px minmax(260px,1fr) 330px;align-items:start;min-height:650px}
+.dsc-room-sidebar{padding:20px 14px;display:flex;flex-direction:column;gap:16px;min-width:0}.dsc-room-sidebar>label{font-size:11px;color:var(--room-muted)}
+.dsc-room-main{padding:22px;border-inline:1px solid var(--room-line);background:var(--room-panel);min-width:0;display:flex;flex-direction:column;gap:12px;min-height:650px}
+.dsc-room-review{padding:22px 18px;min-width:0;display:flex;flex-direction:column;gap:14px}.dsc-room .dsc-hint{font-size:12px;line-height:1.65;color:var(--room-muted)}.dsc-room .dsc-badge{color:var(--room-ink);background:var(--room-panel);border:1px solid var(--room-line)}.dsc-room .dsc-badge[data-s=running]{color:var(--room-ink);background:var(--room-panel);border-color:var(--room-accent)}
+.dsc-room-threadlist{display:flex;flex-direction:column;gap:6px}.dsc-room-thread{font:inherit;text-align:start;background:transparent;color:var(--room-ink);border:1px solid transparent;border-radius:10px;padding:10px;cursor:pointer;display:flex;flex-direction:column;gap:4px;min-width:0}.dsc-room-thread strong{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}.dsc-room-thread span{font-size:11px;color:var(--room-muted)}.dsc-room-thread[aria-current=true]{background:var(--room-panel);border-color:var(--room-line);box-shadow:0 2px 5px #18243808}
+.dsc-room-person summary{display:flex;align-items:center;gap:9px;cursor:pointer;font-weight:550}.dsc-room-person p{padding:7px 0 0 39px}.dsc-room-avatar{display:grid;place-items:center;width:29px;height:29px;border:1px solid var(--room-line);border-radius:9px;background:var(--room-panel);color:var(--room-ink);font-size:12px}
+.dsc-room-sectionhead,.dsc-room-messagehead{display:flex;align-items:center;justify-content:space-between;gap:12px}.dsc-room-messagehead span{font-size:11px;color:var(--room-muted)}.dsc-room-feed{display:flex;flex-direction:column;gap:14px;min-height:240px}.dsc-room-message{border:1px solid var(--room-line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:9px;background:var(--room-panel);overflow-wrap:anywhere}.dsc-room-owner{background:var(--room-bg);border-inline-start:3px solid var(--room-accent)}.dsc-room-message pre{font:12px/1.7 ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere;max-height:300px;overflow:auto;margin:0}.dsc-room-messagehead [data-status=failed]{color:#b22437}.dsc-room-messagehead [data-status=done]{color:#18734f}.dsc-room-note{padding:20px;color:var(--room-muted);font-size:12px;border:1px dashed var(--room-line);border-radius:12px}.dsc-room-welcome{padding:30px 12px;display:flex;flex-direction:column;gap:10px}
+.dsc-room-composer{margin-top:auto;border:1px solid var(--room-line);border-radius:14px;padding:17px;display:flex;flex-direction:column;gap:10px;box-shadow:0 5px 18px #17203508}.dsc-room .dsc-label{color:var(--room-ink);font-size:12px}.dsc-room .dsc-area,.dsc-room .dsc-input{background:var(--room-panel);color:var(--room-ink);border:1px solid var(--room-line);border-radius:8px;width:100%;font:inherit}.dsc-room .dsc-area{min-height:82px;padding:10px;resize:vertical}.dsc-room #dsc-company-outcome{min-height:52px}.dsc-room .dsc-btn{background:var(--room-panel);color:var(--room-ink);border:1px solid var(--room-line);border-radius:9px;min-height:36px;white-space:normal;line-height:1.4}.dsc-room .dsc-btn[data-kind=primary]{background:var(--room-accent);border-color:var(--room-accent);color:#fff}.dsc-room .dsc-btn:disabled{opacity:.55;cursor:not-allowed}.dsc-room :focus-visible{outline:2px solid var(--room-accent);outline-offset:3px}.dsc-room input[type=radio]{accent-color:var(--room-accent)}
+.dsc-room .dsc-grid{grid-template-columns:1fr;gap:9px}.dsc-room .dsc-card{background:var(--room-panel);border:1px solid var(--room-line);border-radius:12px;padding:13px;color:var(--room-ink);font-size:12px}.dsc-room .dsc-card:has(input:checked){border-color:var(--room-accent);box-shadow:inset 3px 0 var(--room-accent)}.dsc-room .dsc-card-actions{display:flex;flex-direction:column}.dsc-room .dsc-company-plan{gap:14px}.dsc-room .dsc-company-plan>h3{font-size:15px;line-height:1.5}.dsc-room .dsc-wf-runlog{color:var(--room-ink);background:var(--room-panel);border-color:var(--room-line)}
+@media(prefers-color-scheme:dark){.dsc-room{--room-bg:#141820;--room-panel:#1c222d;--room-ink:#eff2f8;--room-muted:#b1bdcf;--room-line:#354051;--room-accent:#829dff}.dsc-room .dsc-btn[data-kind=primary]{color:#10162d}.dsc-room-messagehead [data-status=failed]{color:#ffacb6}.dsc-room-messagehead [data-status=done]{color:#7fdbb2}}
+@container(max-width:1100px){.dsc-room-columns{grid-template-columns:180px minmax(240px,1fr)}.dsc-room-review{grid-column:2;border-inline-start:1px solid var(--room-line);border-top:1px solid var(--room-line)}.dsc-room-main{border-inline-end:0}}
+@container(max-width:700px){.dsc-room-columns{display:flex;flex-direction:column}.dsc-room-sidebar,.dsc-room-main,.dsc-room-review{width:100%;border:0;min-height:0}.dsc-room-sidebar{border-bottom:1px solid var(--room-line)}.dsc-room-threadlist{max-height:150px;overflow:auto}.dsc-room-header{padding:18px;align-items:flex-start}.dsc-room-sync{max-width:130px}.dsc-room-main,.dsc-room-review{padding:18px}.dsc-room-review{border-top:1px solid var(--room-line)}}
+
+
+.dsc-quant{--q-bg:#f5f7fa;--q-panel:#fff;--q-ink:#202938;--q-muted:#526278;--q-line:#d6dee9;--q-accent:#3156c7;background:var(--q-bg);color:var(--q-ink);padding:24px;border:1px solid var(--q-line);border-radius:16px;display:flex;flex-direction:column;gap:20px;line-height:1.5;max-width:1500px;margin:auto}
+.dsc-quant *{box-sizing:border-box}.dsc-quant h2,.dsc-quant h3,.dsc-quant h4,.dsc-quant p{margin:0}.dsc-quant-head{display:flex;justify-content:space-between;align-items:center;gap:20px}.dsc-quant h2{font-size:25px;letter-spacing:-.5px;margin:6px 0}.dsc-quant-head p,.dsc-quant-note{color:var(--q-muted);font-size:12px}.dsc-quant-kicker{font-size:11px;font-weight:650;letter-spacing:.6px;color:var(--q-accent)}.dsc-quant-meta{padding:13px 16px;border:1px solid var(--q-line);background:var(--q-panel);border-radius:10px;display:flex;gap:16px;justify-content:space-between;flex-wrap:wrap;font-size:12px}.dsc-quant-meta span{color:var(--q-muted)}
+.dsc-quant-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}.dsc-quant-role{border:1px solid var(--q-line);border-radius:13px;padding:18px;background:var(--q-panel);display:flex;flex-direction:column;gap:13px;min-width:0;overflow-wrap:anywhere}.dsc-quant-rolehead{display:flex;align-items:center;gap:10px}.dsc-quant-role h3{font-size:14px}.dsc-quant-index{border:1px solid var(--q-line);padding:5px 7px;border-radius:7px;color:var(--q-accent);font:12px ui-monospace,monospace}.dsc-quant-status{font-size:12px;font-weight:600;padding-bottom:12px;border-bottom:1px solid var(--q-line)}.dsc-quant dl{margin:0;font-size:12px}.dsc-quant dt{color:var(--q-muted);margin-bottom:4px}.dsc-quant dd{margin:0 0 12px;font-variant-numeric:tabular-nums}.dsc-quant h4{font-size:12px;margin-bottom:9px}.dsc-quant-counts{border-top:1px solid var(--q-line);padding-top:12px}.dsc-quant-counts dl>div{display:flex;justify-content:space-between;gap:8px}.dsc-quant-counts p{font-size:12px}.dsc-quant-blocker{margin-top:auto;border-left:3px solid var(--q-line);padding:9px 11px;background:var(--q-bg);font-size:12px}.dsc-quant-blocker p{margin-top:5px}.dsc-quant-warning{border:1px solid var(--q-line);border-left:3px solid #ac6b1a;border-radius:8px;padding:12px;font-size:12px;background:var(--q-panel)}.dsc-quant .dsc-btn{background:var(--q-panel);color:var(--q-ink);border:1px solid var(--q-line);min-height:36px}.dsc-quant :focus-visible{outline:2px solid var(--q-accent);outline-offset:3px}
+@media(prefers-color-scheme:dark){.dsc-quant{--q-bg:#131a25;--q-panel:#1d2735;--q-ink:#edf3fc;--q-muted:#b3c0d4;--q-line:#3a495f;--q-accent:#9cb9ff}}
+@container(max-width:600px){.dsc-quant{padding:15px;gap:14px}.dsc-quant-head{align-items:flex-start;flex-wrap:wrap}.dsc-quant-grid{grid-template-columns:1fr}.dsc-quant h2{font-size:22px}}
+
+.dsc-quant-terminal{display:grid;grid-template-columns:232px minmax(0,1fr);gap:22px;align-items:start}.dsc-quant-roster{display:flex;flex-direction:column;gap:10px}.dsc-quant-person{padding:13px;border:1px solid var(--q-line);border-radius:9px;background:var(--q-panel);display:flex;flex-direction:column;gap:9px;min-width:0;font-size:12px}.dsc-quant-person small{font-size:10px;color:var(--q-muted);overflow-wrap:anywhere}.dsc-quant-person p{color:var(--q-muted)}.dsc-quant-evidence{min-width:0;display:flex;flex-direction:column;gap:18px}.dsc-quant-path{list-style:none;padding:0;margin:14px 0 0;display:flex;gap:8px;flex-wrap:wrap}.dsc-quant-path li{flex:1;min-width:115px;padding:10px;border:1px solid var(--q-line);background:var(--q-panel);border-radius:7px;font-size:11px;display:flex;flex-direction:column;gap:8px}.dsc-quant-pill{font:11px/1.5 ui-monospace,monospace;align-self:flex-start;padding:2px 7px;border-radius:5px;background:var(--q-bg);border:1px solid var(--q-line);color:var(--q-muted)}.dsc-quant-pill[data-status=running]{color:#2359a6;background:#edf4ff}.dsc-quant-pill[data-status=blocked],.dsc-quant-pill[data-status=stale]{color:#8c4d10;background:#fff4df}.dsc-quant-pill[data-status=done]{color:#246946;background:#eaf6ee}.dsc-quant-log{border:1px solid var(--q-line);background:var(--q-panel);border-radius:10px;padding:16px}.dsc-quant-log ol{list-style:none;padding:0;margin:12px 0 0}.dsc-quant-log li{display:flex;gap:8px;flex-wrap:wrap;padding:12px 0;border-top:1px solid var(--q-line);font-size:12px}.dsc-quant-log time{font:10px ui-monospace,monospace;color:var(--q-muted)}.dsc-quant-log p{width:100%}.dsc-quant-grid{grid-template-columns:repeat(auto-fit,minmax(225px,1fr))}.dsc-quant-role{padding:14px}.dsc-quant-role h3{font-size:13px}
+@media(prefers-color-scheme:dark){.dsc-quant-pill[data-status=running]{color:#acd0ff;background:#253c60}.dsc-quant-pill[data-status=blocked],.dsc-quant-pill[data-status=stale]{color:#f4ce9a;background:#493922}.dsc-quant-pill[data-status=done]{color:#a4dfbd;background:#243e30}}
+@container(max-width:750px){.dsc-quant-terminal{grid-template-columns:1fr}.dsc-quant-roster{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}.dsc-quant-path{display:grid;grid-template-columns:1fr 1fr}.dsc-quant-path li{min-width:0}}
+
+/* Evidence motion is driven only by new IDs or explicit archive playback. */
+.dsc-quant{padding:16px;gap:12px;background:var(--q-bg)}.dsc-quant-head h2{font-size:21px}.dsc-quant-meta{padding:8px 12px}.dsc-quant-terminal{gap:14px;grid-template-columns:220px minmax(0,1fr)}.dsc-quant-evidence{gap:12px}.dsc-quant-roster{gap:7px}.dsc-quant-person{padding:11px;gap:6px}.dsc-quant-stream{padding:13px}.dsc-quant-streamhead{display:flex;justify-content:space-between;gap:10px}.dsc-quant-streamhead span{font-size:11px;color:var(--q-muted)}.dsc-quant-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0;font-size:12px}.dsc-quant-controls label{display:flex;align-items:center;gap:6px}.dsc-quant-scroll{height:310px;overflow:auto;overscroll-behavior:contain;scroll-behavior:auto;border-top:1px solid var(--q-line)}.dsc-quant-log .dsc-quant-scroll ol{margin:0}.dsc-quant-scroll li{padding:10px 6px}.dsc-quant-scroll code{font-size:10px;color:var(--q-muted)}.dsc-quant-scroll small{font:10px ui-monospace,monospace;color:var(--q-muted)}.dsc-quant-empty{padding:24px 12px;color:var(--q-muted);font-size:12px}.dsc-quant-eventreason{color:var(--q-muted)}.dsc-quant-metrics>summary{font-size:12px;cursor:pointer;padding:10px;border:1px solid var(--q-line);border-radius:7px;background:var(--q-panel)}.dsc-quant-metrics .dsc-quant-grid{margin-top:10px}
+@keyframes dsc-quant-activity{0%{box-shadow:inset 3px 0 var(--q-accent);background:#e8efff}100%{box-shadow:inset 0 0 transparent}}
+.dsc-quant-person[data-pulse="1"],.dsc-quant-scroll li[data-new="1"]{animation:dsc-quant-activity .8s ease-out}
+@media(prefers-color-scheme:dark){@keyframes dsc-quant-activity{0%{box-shadow:inset 3px 0 var(--q-accent);background:#263c5c}100%{box-shadow:inset 0 0 transparent}}}
+@media(prefers-reduced-motion:reduce){.dsc-quant-person[data-pulse="1"],.dsc-quant-scroll li[data-new="1"]{animation:none}.dsc-quant-scroll{scroll-behavior:auto}}
+@container(max-width:750px){.dsc-quant-terminal{display:flex;flex-direction:column}.dsc-quant-evidence{order:0;width:100%}.dsc-quant-roster{order:1;width:100%;grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}.dsc-quant-scroll{height:280px}}
+
+.dsc-quant-terminal{grid-template-columns:285px minmax(0,1fr)}.dsc-quant-people-sidebar{min-width:0}.dsc-quant-employees{display:flex;flex-direction:column;gap:12px;font-size:12px}.dsc-quant-employee{padding:13px;background:var(--q-panel);border:1px solid var(--q-line);border-radius:10px;display:flex;flex-direction:column;gap:10px;overflow-wrap:anywhere}.dsc-quant-employee header{display:flex;gap:9px;align-items:center}.dsc-quant-employee h4{font-size:14px;margin:0}.dsc-quant-employee header p{color:var(--q-muted);font-size:11px}.dsc-quant-employeeavatar{width:34px;height:34px;border:1px solid var(--q-line);background:var(--q-bg);border-radius:10px;display:grid;place-items:center;font-weight:650;flex:none}.dsc-quant-personwork{display:flex;flex-direction:column;gap:4px;padding:8px 0;border-top:1px solid var(--q-line)}.dsc-quant-workorigin{font-size:10px;font-weight:600;color:var(--q-muted)}.dsc-quant-personwork time{font-size:10px;color:var(--q-muted)}.dsc-quant-employee pre{font:11px/1.6 ui-monospace,monospace;max-height:180px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;padding:8px;background:var(--q-bg);border-radius:6px}.dsc-quant-employee summary{cursor:pointer}.dsc-quant-owners{display:flex;flex-direction:column;gap:9px;padding:13px;border:1px solid var(--q-line);border-radius:10px;background:var(--q-panel)}.dsc-quant-owners label{display:flex;flex-direction:column;gap:4px}.dsc-quant-owners select{padding:8px;border:1px solid var(--q-line);border-radius:6px;background:var(--q-bg);color:var(--q-ink);width:100%;font:inherit}.dsc-quant-raw{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}.dsc-quant-raw .dsc-quant-person{font-size:11px}
+@container(max-width:750px){.dsc-quant-people-sidebar{order:0;width:100%}.dsc-quant-evidence{order:1}.dsc-quant-employees{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}.dsc-quant-employees>h3,.dsc-quant-employees>.dsc-quant-note,.dsc-quant-owners{grid-column:1/-1}}
+/* Neon is scoped to the Quant cockpit, independent of the Host theme. */
+.dsc-quant.dsc-quant-neon{
+  color-scheme:dark;--q-bg:#000;--q-panel:#090c14;--q-ink:#f1f5ff;
+  --q-muted:#aab6cc;--q-line:#283247;--q-accent:#9edfff;
+  color:var(--q-ink);background:#000;border:1px solid #313a50;border-radius:16px;
+}
+.dsc-quant-neon .dsc-quant-kicker{color:#8ce8ff;letter-spacing:.13em}
+.dsc-quant-neon .dsc-quant-terminal{gap:16px}
+.dsc-quant-neon .dsc-quant-employees{gap:8px}
+.dsc-quant-neon .dsc-quant-employee{
+  --neon-a:#4fe1ff;--neon-b:#7f83ff;
+  border:1px solid transparent;border-radius:11px;min-height:100px;
+  background:linear-gradient(155deg,#0d1220,#07090f 70%) padding-box,
+    linear-gradient(126deg,var(--neon-a),#292d43 56%,var(--neon-b)) border-box;
+}
+.dsc-quant-neon .dsc-quant-employee[data-accent="1"]{--neon-a:#c692ff;--neon-b:#fa77d5}
+.dsc-quant-neon .dsc-quant-employee[data-accent="2"]{--neon-a:#50f3cf;--neon-b:#6f85ff}
+.dsc-quant-neon .dsc-quant-employee[data-accent="3"]{--neon-a:#ffbe63;--neon-b:#f170b3}
+.dsc-quant-neon .dsc-quant-employee[data-accent="4"]{--neon-a:#7faaff;--neon-b:#5bf1eb}
+.dsc-quant-neon .dsc-quant-employee[data-accent="5"]{--neon-a:#fb79ad;--neon-b:#aa95ff}
+.dsc-quant-neon .dsc-quant-employee[data-accent="6"]{--neon-a:#b5f477;--neon-b:#60d2ff}
+.dsc-quant-neon .dsc-quant-employeeavatar{color:var(--neon-a);border-color:var(--neon-a);background:#0e1721}
+.dsc-quant-neon .dsc-quant-employee[data-working="1"]{
+  background:linear-gradient(155deg,#121c2a,#090b13 70%) padding-box,
+   linear-gradient(126deg,var(--neon-a),var(--neon-b)) border-box;
+  box-shadow:0 0 15px color-mix(in srgb,var(--neon-a) 25%,transparent);
+}
+.dsc-quant-neon .dsc-quant-workorigin{color:var(--neon-a)}
+.dsc-quant-neon .dsc-quant-stream{border:1px solid transparent;
+  background:linear-gradient(#090c14,#090c14) padding-box,linear-gradient(133deg,#5babf7,#343153 55%,#8256aa) border-box}
+.dsc-quant-neon .dsc-quant-pill[data-status=running]{color:#99ebff;background:#102a3a;border-color:#3b647b}
+.dsc-quant-neon .dsc-quant-pill[data-status=done]{color:#89f1bb;background:#142c26;border-color:#335f51}
+.dsc-quant-neon .dsc-quant-pill[data-status=blocked],.dsc-quant-neon .dsc-quant-pill[data-status=stale]{color:#ffd396;background:#312314;border-color:#76572d}
+.dsc-quant-neon .dsc-quant-scroll li[data-new="1"],.dsc-quant-neon .dsc-quant-person[data-pulse="1"]{animation:dsc-quant-neon-event .8s ease-out}
+@keyframes dsc-quant-neon-event{0%{box-shadow:inset 3px 0 #8deaff,inset 0 0 20px #203d59}100%{box-shadow:none}}
+@media(prefers-reduced-motion:reduce){.dsc-quant-neon .dsc-quant-scroll li[data-new="1"],.dsc-quant-neon .dsc-quant-person[data-pulse="1"]{animation:none}}
+
+.dsc-root.dsc-workspace{--dsw-alias-bg-layer-1:#080a0f;--dsw-alias-bg-layer-2:#111620;--dsw-alias-bg-layer-3:#1b2330;--dsw-alias-label-primary:#eef1f8;--dsw-alias-label-secondary:#ccd4e3;--dsw-alias-label-tertiary:#a2afc4;--dsw-alias-label-dimmed:#8b9ab0;--dsw-alias-label-primary-inverted:#11192c;--dsw-alias-border-l1:#252d3c;--dsw-alias-border-l2:#354055;--dsw-alias-border-l4:#3b495f;--dsw-alias-settings-card-fill:#121823;--dsw-alias-settings-card-stroke:#344058;--dsw-alias-button-elevated-fill:#192130;--dsw-alias-interactive-bg-hover:#263248;--dsw-alias-brand-primary:#a9bcff;--dsw-alias-state-business-primary:#acc3ff;--dsw-alias-button-primary-fill:#aec0ff;--dsw-alias-button-primary-hover:#c6d1ff;--dsw-alias-button-primary-dimmed:#293557;--dsw-alias-state-success-primary:#81e5be;--dsw-alias-state-success-secondary:#19392f;--dsw-alias-state-error-primary:#ff9ca8;--dsw-alias-state-error-secondary:#482633;--dsw-alias-state-warn-primary:#f2c587;--dsw-alias-state-warn-secondary:#423221;display:grid;grid-template-columns:170px minmax(0,1fr);grid-template-rows:auto auto minmax(0,1fr);container-type:inline-size;color-scheme:dark;position:relative}
+.dsc-workspace *{box-sizing:border-box}.dsc-workspace :focus-visible{outline:2px solid #bfd5ff;outline-offset:2px}
+.dsc-workspace .dsc-work-head{grid-column:1/-1;min-width:0;gap:10px;background:#0e121a;padding:12px 16px;border-color:#2a3449}
+.dsc-work-brand{display:grid;place-items:center;flex:none;width:34px;height:34px;background:#252b46;color:#c5caff;border:1px solid #575d89;border-radius:10px;font-size:20px}
+.dsc-work-title{min-width:0}.dsc-work-title .dsc-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:0}
+.dsc-workspace .dsc-stat{padding:4px 8px;align-items:flex-start;background:#171e2b}.dsc-workspace .dsc-stat b{font-variant-numeric:tabular-nums}
+.dsc-workspace .dsc-work-dispatch{min-height:34px;padding:6px 12px;font-weight:700;white-space:nowrap}
+.dsc-work-nav{grid-column:1;grid-row:2/4;min-height:0;overflow:auto;display:flex;flex-direction:column;padding:14px 9px 10px;background:#0c1018;border-right:1px solid #252e40;gap:9px}
+.dsc-work-nav-caption{font-size:10px;font-weight:720;letter-spacing:.08em;color:#9caac0;margin:0;padding:0 7px;text-transform:uppercase}
+.dsc-work-links{display:flex;flex-direction:column;gap:4px}
+.dsc-workspace .dsc-work-link{display:flex;align-items:center;text-align:left;gap:8px;min-height:35px;border:1px solid transparent;border-radius:7px;white-space:normal;padding:6px 8px;font-size:12px}
+.dsc-workspace .dsc-work-link[data-on="1"]{border-color:color-mix(in srgb,var(--dsc-route) 48%,#263550);box-shadow:inset 2px 0 var(--dsc-route);background:color-mix(in srgb,var(--dsc-route) 13%,#131926)}
+.dsc-work-icon{color:var(--dsc-route);width:16px;flex:none;text-align:center;font-size:15px}
+.dsc-work-nav-footer{display:flex;gap:5px;flex-wrap:wrap;margin-top:auto;padding-top:12px}
+.dsc-workspace>.dsc-body{grid-column:2;grid-row:2/4;min-width:0;min-height:0;padding:14px 16px 22px}
+.dsc-workspace .dsc-work-pagehead{padding:11px 14px;margin-bottom:14px;background:#111724;border:1px solid #2e3a50;border-left:3px solid var(--dsc-page-accent);border-radius:9px;flex:none}
+.dsc-work-pagehead h2{font-size:20px;line-height:1.2;margin:3px 0 4px;font-weight:690}.dsc-work-pagehead p{color:#afbbcf;margin:0}.dsc-work-pagehead .dsc-work-nav-caption{padding:0}
+.dsc-work-stale{padding:8px 10px;margin-bottom:8px;border:1px solid #5b492b;border-radius:7px;background:#30271c;color:#f0ca91;flex:none}
+.dsc-workspace .dsc-grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,218px),1fr))}
+.dsc-workspace .dsc-card-actions{flex-wrap:wrap}
+.dsc-workspace .dsc-room{--room-bg:#0e131c;--room-panel:#141c29;--room-ink:#edf1fa;--room-muted:#adb9ce;--room-line:#39465e;--room-accent:#a9baff}
+.dsc-workspace .dsc-room .dsc-btn[data-kind=primary]{color:#10182a}
+.dsc-workspace .dsc-room-messagehead [data-status=failed]{color:#ffacb6}.dsc-workspace .dsc-room-messagehead [data-status=done]{color:#84dfb5}
+.dsc-workspace .dsc-room-columns{grid-template-columns:clamp(140px,20%,210px) minmax(0,1fr) clamp(235px,29%,300px)}
+@container(max-width:1040px){.dsc-workspace .dsc-room-columns{grid-template-columns:clamp(120px,24%,180px) minmax(0,1fr)}}
+@container(max-width:1000px){.dsc-workspace .dsc-body-workflow{overflow:auto}.dsc-workspace .dsc-wf-editor,.dsc-workspace .dsc-wf-list{flex:none}}
+@container(max-width:830px){.dsc-workspace .dsc-room-columns{display:flex;flex-direction:column}.dsc-workspace .dsc-room-sidebar,.dsc-workspace .dsc-room-main,.dsc-workspace .dsc-room-review{width:100%;border:0;min-height:0}.dsc-workspace .dsc-room-sidebar,.dsc-workspace .dsc-room-main{border-bottom:1px solid var(--room-line)}}
+
+.dsc-workspace .dsc-of-layout{grid-template-columns:minmax(0,2.8fr) minmax(180px,1fr)}.dsc-workspace .dsc-ofc{--of-bg:#080b12;--of-line:#35415c}
+.dsc-workspace .dsc-of-bossnote{display:flex;align-items:center;justify-content:space-between;gap:9px;padding:7px 9px;border:0;border-radius:6px;background:#1a202e}.dsc-workspace .dsc-of-bossnote p{margin:0}
+@container(max-width:830px){.dsc-workspace .dsc-of-layout{grid-template-columns:minmax(0,1fr)}.dsc-workspace .dsc-of-rail{grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr))}.dsc-workspace .dsc-work-head{padding:9px 12px}}
+@container(max-width:650px){
+.dsc-workspace .dsc-work-nav{grid-column:1/-1;grid-row:2;flex-direction:row;align-items:center;overflow:auto;padding:3px 8px;border-right:0;border-bottom:1px solid #2a3449;min-height:42px;gap:5px}
+.dsc-workspace .dsc-work-nav-caption,.dsc-workspace .dsc-stats{display:none}.dsc-workspace .dsc-work-links,.dsc-workspace .dsc-work-nav-footer{flex-direction:row;flex:none}.dsc-workspace .dsc-work-nav-footer{margin-top:0;padding-top:0;flex-wrap:nowrap}
+.dsc-workspace .dsc-work-link{white-space:nowrap;min-height:32px}.dsc-workspace .dsc-work-nav .dsc-btn{white-space:nowrap}
+.dsc-workspace>.dsc-body{grid-column:1/-1;grid-row:3;padding:11px 10px 16px}
+.dsc-workspace .dsc-room{grid-template-columns:minmax(0,1fr)}
+.dsc-workspace .dsc-of-bossnote{align-items:start;flex-direction:column}
+}
+
 `;
 
     function initial(text) {
@@ -620,15 +930,18 @@ window.__ModuleLoader__.load({
 
     function useDict(translate) {
       const dict = useMemo(() => {
+        const hostLabel = typeof translate === 'function' ? translate('tabRoster') : null;
+        if (hostLabel === DICT.en.tabRoster) return DICT.en;
+        if (hostLabel === DICT.zh.tabRoster) return DICT.zh;
         const tag = String((typeof navigator !== 'undefined' && navigator.language) || 'zh').toLowerCase();
         return tag.startsWith('zh') ? DICT.zh : DICT.en;
-      }, []);
+      }, [translate]);
       return useCallback(
         (key) => {
           if (typeof translate === 'function') {
             const value = translate(key);
             // English labels may intentionally equal their keys (done, failed, skipped).
-            if (value) return value;
+            if (value && (value !== key || DICT.en[key] === key || DICT.zh[key] === key)) return value;
           }
           return dict[key] || key;
         },
@@ -833,7 +1146,48 @@ window.__ModuleLoader__.load({
       );
     }
 
-    function EmployeeDetail({ employee, onClose, onToast, t }) {
+    function EmployeeCoordination({employeeId,t,onOpenGroup,request=call}) {
+      const en=t('companyMode')===DICT.en.companyMode;
+      const L=(zh,english)=>en?english:zh;
+      const [snapshot,setSnapshot]=useState(null);
+      useEffect(()=>{
+        let alive=true, pending=false;
+        async function refresh(){
+          if(pending)return;
+          pending=true;
+          try{
+            const value=await request('employee-groups',{employeeId});
+            if(!Array.isArray(value?.groups)||value.employeeId!==employeeId) throw new Error('Invalid collaboration response');
+            if(alive)setSnapshot({employeeId,rows:value.groups});
+          }catch{if(alive)setSnapshot({employeeId,error:true});}
+          finally{pending=false;}
+        }
+        refresh();
+        const timer=setInterval(refresh,2500);
+        return()=>{alive=false;clearInterval(timer);};
+      },[employeeId,request]);
+      const state=snapshot?.employeeId===employeeId?snapshot:null;
+      const status=round=>({
+        queued:L('最近一轮：待开始','Latest round: waiting to start'),
+        running:L('最近一轮：回复中','Latest round: responding'),
+        done:L('最近一轮：已回复','Latest round: replied'),
+        failed:L('最近一轮：未能回复','Latest round: failed to reply'),
+        interrupted:L('最近一轮：已中断','Latest round: interrupted'),
+      })[round?.status]||L('尚无参与记录','No recorded participation');
+      return h('section',{className:'dsc-staff-collab','aria-label':L('协作记录','Collaboration record')},
+        h('style',null,'.dsc-staff-collab{border:1px solid #58678355;border-radius:10px;margin:0 14px 12px;padding:12px}.dsc-staff-collab h3{margin:0 0 5px;font-size:14px}.dsc-staff-collab ul{padding:0;margin:8px 0 0;list-style:none}.dsc-staff-collab li{padding:8px 0;border-top:1px solid #58678344;display:flex;gap:8px;justify-content:space-between;align-items:center}.dsc-staff-collab li small{display:block;overflow-wrap:anywhere}.dsc-staff-collab li div{min-width:0;overflow-wrap:anywhere}'),
+        h('h3',null,L('协作记录','Collaboration record')),
+        h('p',{className:'dsc-hint'},L('群成员身份不代表已参与；只显示真实轮次和已保存回复。','Membership does not mean participation. Only recorded rounds and saved replies are shown.')),
+        !state?h('p',{role:'status'},t('loading')):state.error?h('p',{role:'status'},L('暂时无法核对协作记录。','Collaboration records could not be verified.')):
+          !state.rows.length?h('p',null,L('此员工尚未加入任何群聊。','This employee has not been added to any group.')):
+          h('ul',null,state.rows.map(row=>h('li',{key:row.id},
+            h('div',null,h('strong',null,row.name),h('small',null,L(`群成员 · 共 ${row.memberCount} 人`,`Member · ${row.memberCount} people`)),
+              h('small',null,status(row.latestRound)),
+              row.latestRound?.participatedAt?h('small',null,L('实际开始：','Actual start: ')+formatTime(row.latestRound.participatedAt)):null,
+              row.lastReplyAt?h('small',null,L('最近已保存回复：','Last saved reply: ')+formatTime(row.lastReplyAt)):null),
+            h('button',{className:'dsc-btn',type:'button','aria-label':L('打开群聊：','Open group: ')+row.name,onClick:()=>onOpenGroup(row.id)},L('打开群聊','Open group'))))));
+    }
+    function EmployeeDetail({ employee, onClose, onToast, onOpenGroup, t }) {
       const [data, setData] = useState(null);
       const [error, setError] = useState('');
       const [memory, setMemory] = useState(null);
@@ -948,6 +1302,7 @@ window.__ModuleLoader__.load({
             ),
             h('button', { className: 'dsc-btn', 'data-kind': 'ghost', onClick: onClose }, t('close')),
           ),
+          onOpenGroup?h(EmployeeCoordination,{employeeId:employee.id,t,onOpenGroup}):null,
           error ? h('div', { className: 'dsc-err' }, error) : null,
           !data
             ? h('div', { className: 'dsc-empty' }, t('loading'))
@@ -1337,9 +1692,18 @@ window.__ModuleLoader__.load({
       return '';
     }
 
-    function WorkflowCard({ workflow, t, onEdit, onRemove }) {
+    function WorkflowCard({ workflow, t, onEdit, onRemove, onRun }) {
       const [confirming, setConfirming] = useState(false);
       const [busy, setBusy] = useState(false);
+      const [input, setInput] = useState('');
+      const [runError, setRunError] = useState('');
+      const runLock = useRef(false);
+      const startTemplate = async () => {
+        if (runLock.current || workflow.kind === 'company-run' || workflow.lastRun?.status === 'running' || !input.trim() || typeof onRun !== 'function') return;
+        runLock.current = true; setBusy(true); setRunError('');
+        try { await onRun(workflow.id, input.trim()); } catch(error) { setRunError(error?.message || String(error)); }
+        finally { runLock.current = false; setBusy(false); }
+      };
       const nodes = wfNodes(workflow);
       const lastRun = workflow && workflow.lastRun ? workflow.lastRun : null;
       const status = lastRun && lastRun.status ? lastRun.status : '';
@@ -1386,6 +1750,12 @@ window.__ModuleLoader__.load({
             )
           : null,
         runMeta,
+        h('p',{className:'dsc-hint'},t('fixedRunHint')),
+        h('label',{className:'dsc-label',htmlFor:`dsc-template-input-${workflow.id}`},t('fixedFreshInput')),
+        h('textarea',{id:`dsc-template-input-${workflow.id}`,className:'dsc-area',value:input,maxLength:6000,disabled:busy || status==='running',onChange:e=>setInput(e.target.value)}),
+        h('button',{className:'dsc-btn','data-kind':'primary',disabled:busy || status==='running' || !input.trim() || workflow.kind==='company-run',onClick:startTemplate},t('fixedRunNow')),
+        runError?h('p',{role:'alert'},runError):null,
+        lastRun?.nodeRuns?.length ? h('p',{role:'status'},`${t('workflowSettled')} ${lastRun.nodeRuns.filter(n=>['done','failed','skipped','cancelled'].includes(n.status)).length}/${lastRun.nodeRuns.length}`):null,
         h(
           'div',
           { className: 'dsc-card-actions' },
@@ -1962,10 +2332,794 @@ window.__ModuleLoader__.load({
       );
     }
 
+    function companyChoiceMatches(plan, choice) {
+      return !!(plan && choice && choice.id === plan.id && choice.revision === plan.revision &&
+        (plan.options || []).some(option => option.id === choice.optionId));
+    }
+
+    function ReviewerHandoffCard({ handoff, plan, t }) {
+      if (!handoff) return null;
+      const en=t('companyMode')===DICT.en.companyMode;
+      const L=(zh,english)=>en?english:zh;
+      const labels={
+        waiting:L('待交接','Waiting for handoff'), admitting:L('待运行端确认接收','Waiting for runtime acceptance'),
+        reviewing:L('审核中','Reviewing'), passed:L('审核员已通过','Reviewer passed'),
+        rejected:L('审核员未通过','Reviewer did not pass'), blocked:L('审核未继续','Review did not proceed'),
+      };
+      return h('section',{className:'dsc-card','aria-label':L('交接到人','Reviewer handoff')},
+        h('h3',null,L('交接到人 · 独立审核','Reviewer handoff · Independent review')),
+        h('strong',null,handoff.name),h('small',{className:'dsc-hint'},handoff.employeeId),
+        h('p',{role:'status','data-handoff-status':handoff.status},labels[handoff.status]),
+        handoff.acceptedAt?h('small',null,L('运行端已接收：','Runtime accepted: ')+formatTime(handoff.acceptedAt)):null,
+        handoff.reviewedAt?h('small',null,L('审核结果已记录：','Review outcome recorded: ')+formatTime(handoff.reviewedAt)):null,
+        h('p',{className:'dsc-hint'},handoff.manualOnly
+          ?L('上一轮可能已交给审核员。请先人工核对；系统不会重发。','The review may already have reached the reviewer. Check manually; the system will not resend it.')
+          :L('此处是员工的审核结论，不代表老板本人验收或授权发布。','This is the reviewer’s decision, not owner sign-off or publication approval.')),
+        handoff.manualOnly?h('details',{className:'dsc-wf-runlog'},
+          h('summary',null,L('查看人工核对所需记录','Inspect record for manual review')),
+          h('dl',null,[
+            [L('方案编号','Plan ID'),plan.id],[L('运行编号','Run ID'),plan.runId],
+            [L('审核员编号','Reviewer ID'),handoff.employeeId],
+            [L('交接已记录','Handoff recorded'),handoff.intentAt?formatTime(handoff.intentAt):'—'],
+            [L('运行端确认','Runtime acceptance'),handoff.acceptedAt?formatTime(handoff.acceptedAt):L('未记录；不代表未送达','Not recorded; delivery is unknown')],
+            [L('审核结果','Review outcome'),L('未找到已保存结论','No saved verdict found')],
+          ].map(([label,value])=>h('div',{key:label,style:{overflowWrap:'anywhere'}},h('dt',null,label),h('dd',null,value)))),
+          h('ol',null,
+            h('li',null,L('按运行与审核员编号找原来的交付或审核记录，确认是否已有结论。','Use the run and reviewer IDs to locate the original delivery or review and check whether it has a verdict.')),
+            h('li',null,L('如果仍无可核对的结论，重新拟定审核任务并走新审批。不要重试旧运行。','If there is no verifiable verdict, draft a new review task and approve it separately. Do not retry the old run.')))) : null);
+
+    }
+    function CompanyWorkspace({ plans, workflows, employees = EMPTY, t, refresh, request = call, onOpenFixed, onOpenGroups, focusIntake = false }) {
+      const [brief, setBrief] = useState('');
+      const [outcome, setOutcome] = useState('');
+      const [boundaries, setBoundaries] = useState('');
+      const [checks, setChecks] = useState('');
+      const [showTradeoff, setTradeoff] = useState(false);
+      const [parallelSpecialists, setParallelSpecialists] = useState(false);
+      const [edit, setEdit] = useState(null);
+      const [planId, setPlanId] = useState('');
+      const [choice, setChoice] = useState(null);
+      const [busy, setBusy] = useState(false);
+      const [error, setError] = useState('');
+      const lock = useRef(false);
+      const composerRef = useRef(null);
+      useEffect(() => {
+        if (focusIntake) {
+          composerRef.current?.scrollIntoView({block:'center',behavior:'auto'});
+          composerRef.current?.focus();
+        }
+      }, [focusIntake]);
+      const plan = (plans || []).find(item => item.id === planId) || (!planId && (plans || [])[0]) || null;
+      const defaultOption = plan?.options?.find(option=>option.id==='specialized') || plan?.options?.find(option=>option.id==='lean');
+      const selectedChoice = choice || (plan?.status === 'awaiting_approval' && defaultOption ? {id:plan.id,revision:plan.revision,optionId:defaultOption.id} : null);
+      const supported = Array.isArray(plans);
+      const language = t('companyMode') === DICT.en.companyMode ? 'en' : 'zh';
+      const optionText = (option, key) => language === 'en' ? (option[key + 'En'] || option[key]) : option[key];
+      const L = (zh,en) => language==='en'?en:zh;
+      const specialistPlan = option => {
+        if (!option?.steps?.length) return null;
+        const stages = new Map(option.steps.map(step=>[step.id,step]));
+        const levels = new Map();
+        for (const step of option.steps) {
+          const wave = Number(step.wave)||1;
+          if(!levels.has(wave)) levels.set(wave,[]);
+          levels.get(wave).push(step);
+        }
+        return h('section',{className:'dsc-specialist-board','aria-label':L('专员分工与依赖','Specialists and dependencies')},
+          [...levels].sort(([a],[b])=>a-b).map(([wave,steps])=>h('section',{key:wave,className:'dsc-specialist-wave', 'data-wave':wave},
+            h('h4',null,L('第 '+wave+' 批','Wave '+wave),' · ',steps.length>1?L('可并行','Can run in parallel'):L('按依赖执行','Runs after dependencies')),
+            h('ol',null,steps.map(step=>{
+              const name=employees.find(e=>e.id===step.employeeId)?.name || L('原分配员工不在当前名册','Previously assigned staff member is absent');
+              const dependencies=(step.dependsOn||[]).map(id=>stages.has(id)?optionText(stages.get(id),'title'):id);
+              return h('li',{key:step.id,'data-stage':step.id},
+                h('strong',null,optionText(step,'title')),h('span',null,name),h('p',null,optionText(step,'reason')),
+                h('small',null,dependencies.length?L('等待：','Waits for: ')+dependencies.join(L('、',', ')):L('启动后可立即开始','Ready when the plan starts')));
+            })))));
+      };
+      const workflow = plan && workflows.find(item => item.id === plan.workflowId);
+      const lastRun = workflow && workflow.lastRun;
+      const run = lastRun && (!plan.runId || plan.runId === lastRun.id) ? lastRun : null;
+      const slots = run && Array.isArray(run.nodeRuns) ? run.nodeRuns : [];
+      const settled = slots.filter(item => ['done', 'failed', 'skipped', 'cancelled'].includes(item.status)).length;
+      const statusKeys = { awaiting_approval:'companyAwaiting', approved:'companyApproved', running:'companyRunning', completed:'companyCompleted', failed:'companyFailed', cancelled:'companyCancelled', rejected:'intakeRejected' };
+      const act = async (op, payload) => {
+        if (lock.current) return;
+        lock.current = true; setBusy(true); setError('');
+        try {
+          const result = await request(op, payload);
+          if (['company-plan-create','company-plan-revise','company-plan-reject'].includes(op)) { setPlanId(result.id); setChoice(null); setEdit(null); }
+          await refresh();
+          if (op === 'company-plan-promote') onOpenFixed();
+        } catch (caught) { setError(caught && caught.message ? caught.message : String(caught)); }
+        finally { lock.current = false; setBusy(false); }
+      };
+      const editProposal = () => {
+        setBrief(plan.brief); setOutcome(plan.outcome || '');
+        setBoundaries(plan.intake?.boundaries || ''); setChecks(plan.intake?.checks || '');
+        setTradeoff(plan.intake?.showTradeoff === true); setParallelSpecialists(plan.intake?.parallelSpecialists === true); setEdit({id:plan.id, revision:plan.revision});
+        composerRef.current?.focus();
+      };
+      const submitDraft = () => {
+        if (!brief.trim()) return;
+        return act(edit ? 'company-plan-revise' : 'company-plan-create', {...edit, brief:brief.trim(),
+          outcome:outcome.trim(), boundaries:boundaries.trim(), checks:checks.trim(), showTradeoff:!parallelSpecialists && showTradeoff, parallelSpecialists});
+      };
+      const approve = () => {
+        if (plan?.status !== 'awaiting_approval' || !companyChoiceMatches(plan, selectedChoice)) return;
+        return act('company-plan-approve', { id: plan.id, revision: plan.revision, optionId: selectedChoice.optionId });
+      };
+      const start = () => {
+        if (!['approved','failed','cancelled'].includes(plan?.status) || !plan.optionId) return;
+        return act('company-plan-run', { id: plan.id, revision: plan.revision, optionId: plan.optionId, ...(plan.intake && plan.runId ? {retryRunId:plan.runId} : {}) });
+      };
+      const selectedOption = plan && (plan.options || []).find(option => option.id === plan.optionId);
+      const nodeTitle = slot => selectedOption?.assignmentLabels?.[slot.nodeId]?.[language] || run?.graph?.nodes?.find(node=>node.id===slot.nodeId)?.title || slot.nodeId;
+      const nodeEmployee = slot => {
+        const id = selectedOption?.assignments?.[slot.nodeId] || run?.graph?.nodes?.find(node=>node.id===slot.nodeId)?.employeeId;
+        return employees.find(employee=>employee.id===id)?.name || id || t('roomEngine');
+      };
+      const employeeActive = new Map();
+      for (const flow of workflows) if (flow.lastRun?.status==='running') {
+        const graph = flow.lastRun.graph?.nodes || flow.nodes || [];
+        for (const slot of flow.lastRun.nodeRuns || []) if (slot.status==='running') {
+          const node = graph.find(n=>n.id===slot.nodeId);
+          if (node?.employeeId) employeeActive.set(node.employeeId, node.title || node.id);
+        }
+      }
+      return h('section', {className:'dsc-company dsc-room', 'aria-label':t('companyMode')},
+        h('style',null,`
+          .dsc-specialist-mode{display:grid;gap:8px;padding:10px;border:1px solid #577486;border-radius:9px;background:#45668417}.dsc-specialist-mode label{display:flex;gap:8px;align-items:baseline;margin:0}.dsc-specialist-mode p{margin:0}
+          .dsc-specialist-board{display:grid;gap:9px;margin:9px 0}.dsc-specialist-wave{border-left:2px solid #7b9fae;padding:0 0 0 8px;min-width:0}.dsc-specialist-wave h4{margin:0 0 5px;font-size:12px}.dsc-specialist-wave ol{display:grid;gap:4px;padding:0;margin:0;list-style:none}.dsc-specialist-wave li{display:grid;gap:2px;padding:7px;border:1px solid #6e9cab55;background:#58708412;border-radius:6px;overflow-wrap:anywhere}.dsc-specialist-wave li span{font-size:12px;color:inherit;opacity:.9}.dsc-specialist-wave li p,.dsc-specialist-wave li small{margin:0;font-size:11px;color:inherit;opacity:.84}.dsc-specialist-wave li small{font-weight:600}
+        `),
+        h('header',{className:'dsc-room-header'},h('div',null,h('div',{className:'dsc-room-eyebrow'},t('roomEyebrow')),h('h2',null,t('roomTitle'))),h('div',{className:'dsc-room-headeractions'},h('span',{className:'dsc-room-sync'},t('roomLive')),h('button',{className:'dsc-btn','data-kind':'primary',onClick:()=>{composerRef.current?.scrollIntoView({block:'center',behavior:'auto'});composerRef.current?.focus();}},t('roomDispatch')))),
+        h('div',{className:'dsc-room-columns'},
+          h('aside',{className:'dsc-room-sidebar','aria-label':t('roomThreads')},
+            h('h3',null,t('roomMembers')),
+            !employees.length ? h('p',{className:'dsc-hint'},t('roomNoMembers')) : null,
+            employees.map(employee=>h('details',{key:employee.id,className:'dsc-room-person'},h('summary',null,h('span',{className:'dsc-room-avatar','aria-hidden':true},String(employee.name || '?').slice(0,1)),h('span',null,employee.name), employeeActive.has(employee.id)?h('span',{className:'dsc-work-dot',title:t('activeWork'),'aria-label':t('activeWork')}):null),h('p',null,employee.title || employee.role),
+              h('p',{className:'dsc-hint'},employeeActive.has(employee.id)?`${t('activeWork')} · ${employeeActive.get(employee.id)}`:t('noActiveWork')))),
+            onOpenGroups ? h('button',{className:'dsc-btn dsc-group-nav',onClick:onOpenGroups}, t('groupMode')) : null,
+            h('h3',null,t('roomThreads')),
+        (plans || []).length ? h('label', null, t('companyPlans'), h('select', {className:'dsc-input', value:plan?.id || '', disabled:busy, onChange:e=>{setPlanId(e.target.value);setChoice(null);setEdit(null);setError('');}},
+          plans.map(item=>h('option',{key:item.id,value:item.id},`${item.brief} · ${t(statusKeys[item.status] || item.status)}`)))) : null,
+
+            h('div',{className:'dsc-room-threadlist'},(plans || []).map(item=>h('button',{key:item.id,className:'dsc-room-thread','aria-current':plan?.id===item.id?'true':undefined,disabled:busy,onClick:()=>{setPlanId(item.id);setChoice(null);setEdit(null);setError('');}},h('strong',null,item.brief),h('span',null,t(statusKeys[item.status] || item.status))))),
+            h('p',{className:'dsc-hint'},t('roomScope'))),
+          h('main',{className:'dsc-room-main','aria-label':t('roomFeed')},
+            h('div',{className:'dsc-room-sectionhead'},h('h3',null,t('roomFeed')),plan?h('span',{className:'dsc-badge'},t(statusKeys[plan.status] || plan.status)):null),
+            h('p',{className:'dsc-hint'},t('roomSource')),
+            h('div',{className:'dsc-room-feed'},
+              plan ? h('article',{className:'dsc-room-message dsc-room-owner'},h('div',{className:'dsc-room-messagehead'},h('strong',null,t('roomOwner')),h('span',null,`${t('companyRevision')} ${plan.revision}`)),h('p',null,plan.brief),plan.outcome?h('p',{className:'dsc-hint'},`${t('companyAcceptedOutcome')}: ${plan.outcome}`):null) : h('div',{className:'dsc-room-welcome'},h('h3',null,t('companyMode')),h('p',null,t('companyEmpty'))),
+              slots.map(slot=>h('article',{key:slot.nodeId,className:'dsc-room-message'},h('div',{className:'dsc-room-messagehead'},h('strong',null,nodeEmployee(slot)),h('span',{'data-status':slot.status},t(slot.status))),h('h4',null,nodeTitle(slot)),slot.output?h('pre',null,String(slot.output)):h('p',{className:'dsc-hint'},t(slot.status)),slot.error?h('p',{role:'alert'},String(slot.error)):null)),
+              plan && !slots.length ? h('p',{className:'dsc-room-note'},t('roomWaiting')) : null),
+            h('section',{className:'dsc-room-composer','aria-label':t('roomCompose')},h('h3',null,t('roomCompose')),h('p',{className:'dsc-hint'},t('roomComposeHint')),
+        !supported ? h('p', {role:'status'}, t('companyUnavailable')) : null,
+        h('label', {className:'dsc-label', htmlFor:'dsc-company-brief'}, t('companyBrief')),
+        h('textarea', {id:'dsc-company-brief', ref:composerRef, className:'dsc-area', maxLength:6000, value:brief, disabled:busy, onChange:e=>setBrief(e.target.value)}),
+        h('label', {className:'dsc-label', htmlFor:'dsc-company-outcome'}, t('companyOutcome')),
+        h('textarea', {id:'dsc-company-outcome', className:'dsc-area', maxLength:1200, value:outcome, disabled:busy, onChange:e=>setOutcome(e.target.value)}),
+        h('label', {className:'dsc-label', htmlFor:'dsc-intake-boundaries'}, t('intakeBoundaries')),
+        h('textarea', {id:'dsc-intake-boundaries', className:'dsc-area', maxLength:1200, value:boundaries, disabled:busy, onChange:e=>setBoundaries(e.target.value)}),
+        h('label', {className:'dsc-label', htmlFor:'dsc-intake-checks'}, t('intakeChecks')),
+        h('textarea', {id:'dsc-intake-checks', className:'dsc-area', maxLength:1200, value:checks, disabled:busy, onChange:e=>setChecks(e.target.value)}),
+        h('div',{className:'dsc-specialist-mode'},
+          h('label',null,h('input',{type:'checkbox',checked:parallelSpecialists,disabled:busy,'aria-describedby':'dsc-specialist-hint',onChange:e=>setParallelSpecialists(e.target.checked)}), h('strong',null,L('按专长拆解，并行派工','Split and dispatch to specialists in parallel'))),
+          h('p',{id:'dsc-specialist-hint',className:'dsc-hint'},L('适合有多个独立环节的需求。先并行做需求、技术与证据分析，再汇总实现、测试和审核。会比常规方案多一道分析，审批前不会开始。','For requests with independent work: parallel requirements, technical options, and evidence analysis, then implementation, testing, and review. Adds one analysis step; nothing starts before approval.'))),
+        !parallelSpecialists ? h('label', null, h('input',{type:'checkbox',checked:showTradeoff,disabled:busy,onChange:e=>setTradeoff(e.target.checked)}), ' ',t('intakeTradeoff')) : null,
+        h('button', {className:'dsc-btn', 'data-kind':'primary', disabled:busy || !supported || !brief.trim(), onClick:submitDraft}, busy?t('companyBusy'):t(edit?'intakeRevise':'companyCreate')),
+        error ? h('p', {role:'alert'}, error) : null,
+)),
+          h('aside',{className:'dsc-room-review','aria-label':t('roomReview')},h('h3',null,t('roomReview')),h('p',{className:'dsc-hint'},t('companyRules')),
+        !plan ? h('div',{className:'dsc-empty'},t('companyEmpty')) : h('section',{className:'dsc-company-plan'},
+          h('h3',null,plan.brief),
+          h('p',{role:'status'},`${t('companyRevision')} ${plan.revision} · ${t(statusKeys[plan.status] || plan.status)}`),
+          plan.outcome ? h('section',{'aria-label':t('companyAcceptedOutcome')},h('h4',null,t('companyAcceptedOutcome')),h('p',null,String(plan.outcome))) : null,
+          plan.intake ? h('section',null,h('h4',null,t('intakeBoundaries')),h('p',null,plan.intake.boundaries || t('intakeDefaultBoundary')),h('h4',null,t('intakeChecks')),h('p',null,plan.intake.checks || plan.outcome)) : null,
+          Array.isArray(plan.risks) && plan.risks.length ? h('section',{'aria-label':t('companyRisks')},h('h4',null,t('companyRisks')),h('ul',null,plan.risks.map((risk,i)=>h('li',{key:i},String(risk))))) : null,
+          plan.status==='awaiting_approval' && plan.options?.length > 1 && plan.options?.some(option=>option.id==='lean') ? h('p',{className:'dsc-hint'},t('roomRecommended')) : null,
+          h('div',{className:'dsc-grid'},(plan.options || []).map(option=>h('label',{className:'dsc-card',key:option.id},
+            h('div',{className:'dsc-card-top'},h('input',{type:'radio',name:'dsc-plan-option',value:option.id,
+              'aria-label':`${t('companySelect')}: ${optionText(option,'title')}`,
+              checked:plan.status==='awaiting_approval' ? companyChoiceMatches(plan,selectedChoice) && selectedChoice.optionId===option.id : plan.optionId===option.id,
+              disabled:busy || plan.status!=='awaiting_approval', onChange:()=>setChoice({id:plan.id,revision:plan.revision,optionId:option.id})}),h('strong',null,optionText(option,'title'))),
+            h('p',null,optionText(option,'summary')),(plan.options?.length > 1 || option.steps?.length) ? h('p',null,`${t('companyRisk')}: ${optionText(option,'risk') || '—'}`) : null,(plan.options?.length > 1 || option.steps?.length) ? h('p',null,`${t('companyFeasibility')}: ${optionText(option,'feasibility') || '—'}`) : null,
+            !option.steps?.length && option.assignments ? h('details',null,h('summary',null,t('companyAssignments')),h('ul',null,Object.entries(option.assignments).map(([stage,id])=>h('li',{key:stage},`${option.assignmentLabels?.[stage]?.[language] || stage}: ${employees.find(e=>e.id===id)?.name || id}`)))) : null))),
+          specialistPlan((plan.options||[]).find(option=>option.id===(plan.status==='awaiting_approval'?selectedChoice?.optionId:plan.optionId))),
+          h('p',{className:'dsc-hint'},t('companySeparate')),
+          h('div',{className:'dsc-card-actions'},
+            ['awaiting_approval','approved','rejected'].includes(plan.status) ? h('button',{className:'dsc-btn',disabled:busy,onClick:editProposal},t('intakeEdit')) : null,
+            ['awaiting_approval','approved'].includes(plan.status) ? h('button',{className:'dsc-btn',disabled:busy,onClick:()=>act('company-plan-reject',{id:plan.id,revision:plan.revision})},t('intakeReject')) : null,
+            plan.status==='awaiting_approval' ? h('button',{className:'dsc-btn',disabled:busy || edit?.id===plan.id || !companyChoiceMatches(plan,selectedChoice),onClick:approve},t('companyApprove')) : null,
+            plan.status==='approved' ? h('button',{className:'dsc-btn','data-kind':'primary',disabled:busy || edit?.id===plan.id || !plan.optionId,onClick:start},t('companyRun')) : null,
+            plan.status==='running' ? h('button',{className:'dsc-btn','data-kind':'danger',disabled:busy,onClick:()=>act('company-plan-cancel',{id:plan.id,runId:plan.runId})},t('companyCancel')) : null,
+            plan.status==='completed' ? h('button',{className:'dsc-btn',disabled:busy,onClick:()=>act('company-plan-promote',{id:plan.id})},t('companyPromote')) : null),
+          h(ReviewerHandoffCard,{handoff:plan.reviewerHandoff,plan,t}),
+          !plan.reviewerHandoff?.manualOnly && ['failed','cancelled'].includes(plan.status) ? h('div',null,h('p',{className:'dsc-hint'},t('companyRetryHint')),h('button',{className:'dsc-btn',disabled:busy || edit?.id===plan.id || !plan.optionId,onClick:start},t('companyRetry'))) : null,
+          plan.status==='completed' ? h('p',{className:'dsc-hint'},t('companyPromoteHint')) : null,
+          plan.error ? h('p',{role:'alert'},String(plan.error)) : null,
+          run ? h('section',{'aria-label':t('companyRunStatus')},
+            h('p',{role:'status'},`${t('companyRunStatus')}: ${t(run.status)} · ${t('workflowSettled')} ${settled}/${slots.length}`),
+            slots.length ? h('progress',{max:slots.length,value:settled,'aria-label':t('workflowSettled')}) : null,
+            slots.map(slot=>h('details',{key:slot.nodeId},h('summary',null,`${slot.nodeId} · ${t(slot.status)}`),
+              h('pre',{className:'dsc-wf-runlog'},String(slot.output || '—')),slot.error?h('pre',{className:'dsc-wf-runlog'},String(slot.error)):null)),
+            h('p',{className:'dsc-hint'},t('workflowPolling'))) : h('p',{className:'dsc-hint'},t('companyNoRun'))))));
+    }
+
+    function GroupWorkspace({ employees, t, initialGroupId = '', request = call }) {
+      const en = t('companyMode') === DICT.en.companyMode;
+      const L = en ? {
+        title:'Group chats', scope:'Local test workspace', groupList:'Groups', newGroup:'New group', groupName:'Group name',
+        choose:'Choose 2–6 employees', create:'Create group', people:'Members', inbox:'Conversation', hint:'Send to the members of this group. Replies may arrive in parallel.',
+        prompt:'Message the group', send:'Send to group', empty:'Create a group, or select an existing group.', noMessages:'No messages yet.',
+        status:'Reply progress', owner:'You', error:'Reply error', busy:'Working…', cancel:'Cancel', limited:'This preview supports user-created groups in the local workspace. It does not create groups on its own.',
+      } : {
+        title:'群聊', scope:'本地工作区', groupList:'群组', newGroup:'新建群聊', groupName:'群名称',
+        choose:'选择 2 至 6 位员工', create:'创建群聊', people:'群成员', inbox:'对话', hint:'发给本群成员。员工可同时回复，不会通知其他群。',
+        prompt:'给群里发消息', send:'发送给群', empty:'新建群聊，或从左侧选一个群。', noMessages:'这里还没有消息。',
+        status:'回复进度', owner:'你', error:'回复失败', busy:'处理中…', cancel:'取消', limited:'本预览可由用户在本地拉群，员工暂不能自动拉群。',
+      };
+      const [groups, setGroups] = useState([]);
+      const [id, setId] = useState('');
+      const [detail, setDetail] = useState(null);
+      const [form, setForm] = useState(false);
+      const [name, setName] = useState('');
+      const [memberIds, setMemberIds] = useState([]);
+      const [draft, setDraft] = useState('');
+      const [busy, setBusy] = useState(false);
+      const [error, setError] = useState('');
+      const lock = useRef(false);
+      const openId = useRef('');
+      const cursor = useRef(0);
+      const employeeName = id => employees.find(employee=>employee.id===id)?.name || id;
+      const visible = detail?.id === id ? detail : null;
+      const running = visible?.run?.status === 'running';
+      useEffect(() => {
+        let alive = true;
+        request('groups-list').then(value => { if (alive) { const rows=value.groups || []; setGroups(rows); if(initialGroupId&&rows.some(row=>row.id===initialGroupId))openGroup(initialGroupId); } }, err => { if (alive) setError(String(err?.message || err)); });
+        return () => { alive = false; };
+      }, []);
+      useEffect(() => {
+        if (!id) return;
+        let alive = true, fetching = false;
+        const poll = async () => {
+          if (fetching || lock.current || openId.current !== id) return;
+          const mark = cursor.current;
+          fetching = true;
+          try {
+            const value = await request('group-read', { id });
+            if (alive && openId.current===id && mark===cursor.current) setDetail(value);
+          } catch(err) {
+            if (alive && openId.current===id && mark===cursor.current) setError(String(err?.message || err));
+          } finally { fetching = false; }
+        };
+        poll();
+        const timer = setInterval(poll, 1500);
+        return () => { alive = false; clearInterval(timer); };
+      }, [id]);
+      function openGroup(next) {
+        if (lock.current || next === openId.current) return;
+        cursor.current++;
+        openId.current = next;
+        setId(next);
+        setDetail(null);
+        setDraft('');
+        setError('');
+        setForm(false);
+      }
+      async function act(op, body) {
+        if (lock.current) return;
+        lock.current = true;
+        cursor.current++;
+        setBusy(true);
+        setError('');
+        try {
+          const value = await request(op, body);
+          if (!value?.id) throw new Error('Invalid group response');
+          openId.current = value.id;
+          setId(value.id);
+          setDetail(value);
+          setGroups(previous => {
+            const row={...value,messageCount:value.messages?.length||0};
+            return [row,...previous.filter(group=>group.id!==value.id)].map(({id,name,employeeIds,messageCount})=>({id,name,employeeIds,messageCount}));
+          });
+          setDraft('');
+          if (op === 'group-create') {
+            setForm(false);
+            setName('');
+            setMemberIds([]);
+          }
+        } catch(err) { setError(String(err?.message || err)); }
+        finally { lock.current=false;setBusy(false); }
+      }
+      const labelStatus = status => status==='done'||status==='completed' ? t('done')
+        : status==='interrupted' ? t('cancelled') : status==='failed'||status==='error' ? t('failed')
+          : status==='running' ? t('companyRunning') : t('workflowWaiting');
+      const list = groups.map(group=>h('button',{key:group.id,className:'dsc-room-thread','aria-current':group.id===id ? 'true':undefined,disabled:busy,onClick:()=>openGroup(group.id)},
+        h('strong',null,group.name),h('span',null,`${(group.employeeIds||[]).length} · ${L.people}`)));
+      return h('section',{className:'dsc-room dsc-groups','aria-label':L.title},
+        h('aside',{className:'dsc-room-sidebar','aria-label':L.groupList},
+          h('div',{className:'dsc-room-sectionhead'},h('h3',null,L.groupList),h('button',{className:'dsc-btn','data-kind':'primary',disabled:busy,onClick:()=>{setForm(true);setError('');}},L.newGroup)),
+          h('div',{className:'dsc-room-threads'},list),
+          h('p',{className:'dsc-hint'},L.limited)),
+        h('main',{className:'dsc-room-main','aria-label':L.inbox},
+          h('div',{className:'dsc-room-sectionhead'},h('h3',null,form?L.newGroup:visible?.name||L.title),h('span',{className:'dsc-badge'},L.scope)),
+          error ? h('p',{className:'dsc-room-note',role:'alert'},error) : null,
+          form ? h('form',{className:'dsc-room-composer',onSubmit:e=>{e.preventDefault();if(name.trim()&&memberIds.length>=2)act('group-create',{name:name.trim(),employeeIds:memberIds});}},
+            h('label',{className:'dsc-label',htmlFor:'dsc-group-name'},L.groupName),
+            h('input',{id:'dsc-group-name',className:'dsc-input',value:name,maxLength:80,disabled:busy,onChange:e=>setName(e.target.value)}),
+            h('fieldset',{className:'dsc-group-members'},h('legend',null,L.choose),employees.map(employee=>h('label',{key:employee.id,className:'dsc-group-member'},
+              h('input',{type:'checkbox',checked:memberIds.includes(employee.id),disabled:busy || (!memberIds.includes(employee.id)&&memberIds.length>=6),
+                onChange:e=>setMemberIds(prev=>e.target.checked?[...prev,employee.id]:prev.filter(id=>id!==employee.id))}),
+              h('span',null,employee.name),h('small',null,employee.title||employee.role)))),
+            h('div',{className:'dsc-card-actions'},h('button',{className:'dsc-btn','data-kind':'primary',type:'submit',disabled:busy||!name.trim()||memberIds.length<2},L.create),
+              h('button',{className:'dsc-btn',type:'button',disabled:busy,onClick:()=>setForm(false)},L.cancel)))
+          : visible ? h(React.Fragment,null,
+            h('div',{className:'dsc-room-feed','aria-label':L.inbox,'aria-live':'polite'},visible.messages?.length
+              ? visible.messages.map(message=>h('article',{key:message.id,className:`dsc-room-message ${message.kind==='user'?'dsc-room-owner':''}`},
+                  h('div',{className:'dsc-room-messagehead'},h('strong',null,message.kind==='user'?L.owner:message.name||employeeName(message.employeeId)),
+                    h('span',null,message.kind==='error'?L.error:formatTime(message.at))),h('pre',null,String(message.text||''))))
+              : h('div',{className:'dsc-room-welcome'},h('p',null,L.noMessages))),
+            h('form',{className:'dsc-room-composer',onSubmit:e=>{e.preventDefault();if(draft.trim()&&!running)act('group-send',{id,text:draft.trim()});}},
+              h('label',{className:'dsc-label',htmlFor:'dsc-group-message'},L.prompt),h('p',{className:'dsc-hint'},L.hint),
+              h('textarea',{id:'dsc-group-message',className:'dsc-area',value:draft,maxLength:4000,disabled:busy||running,onChange:e=>setDraft(e.target.value)}),
+              h('button',{className:'dsc-btn','data-kind':'primary',type:'submit',disabled:busy||running||!draft.trim()},running?L.busy:L.send)))
+          : h('div',{className:'dsc-room-welcome'},h('p',null,id?t('loading'):L.empty))),
+        h('aside',{className:'dsc-room-review','aria-label':L.status},h('h3',null,L.status),
+          visible?.employeeIds?.length ? h('ul',{className:'dsc-room-members'},visible.employeeIds.map(employeeId=>{
+            const slot = visible.run?.workers?.find(worker=>worker.employeeId===employeeId);
+            return h('li',{key:employeeId},h('strong',null,employeeName(employeeId)),slot?h('span',{'data-status':slot.status},labelStatus(slot.status)):null);
+          })) : h('p',{className:'dsc-hint'},L.people)));
+    }
+
+    const QUANT_ROLES = [
+      ['quote','quantDataRole'], ['theme','quantSentimentRole'],
+      ['candidate','quantOrderbookRole'], ['risk','quantRiskRole'], ['delivery','quantNotificationRole'],
+    ];
+    function quantStamp(value) {
+      if (typeof value === 'number') return Number.isFinite(value) ? value : NaN;
+      if (typeof value !== 'string' || !/(Z|[+-]\d{2}:?\d{2})$/i.test(value)) return NaN;
+      return Date.parse(value);
+    }
+    function quantBeijingTime(value) {
+      const stamp = quantStamp(value);
+      if (!Number.isFinite(stamp)) return '';
+      // Explicit Asia/Shanghai formatting, independent of browser/device timezone.
+      return new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(new Date(stamp));
+    }
+    function quantTimestamp(value, now, t) {
+      if (value == null || value === '') return t('quantUnknown');
+      const stamp = quantStamp(value);
+      if (!Number.isFinite(stamp)) return t('quantUnknown');
+      const age = Math.floor((now - stamp) / 1000);
+      return `${quantBeijingTime(stamp)} ${t('quantBeijing')} · ${age < 0 ? t('quantFuture') : `${age} ${t('quantAgo')}`}`;
+    }
+    function quantTimeline(input) {
+      const rows = new Map();
+      for (const event of Array.isArray(input) ? input : []) {
+        if (event && typeof event.id === 'string' && event.id && Number.isFinite(quantStamp(event.at)) && QUANT_ROLES.some(([id])=>id===event.roleId)) rows.set(event.id,event);
+      }
+      return [...rows.values()].sort((a,b)=>quantStamp(a.at)-quantStamp(b.at) || a.id.localeCompare(b.id)).slice(-80);
+    }
+    function quantNewEventIds(events, seen) {
+      return events.filter(event=>!seen.has(event.id)).map(event=>event.id);
+    }
+    function quantAssignmentsValid(assignments, employees) {
+      const ids=new Set(employees.map(employee=>employee.id));
+      return Object.entries(assignments).every(([role,id])=>QUANT_ROLES.some(([key])=>key===role) && ids.has(id));
+    }
+    function QuantPeoplePanel({data,draft=null,error='',notice='',saving=false,t,onChange,onSave}) {
+      const employees=Array.isArray(data?.employees)?data.employees:[];
+      const assignments=draft || data?.assignments || {};
+      const originLabel=origin=>origin==='workflow'?t('quantSource_fixed'):origin==='mission'?t('companyLegacy'):['company','fixed','group'].includes(origin)?t('quantSource_'+origin):String(origin || t('quantUnknown'));
+      const work=entry=>h('div',{className:'dsc-quant-personwork'},h('span',{className:'dsc-quant-workorigin'},originLabel(entry.origin)),h('strong',null,String(entry.title || '—')),h('span',null,(['idle','running','done','blocked','stale','unknown'].includes(entry.status) ? t('quantStatus_'+entry.status) : t(entry.status || 'quantUnknown'))),h('time',{dateTime:entry.at || undefined},quantBeijingTime(entry.at) || t('quantUnknown')));
+      return h('section',{className:'dsc-quant-employees','aria-label':t('quantPeople')},
+        h('h3',null,t('quantPeople')),h('p',{className:'dsc-quant-note'},t('quantPeopleHint')),
+        error?h('p',{role:'alert'},`${t('quantRosterError')} ${error}`):null,
+        !employees.length?h('p',null,t('quantNoPeople')):null,
+        employees.map((employee,index)=>h('article',{key:employee.id,className:'dsc-quant-employee','data-employee-id':employee.id,'data-accent':String(index%7),'data-working':employee.active?.some(entry=>['running','working','bidding'].includes(entry.status))?'1':'0'},
+          h('header',null,h('span',{className:'dsc-quant-employeeavatar','aria-hidden':true},String(employee.name || '?').slice(0,1)),h('div',null,h('h4',null,employee.name),h('p',null,employee.title || employee.role || '—'))),
+          Array.isArray(employee.active) && employee.active.length ? h('div',{className:'dsc-quant-activework'},employee.active.map((entry,index)=>h('div',{key:`${entry.origin}-${index}`},work(entry)))):h('p',{className:'dsc-quant-note'},t('quantIdle')),
+          employee.last ? h('details',null,h('summary',null,t('quantLastResult')),work(employee.last),h('pre',null,String(employee.last.output || '—'))) : h('p',{className:'dsc-quant-note'},t('quantNoResult')))),
+        h('section',{className:'dsc-quant-owners','aria-label':t('quantOwner')},h('h3',null,t('quantOwner')),h('p',{className:'dsc-quant-note'},t('quantOwnerHint')),
+          QUANT_ROLES.map(([role,label])=>h('label',{key:role},t(label),h('select',{'aria-label':`${t('quantOwner')}: ${t(label)}`,value:assignments[role] || '',disabled:saving || !data?.assignmentsAvailable,onChange:event=>onChange(role,event.target.value)},
+            h('option',{value:''},t('quantUnassigned')),
+            assignments[role] && !employees.some(employee=>employee.id===assignments[role])?h('option',{value:assignments[role]},`${t('quantUnknown')}: ${assignments[role]}`):null,
+            employees.map(employee=>h('option',{key:employee.id,value:employee.id},employee.name))))),
+          !data?.assignmentsAvailable?h('p',null,t('quantOwnersUnavailable')):null,
+          h('button',{className:'dsc-btn',disabled:saving || !data?.assignmentsAvailable || draft===null || !quantAssignmentsValid(assignments,employees),onClick:onSave},t('quantSaveOwners')),
+          draft && !quantAssignmentsValid(assignments,employees)?h('p',{role:'alert'},t('quantOwnerInvalid')):null,
+          notice?h('p',{role:'status'},notice):null));
+    }
+    function QuantPeopleWorkspace({t,request=call}) {
+      const [data,setData]=useState(null),[draft,setDraft]=useState(null),[error,setError]=useState(''),[notice,setNotice]=useState(''),[saving,setSaving]=useState(false);
+      const alive=useRef(true),inFlight=useRef(false),saveLock=useRef(false),generation=useRef(0);
+      const refresh=useCallback(async()=>{
+        if(inFlight.current || saveLock.current)return;
+        inFlight.current=true;const revision=generation.current;
+        try {const result=await request('quant-roster');if(alive.current && revision===generation.current){setData(result);setError('');}}
+        catch(caught){if(alive.current && revision===generation.current)setError(caught?.message || String(caught));}
+        finally{inFlight.current=false;}
+      },[request]);
+      useEffect(()=>{alive.current=true;refresh();const timer=setInterval(refresh,5000);return()=>{alive.current=false;clearInterval(timer);};},[refresh]);
+      const change=(role,id)=>{setDraft(current=>{const next={...(current || data?.assignments || {})};if(id)next[role]=id;else delete next[role];return next;});setNotice('');};
+      const save=async()=>{
+        if(saveLock.current || !data?.assignmentsAvailable || draft===null || !quantAssignmentsValid(draft,data?.employees || []))return;
+        saveLock.current=true;generation.current++;setSaving(true);setError('');setNotice('');
+        try{const result=await request('quant-roster-save',{assignments:draft});if(alive.current){setData(result);setDraft(null);setNotice(t('quantOwnersSaved'));}}
+        catch(caught){if(alive.current)setError(caught?.message || String(caught));}
+        finally{saveLock.current=false;if(alive.current)setSaving(false);}
+      };
+      return h(QuantPeoplePanel,{data,draft,error,notice,saving,t,onChange:change,onSave:save});
+    }
+
+    function QuantDashboard({data, error='', loading=false, now=Date.now(), t, onRefresh, request=call}) {
+      const [playing,setPlaying]=useState(false),[cursor,setCursor]=useState(0),[frozen,setFrozen]=useState(null),[follow,setFollow]=useState(true),[pulse,setPulse]=useState(null);
+      const logRef=useRef(null),seenRef=useRef(new Set()),baselineRef=useRef(false);
+      const archive = data?.mode !== 'live_readonly' || data?.session === 'closed';
+      const events=useMemo(()=>data?.available ? quantTimeline(data.timeline) : [],[data?.available,data?.timeline]);
+      const pool=archive && frozen ? frozen : events;
+      const visible=archive ? pool.slice(0,cursor) : events;
+      useEffect(()=>{setPlaying(false);setCursor(0);setFrozen(null);setPulse(null);seenRef.current=new Set();baselineRef.current=false;},[archive]);
+      useEffect(()=>{
+        const ids=quantNewEventIds(events,seenRef.current);
+        if(!archive && baselineRef.current && ids.length) {
+          const event=events.find(item=>item.id===ids[ids.length-1]);setPulse({id:event.id,ids,roleIds:events.filter(item=>ids.includes(item.id)).map(item=>item.roleId)});
+        }
+        for(const event of events)seenRef.current.add(event.id);
+        if(seenRef.current.size>2000)seenRef.current=new Set([...seenRef.current].slice(-1000));
+        if(data?.available && Array.isArray(data?.timeline))baselineRef.current=true;
+      },[events,archive]);
+      useEffect(()=>{
+        if(!playing || !archive)return;
+        if(cursor>=pool.length){setPlaying(false);return;}
+        const timer=setTimeout(()=>{const event=pool[cursor];if(event){setCursor(cursor+1);setPulse({id:event.id,ids:[event.id],roleIds:[event.roleId]});}},900);
+        return()=>clearTimeout(timer);
+      },[playing,archive,cursor,pool]);
+      useEffect(()=>{if(!pulse)return;const timer=setTimeout(()=>setPulse(null),800);return()=>clearTimeout(timer);},[pulse]);
+      const tailId=visible[visible.length-1]?.id;
+      useEffect(()=>{if(follow && logRef.current)logRef.current.scrollTop=logRef.current.scrollHeight;},[tailId,follow]);
+      const play=()=>{if(!pool.length)return;if(!frozen)setFrozen(events.slice());if(cursor>=pool.length)setCursor(0);setPlaying(true);};
+      const reset=()=>{setPlaying(false);setCursor(0);setFrozen(null);setPulse(null);};
+      const modes = {replay:'quantReplay',paper:'quantSimulation',live_readonly:'quantLive'};
+      const roles = data?.available && Array.isArray(data?.roles) ? data.roles : [];
+      const sourceError = error || data?.error || '';
+      const statusText = status => t('quantStatus_' + (['idle','running','done','blocked','stale'].includes(status) ? status : 'unknown'));
+      return h('section',{className:'dsc-quant dsc-quant-neon','aria-label':t('quantTab')},
+        h('header',{className:'dsc-quant-head'},h('div',null,h('div',{className:'dsc-quant-kicker'},t('quantReadOnly')),h('h2',null,t('quantTab')),h('p',null,t('quantSubtitle'))),
+          h('button',{className:'dsc-btn',disabled:loading,onClick:onRefresh},t('quantRefresh'))),
+        h('div',{className:'dsc-quant-meta'},h('strong',null,`${t('quantMode')}: ${t(modes[data?.mode] || 'quantUnknown')}`),h('span',null,`${t('quantSnapshot')}: ${quantTimestamp(data?.generatedAt,now,t)}`)),
+        h('p',{className:'dsc-quant-note'},`${t('quantSource')}: ${data?.source || t('quantUnknown')} · ${t('quantSession')}: ${t(({morning:'quantSessionMorning',afternoon:'quantSessionAfternoon',lunch:'quantSessionLunch',closed:'quantSessionClosed'})[data?.session] || 'quantUnknown')}`),
+        sourceError ? h('p',{className:'dsc-quant-warning',role:'alert'},`${t('quantError')} ${String(sourceError)}`) : null,
+        (!data || !data.available) ? h('p',{className:'dsc-quant-warning',role:'status'},t('quantUnavailable')) : null,
+        h('div',{className:'dsc-quant-terminal'},
+          h('aside',{className:'dsc-quant-people-sidebar'},h(QuantPeopleWorkspace,{t,request})),
+          h('main',{className:'dsc-quant-evidence'},
+            h('section',{className:'dsc-quant-log dsc-quant-stream','aria-label':t('quantEventFeed')},
+              h('div',{className:'dsc-quant-streamhead'},h('h3',null,t('quantEventFeed')),h('span',null,`${visible.length}/${pool.length} · ${t('quantBeijing')}`)),
+              h('p',{className:'dsc-quant-note'},t(archive?'quantArchive':'quantLiveEvents')),
+              h('div',{className:'dsc-quant-controls'},archive ? h('button',{className:'dsc-btn',disabled:!pool.length,onClick:playing?()=>setPlaying(false):play},t(playing?'quantPause':'quantPlay')):null,
+                archive ? h('button',{className:'dsc-btn',onClick:reset},t('quantReset')):null,
+                h('label',null,h('input',{type:'checkbox',checked:follow,onChange:e=>setFollow(e.target.checked)}),t('quantFollow'))),
+              h('div',{className:'dsc-quant-scroll',ref:logRef,tabIndex:0,'aria-label':t('quantEventFeed'),onScroll:e=>{const el=e.currentTarget;if(el.scrollHeight-el.scrollTop-el.clientHeight>24)setFollow(false);}},
+                !visible.length ? h('p',{className:'dsc-quant-empty'},t(pool.length?'quantReplayReady':'quantNoEvents')):null,
+                h('ol',null,visible.map(event=>h('li',{key:event.id,'data-event-id':event.id,'data-new':pulse?.ids?.includes(event.id)?'1':'0'},
+                  h('time',{dateTime:event.at},quantBeijingTime(event.at)),h('strong',null,t(QUANT_ROLES.find(([id])=>id===event.roleId)?.[1] || 'quantUnknown')),
+                  h('code',null,String(event.kind || '')),h('p',null,String(event.action || t('quantUnknown'))),
+                  event.reason ? h('p',{className:'dsc-quant-eventreason'},String(event.reason)):null,
+                  event.counts && Object.keys(event.counts).length ? h('small',null,Object.entries(event.counts).filter(([,value])=>Number.isFinite(value)).map(([key,value])=>`${key}: ${value}`).join(' · ')):null))))),
+            h('h3',null,t('quantTelemetry')),
+          h('section',{className:'dsc-quant-roster dsc-quant-raw','aria-label':t('quantTelemetry')},QUANT_ROLES.map(([id,label],index)=>{
+            const role=roles.find(item=>item.id===id);
+            return h('article',{key:id,className:'dsc-quant-person','data-pulse':pulse?.roleIds?.includes(id)?'1':'0'},h('div',{className:'dsc-quant-rolehead'},h('span',{className:'dsc-quant-index'},String(index+1).padStart(2,'0')),h('strong',null,t(label))),h('span',{className:'dsc-quant-pill','data-status':role?.status || 'unknown'},statusText(role?.status)),h('p',null,role?.action || t('quantMissing')),h('small',null,quantTimestamp(role?.at,now,t)));
+          })),
+            h('section',{'aria-label':t('quantFlow')},h('h3',null,t('quantFlow')),h('p',{className:'dsc-quant-note'},t('quantFlowHint')),
+              h('ol',{className:'dsc-quant-path'},QUANT_ROLES.map(([id,label])=>{const role=roles.find(item=>item.id===id);return h('li',{key:id},h('strong',null,t(label)),h('span',{'data-status':role?.status || 'unknown',className:'dsc-quant-pill'},statusText(role?.status)));}))),
+        h('details',{className:'dsc-quant-metrics'},h('summary',null,t('quantSnapshotDetails')),h('div',{className:'dsc-quant-grid'},QUANT_ROLES.map(([id,label],index)=>{
+          const role = roles.find(item=>item.id===id);
+          return h('article',{key:id,className:'dsc-quant-role','aria-label':t(label)},
+            h('div',{className:'dsc-quant-rolehead'},h('span',{className:'dsc-quant-index','aria-hidden':true},String(index+1).padStart(2,'0')),h('h3',null,t(label))),
+            h('p',{className:'dsc-quant-status'},`${t('quantReported')}: ${statusText(role?.status)}`),
+            !role ? h('p',null,t('quantMissing')) : null,
+            h('dl',null,h('dt',null,t('quantHeartbeat')),h('dd',null,quantTimestamp(role?.at,now,t)),h('dt',null,t('quantFreshness')),h('dd',null,quantTimestamp(data?.marketAsOf,now,t)),h('dt',null,t('quantProcessing')),h('dd',null,role?.action ? String(role.action) : t('quantUnknown'))),
+            h('div',{className:'dsc-quant-counts'},h('h4',null,t('quantCounts')),
+              role?.counts && typeof role.counts === 'object' && Object.keys(role.counts).length ? h('dl',null,Object.entries(role.counts).map(([key,value])=>h('div',{key},h('dt',null,key),h('dd',null,Number.isFinite(value)?String(value):t('quantUnknown'))))) : h('p',null,t('quantUnknown'))),
+            h('div',{className:'dsc-quant-blocker'},h('strong',null,t('quantBlocked')),h('p',null,role?.reason ? String(role.reason) : t('quantUnknown'))));
+        }))),
+          )),
+          data?.outbox ? h('section',{className:'dsc-quant-meta','aria-label':t('quantDelivery')},h('strong',null,t('quantDelivery')),h('span',null,data.outbox.mode==='dry_run'?t('quantDryRun'):t('quantUnknown')),h('span',null,`${t('quantEligible')}: ${Number.isFinite(data.outbox.eligible)?data.outbox.eligible:t('quantUnknown')} · ${t('quantDelivered')}: ${Number.isFinite(data.outbox.delivered)?data.outbox.delivered:t('quantUnknown')}`)) : null,h('p',{className:'dsc-quant-note'},t('quantHealthNote')));
+    }
+    function QuantWorkspace({t, request=call}) {
+      const [data,setData]=useState(null),[error,setError]=useState(''),[loading,setLoading]=useState(false),[now,setNow]=useState(Date.now());
+      const inFlight=useRef(false),alive=useRef(true);
+      const refresh=useCallback(async()=>{
+        if(inFlight.current) return;
+        inFlight.current=true;setLoading(true);
+        try {const result=await request('quant-status');if(alive.current){setData(result);setError('');setNow(Date.now());}}
+        catch(caught){if(alive.current)setError(caught?.message || String(caught));}
+        finally {inFlight.current=false;if(alive.current)setLoading(false);}
+      },[request]);
+      useEffect(()=>{alive.current=true;refresh();const timer=setInterval(()=>{setNow(Date.now());refresh();},5000);return()=>{alive.current=false;clearInterval(timer);};},[refresh]);
+      return h(QuantDashboard,{data,error,loading,now,t,onRefresh:refresh,request});
+    }
+
+
+    // Illustrated office view.
+// Browser-module source. Insert inside the existing client factory with h/useState/useEffect/useRef/call.
+const OFFICE_CSS = `
+.dsc-ofc{--of-bg:#101417;--of-ink:#edf0f3;--of-dim:#abb6bf;--of-line:#3b474f;color:var(--of-ink);background:var(--of-bg);border:1px solid var(--of-line);border-radius:14px;padding:18px;container-type:inline-size}
+.dsc-ofc *{box-sizing:border-box}.dsc-ofc button{font:inherit;color:inherit}.dsc-ofc button:focus-visible{outline:2px solid #ece4b1;outline-offset:3px}
+.dsc-ofc h2,.dsc-ofc h3,.dsc-ofc h4,.dsc-ofc p{margin:0}.dsc-ofc small,.dsc-of-muted{color:var(--of-dim)}
+.dsc-of-head{display:flex;gap:14px;align-items:center;justify-content:space-between;margin-bottom:16px}.dsc-of-head h2{font-size:24px;font-weight:680;line-height:1.2}.dsc-of-eyebrow{display:block;color:#c4d0d8;margin-bottom:5px;font:700 10px/1.1 system-ui;letter-spacing:.16em;text-transform:uppercase}.dsc-of-head p{margin-top:6px}
+.dsc-of-layout{display:grid;grid-template-columns:118px minmax(0,2.8fr) minmax(210px,1fr);gap:14px;align-items:start}
+.dsc-of-nav{display:grid;gap:4px;background:#171e23;border:1px solid var(--of-line);border-radius:8px;padding:6px}.dsc-of-nav button{min-width:0;text-align:start;border:1px solid transparent;border-radius:5px;padding:7px 6px;background:transparent;cursor:pointer;font-size:11px;overflow-wrap:anywhere}.dsc-of-nav button:hover,.dsc-of-nav button[aria-current=page]{background:#29333b;border-color:#485863}.dsc-of-nav button[aria-current=page]{font-weight:700;cursor:default}.dsc-of-floor{min-width:0;padding:9px;background:#20272c;border:1px solid #424d54;border-radius:12px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.dsc-of-room{--room:#889baf;border:1px solid #43505a;border-top:3px solid var(--room);border-radius:8px;padding:8px;min-width:0;background:repeating-linear-gradient(90deg,transparent 0 21px,#ffffff07 22px 23px),color-mix(in srgb,var(--room) 14%,#141b20);box-shadow:inset 0 -4px #070a0d4d}
+.dsc-of-room[data-room=lead]{--room:#c4a879;grid-column:1/-1;background:repeating-linear-gradient(90deg,transparent 0 29px,#ffffff08 30px 31px),#332a22}
+.dsc-of-room[data-room=product]{--room:#a59bc3}.dsc-of-room[data-room=engineering]{--room:#8caaba}.dsc-of-room[data-room=data]{--room:#94aaa1}.dsc-of-room[data-room=quality]{--room:#bd9c98}.dsc-of-room[data-room=team]{--room:#a2a5b0;grid-column:1/-1}
+.dsc-of-roomhead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:7px}.dsc-of-roomhead h3{font-size:13px;letter-spacing:.02em}.dsc-of-roomhead small{white-space:nowrap;font-variant-numeric:tabular-nums}.dsc-of-door{width:26px;height:4px;display:block;background:var(--room);opacity:.5;border-radius:5px;margin:8px auto -8px}
+.dsc-of-seats{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,110px),1fr));gap:8px}.dsc-of-leadgrid{display:grid;grid-template-columns:minmax(100px,2fr) minmax(125px,3fr);gap:9px;align-items:center}
+.dsc-of-bossnote{padding:10px;border-left:1px solid #685a46;line-height:1.45}.dsc-of-bossnote p{margin-bottom:8px}.dsc-of-cta{border:1px solid #d2b992;background:#d4bc96;color:#1c1812!important;border-radius:7px;padding:8px 12px;font-weight:700!important;cursor:pointer}.dsc-of-cta:disabled{opacity:.55;cursor:default}
+.dsc-of-desk{min-width:0;display:grid;grid-template-rows:auto 55px auto;gap:3px;width:100%;padding:5px;border:1px solid transparent;border-radius:7px;background:none;text-align:center;cursor:pointer}
+.dsc-of-desk:hover,.dsc-of-desk[aria-pressed=true]{border-color:var(--room);background:#070a0d30}.dsc-of-desk[data-working=true]{border-color:#84fbd1;box-shadow:0 0 12px #55ffb944}.dsc-of-desk strong{font-size:12px;overflow-wrap:anywhere}.dsc-of-desk small{white-space:normal;font-size:10px;line-height:1.25}.dsc-of-desk[data-working=true] small{color:#9bffdc}
+.dsc-of-light{transform-box:fill-box;transform-origin:center}.dsc-of-desk[data-working=true] .dsc-of-light{animation:dsc-of-signal 1.5s ease-in-out infinite alternate}
+@keyframes dsc-of-signal{from{opacity:.48}to{opacity:1;filter:drop-shadow(0 0 3px #9bffdc)}}
+.dsc-of-goals{list-style:none;margin:0;padding:0;display:grid;gap:10px}.dsc-of-goals li{min-width:0;border-bottom:1px solid #354048;padding-bottom:8px}.dsc-of-goals li:last-child{padding-bottom:0;border:0}.dsc-of-goals strong{font-size:12px;overflow-wrap:anywhere}.dsc-of-goals small{display:block;margin:3px 0;font-size:11px}.dsc-of-goals progress{width:100%;height:7px;accent-color:#9abbad}
+.dsc-of-figure{display:block;width:100%;height:55px;overflow:visible}.dsc-of-rail{display:grid;gap:10px;min-width:0}.dsc-of-panel{min-width:0;border:1px solid var(--of-line);border-radius:10px;padding:12px;background:#1a2025}.dsc-of-panel h3{font-size:14px;margin-bottom:8px}.dsc-of-panel h4{font-size:12px;margin:12px 0 5px}
+.dsc-of-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;margin:10px 0 0}.dsc-of-metrics div{min-width:0;background:#11171b;border-radius:6px;padding:7px 4px;text-align:center}.dsc-of-metrics strong{display:block;font:650 20px/1 system-ui;margin-bottom:4px}.dsc-of-metrics span{font-size:10px;color:var(--of-dim);overflow-wrap:anywhere}
+.dsc-of-list{list-style:none;margin:0;padding:0;display:grid;gap:7px}.dsc-of-list li{font-size:12px;min-width:0;overflow-wrap:anywhere;padding:0 0 7px;border-bottom:1px solid #353f46}.dsc-of-list li:last-child{border-bottom:0;padding-bottom:0}.dsc-of-list small{display:block;margin-top:2px}.dsc-of-profile{border:1px solid #64747d;border-radius:6px;background:#263038;padding:6px 9px;cursor:pointer;margin-top:8px}.dsc-of-empty{font-size:12px;line-height:1.45;color:var(--of-dim)}
+@container(max-width:810px){.dsc-of-layout{grid-template-columns:minmax(0,2.8fr) minmax(185px,1fr)}.dsc-of-nav{grid-column:1/-1;display:flex;flex-wrap:wrap}}
+@container(max-width:590px){.dsc-of-layout{grid-template-columns:minmax(0,1fr)}.dsc-of-rail{grid-template-columns:repeat(auto-fit,minmax(min(100%,215px),1fr))}}
+@container(max-width:430px){.dsc-of-floor{grid-template-columns:minmax(0,1fr)}.dsc-of-room{grid-column:1}.dsc-of-head{align-items:start}.dsc-of-head h2{font-size:20px}.dsc-of-leadgrid{grid-template-columns:1fr}.dsc-of-bossnote{border-left:0;border-top:1px solid #685a46}}
+@media(prefers-reduced-motion:reduce){.dsc-ofc *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+`;
+
+const OFFICE_3D_CSS = `
+.dsc-o3{grid-column:1/-1;min-width:0;display:grid;gap:10px;align-content:start}
+.dsc-o3-head,.dsc-o3-controls{display:flex;align-items:center;flex-wrap:wrap;gap:7px}
+.dsc-o3-head{justify-content:space-between}.dsc-o3-head strong{font-size:13px;letter-spacing:.065em}
+.dsc-o3-controls button{border:1px solid #465784;border-radius:8px;background:#1b2946;color:#e7efff!important;padding:6px 9px;cursor:pointer}
+.dsc-o3-controls button[aria-pressed=true]{background:#373671;border-color:#b0a8ff}
+.dsc-o3-frame{position:relative;isolation:isolate;--office-boss-x:50%;--office-boss-y:62%;border:1px solid #a99d8e;border-radius:11px;overflow:hidden;background:#d3cfc9}.dsc-o3-stage{width:100%;height:auto;aspect-ratio:1.48;position:relative;overflow:hidden;background:#d3cfc9}
+.dsc-o3-stage canvas{display:block;width:100%;height:100%;cursor:grab;touch-action:pan-y}
+.dsc-o3-labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.dsc-o3-label{position:absolute;left:0;top:0;max-width:110px;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;font:650 11px/1.2 system-ui;color:#22202b;background:#fff9f1ef;border:1px solid #989080;padding:3px 6px;border-radius:5px;box-shadow:0 2px 6px #3028194d;}
+.dsc-o3-room{font-size:10px;letter-spacing:.025em;color:#24222b;background:#fffaf0;border:1px solid #a69e8d;border-left:3px solid var(--tint);max-width:135px}
+.dsc-o3-worker[data-working=true]{border-color:#269274;color:#0b382c;background:#b8f4df;box-shadow:0 0 10px #50a58d55}
+.dsc-o3-worker[data-selected=true]{outline:2px solid #6451a2;outline-offset:2px}
+.dsc-o3-fallback{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));min-width:0;gap:9px;grid-column:1/-1;padding:0!important;border:0!important;background:none!important}
+.dsc-o3-people{display:flex;flex-wrap:wrap;gap:6px;list-style:none;margin:0;padding:0}
+.dsc-o3-people button{white-space:normal;text-align:left;display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+.dsc-o3-people small{color:#d5dff2}.dsc-o3-people small[data-working=true]{color:#a6ffe5}
+@container(max-width:520px){.dsc-o3-fallback{grid-template-columns:minmax(0,1fr)}.dsc-o3-fallback .dsc-of-room{grid-column:1}.dsc-o3-stage{height:auto;aspect-ratio:1.48}.dsc-o3-label{font-size:8px;padding:2px 3px;max-width:70px}.dsc-o3-room{max-width:68px}}
+.dsc-o3-boss-action{position:absolute;z-index:4;left:var(--office-boss-x);top:var(--office-boss-y);transform:translate(-50%,7px);white-space:nowrap;background:#161516;color:#fff6e7!important;border:1px solid #f1d8a9;border-radius:999px;padding:5px 11px;font-size:11px!important;font-weight:750!important;cursor:pointer;box-shadow:0 3px 9px #32231565}
+.dsc-o3-boss-action:hover{background:#352726}.dsc-o3-boss-action:focus-visible{outline:2px solid #5344a1!important;outline-offset:2px!important}.dsc-o3-fallback-action{justify-self:start}
+.dsc-o3-head .dsc-o3-controls button,.dsc-o3-camera button{min-height:29px;font-size:11px}
+.dsc-o3-help{font-size:11px;overflow-wrap:anywhere}
+.dsc-ofc[data-office-style=reference]{padding:12px}.dsc-ofc[data-office-style=reference] .dsc-of-head{margin-bottom:10px}
+.dsc-ofc[data-office-style=reference] .dsc-of-head h2{font-size:20px}
+.dsc-ofc[data-office-style=reference] .dsc-of-floor{padding:0;background:none;border:0;display:block}
+@container(max-width:520px){.dsc-o3-boss-action{font-size:9px!important;padding:4px 7px;transform:translate(-50%,3px)}}
+
+`;
+function Office3DLayer({people,picked,onPick,onGoal,fallback,language}) {
+  const [mode,setMode]=useState('3d');
+  const [renderState,setRenderState]=useState('loading');
+  const host=useRef(null), controller=useRef(null), callbacks=useRef(null);
+  const L=(zh,en)=>language==='en'?en:zh;
+  callbacks.current={people,picked,onPick};
+  useEffect(()=>{
+    if(mode!=='3d')return;
+    let disposed=false;let instance=null;setRenderState('loading');
+    Promise.resolve().then(()=>import(API+'/office/office3d.js')).then(mod=>{
+      if(disposed||!host.current)return;
+      instance=mod.mountOffice3D(host.current,{language,pick:id=>callbacks.current.onPick(id),
+        onLost:()=>{if(!disposed){instance?.destroy();instance=null;controller.current=null;setRenderState('lost');}}});
+      controller.current=instance;
+      instance.update(callbacks.current.people,callbacks.current.picked);
+      setRenderState('ready');
+    }).catch(()=>{
+      if(!disposed){instance?.destroy();instance=null;controller.current=null;setRenderState('lost');}
+    });
+    return()=>{disposed=true;instance?.destroy();controller.current=null;};
+  },[mode,language]);
+  useEffect(()=>{controller.current?.update(people,picked);},[people,picked]);
+  const use3d=mode==='3d'&&renderState==='ready';
+  const selectedText=people.find(e=>e.id===picked);
+  return h('div',{className:'dsc-o3'},
+    h('style',null,OFFICE_3D_CSS),
+    h('div',{className:'dsc-o3-head'},
+      h('small',{className:'dsc-of-muted'},L('点击工位查看活动','Select a desk to inspect activity')),
+      h('div',{className:'dsc-o3-controls','aria-label':L('办公图显示模式','Office display mode')},
+        h('button',{type:'button','aria-pressed':mode==='3d',onClick:()=>{if(mode!=='3d'){setRenderState('loading');setMode('3d');}}},L('3D 实景','3D scene')),
+        h('button',{type:'button','aria-pressed':mode==='2d',onClick:()=>setMode('2d')},L('2D 平面图','2D floor plan')))),
+    mode==='3d'&&renderState==='lost'?h('p',{className:'dsc-of-muted',role:'status'},L('3D 暂不可用，已显示可操作的平面图。','3D is unavailable; the interactive floor plan is shown.')):null,
+    mode==='3d'&&renderState==='loading'?h('p',{className:'dsc-of-muted',role:'status'},L('正在加载 3D 办公室。','Loading 3D office.')):null,
+    mode==='3d'&&renderState!=='lost'?h('div',{className:'dsc-o3-frame'},
+      h('div',{className:'dsc-o3-stage',ref:host,'aria-hidden':'true'}),
+      use3d&&onGoal?h('button',{type:'button',className:'dsc-o3-boss-action',onClick:onGoal},L('拆解新目标','Start a new objective')):null):null,
+    !use3d&&onGoal?h('button',{type:'button',className:'dsc-of-cta dsc-o3-fallback-action',onClick:onGoal},L('拆解新目标','Start a new objective')):null,
+    use3d ? h('div',{className:'dsc-o3-controls dsc-o3-camera','aria-label':L('相机控制','Camera controls')},
+      [['left',L('向左旋转','Orbit left')],['right',L('向右旋转','Orbit right')],['in',L('放大','Zoom in')],['out',L('缩小','Zoom out')],['reset',L('重置视角','Reset camera')]].map(([key,label])=>
+        h('button',{key,type:'button',onClick:()=>controller.current?.adjust(key)},label))) : null,
+    use3d ? h('ul',{className:'dsc-o3-people dsc-o3-controls','aria-label':L('可选择的员工','Selectable employees')},people.map(person=>
+      h('li',{key:person.id},h('button',{type:'button','aria-pressed':person.id===picked,onClick:()=>onPick(person.id)},person.name,
+        h('small',{'data-working':String(person.working)},person.status))))) : h('div',{className:'dsc-o3-fallback dsc-of-floor'},fallback),
+    use3d?h('p',{className:'dsc-of-muted dsc-o3-help',role:'status','aria-live':'polite'},selectedText?selectedText.name+' · '+selectedText.status:L('亮绿标记表示已记录的正在执行；可拖动地图切换视角。','Green markers indicate recorded active work. Drag to orbit.')):null);
+}
+
+function OfficeView({employees=[],plans,workflows=[],stateError='',companyName='',t,onOpenCompany,onOpenEmployee,onNavigate,groupsAvailable=false,request=call}) {
+  const [data,setData]=useState(null);
+  const [failed,setFailed]=useState(false);
+  const refreshed=useRef(0);
+  const baselineReplies=useRef(null);
+  const [picked,setPicked]=useState('');
+  useEffect(()=>{
+    let alive=true, pending=false;
+    async function tick(){
+      if(pending)return;
+      pending=true;
+      try{
+        const next=await request('quant-roster');
+        if(alive){
+          const valid=Array.isArray(next?.employees);
+          if(valid&&baselineReplies.current===null) baselineReplies.current=new Set(next.employees.flatMap(row=>row.latestReply?.eventId?[row.latestReply.eventId]:[]));
+          refreshed.current=valid?Date.now():0;setData(valid?next.employees:null);setFailed(!valid);
+        }
+      }catch{if(alive){refreshed.current=0;setData(null);setFailed(true);}}
+      finally{pending=false;}
+    }
+    tick();
+    const timer=setInterval(()=>{
+      if(refreshed.current && Date.now()-refreshed.current>7500){refreshed.current=0;setData(null);setFailed(true);}
+      tick();
+    },2500);
+    return()=>{alive=false;clearInterval(timer);};
+  },[request]);
+
+  const en=t('companyMode')==='AI Company'||t('tabRoster')==='Employees';
+  const L=(zh,english)=>en?english:zh;
+  const classes=[
+    ['lead','总经理办公室','Director’s office'],
+    ['product','产品部','Product'],
+    ['engineering','研发部','Engineering'],
+    ['data','数据分析部','Data & analysis'],
+    ['quality','质量与审核部','Quality & review'],
+    ['team','共享办公区','Shared office'],
+  ];
+  const department={director:'lead',product:'product',techlead:'engineering',engineer:'engineering',analyst:'data',qa:'quality',reviewer:'quality'};
+  const current=(Array.isArray(employees)?employees:[]).filter(e=>e?.id&&!e.fired);
+  const trusted=new Map((data||[]).map(e=>[e.id,e]));
+  const workFor=e=>stateError?undefined:trusted.get(e.id);
+  const isRunning=work=>['running','working','bidding'].includes(work?.status);
+  const working=e=>!stateError&&(workFor(e)?.active||[]).some(isRunning);
+  const waiting=e=>(workFor(e)?.active||[]).some(item=>['pending','queued'].includes(item.status));
+  const statusLabel=status=>({
+    running:L('进行中','Running'),working:L('处理中','Working'),bidding:L('评估中','Evaluating'),
+    pending:L('等待','Pending'),queued:L('排队','Queued'),done:L('已完成','Done'),
+    failed:L('失败','Failed'),skipped:L('跳过','Skipped'),cancelled:L('取消','Cancelled'),
+    interrupted:L('中断','Interrupted'),
+  })[status]||L('未验证','Unverified');
+  const latestReplyOf=e=>{
+    const reply=workFor(e)?.latestReply;
+    return reply?.eventId&&!baselineReplies.current?.has(reply.eventId)?reply:null;
+  };
+  const motionOf=e=>{
+    const motion=workFor(e)?.motion;
+    return !motion || (motion.kind==='reply'&&baselineReplies.current?.has(motion.eventId))?{kind:'idle'}:motion;
+  };
+  const motionText=e=>({typing:L('工位处理中','Working at desk'),group:L('正在参与群聊','Participating in group chat'),reply:L('刚已向群内回复','Recently replied to group')})[motionOf(e).kind];
+  const personStatus=e=>working(e)
+    ? (['typing','group'].includes(motionOf(e).kind)?motionText(e):L('正在工作','Working'))+(waiting(e)?L(' · 另有待办',' · Also waiting'):'')
+    : waiting(e)?L('等待开始','Waiting to start')
+    : motionText(e) || (workFor(e)?L('暂无进行中记录','No active work recorded'):L('状态未验证','Status unverified'));
+  const selected=current.find(e=>e.id===picked);
+  const officePeople=current.map(e=>({id:e.id,name:e.name,role:e.role,department:department[e.role]||'team',
+    working:working(e),verified:Boolean(workFor(e)),status:personStatus(e),motion:motionOf(e),latestReply:latestReplyOf(e)}));
+  const selectDesk=id=>setPicked(previous=>previous===id?'':id);
+  const items=!stateError&&Array.isArray(plans)?plans:null;
+  const goals=(items||[]).filter(p=>['awaiting_approval','approved','running','completed','failed','cancelled'].includes(p.status)).slice(0,4);
+  const planLabel=status=>({awaiting_approval:L('待老板确认','Needs approval'),approved:L('已批准，待启动','Approved, not started'),running:L('执行中','Running'),completed:L('验收通过','Accepted'),failed:L('未通过或中断','Failed or interrupted'),cancelled:L('已取消','Cancelled')})[status];
+  function progressOf(plan){
+    const run=workflows.find(flow=>flow.id===plan.workflowId)?.lastRun;
+    if(!run||run.id!==plan.runId||!Array.isArray(run.nodeRuns))return null;
+    const slots=run.nodeRuns.filter(slot=>slot.nodeId!=='start');
+    if(!slots.length)return null;
+    return {total:slots.length,settled:slots.filter(slot=>['done','failed','skipped','cancelled','interrupted'].includes(slot.status)).length};
+  }
+  const activity=current.flatMap(e=>{
+    const w=workFor(e);
+    return [...(w?.active||[]).filter(isRunning),...(w?.last?[w.last]:[])].map(record=>({employee:e,record}));
+  }).sort((a,b)=>String(b.record.at||'').localeCompare(String(a.record.at||''))).slice(0,5);
+  const timeLabel=at=>{
+    if(!at)return '';
+    const d=new Date(at);
+    return Number.isNaN(d.valueOf())?'':new Intl.DateTimeFormat(en?'en-US':'zh-CN',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}).format(d);
+  };
+  const displayRole=e=>e.title||e.role||L('员工','Employee');
+  const roleColor={director:'#bd9473',product:'#a196c5',techlead:'#8fb3c1',engineer:'#7e9ebc',analyst:'#8cad99',qa:'#b48e9e',reviewer:'#be9d86'};
+  function seat(e){
+    const n=Array.from(String(e.id)).reduce((seed,ch)=>(seed*31+ch.codePointAt(0))>>>0,0);
+    const hair=['#201f25','#463529','#31333d','#291f24'][n%4];
+    const skin=['#d7aa89','#b58261','#d4a38d','#9c755b'][Math.floor(n/5)%4];
+    const shirt=roleColor[e.role]||['#a7aa9e','#959faf','#b29d92'][n%3];
+    const workingNow=working(e);
+    const rect=(x,y,width,height,rx,fill)=>h('rect',{x,y,width,height,rx,fill});
+    const oval=(cx,cy,rx,ry,fill)=>h('ellipse',{cx,cy,rx,ry,fill});
+    return h('button',{type:'button',key:e.id,className:'dsc-of-desk','data-employee-id':e.id,'data-working':workingNow?'true':'false','data-motion':motionOf(e).kind,'aria-pressed':picked===e.id,'aria-label':e.name+' · '+personStatus(e),onClick:()=>setPicked(p=>p===e.id?'':e.id)},
+      h('strong',null,e.name),
+      h('svg',{className:'dsc-of-figure',viewBox:'0 0 120 71','aria-hidden':true,focusable:'false'},
+        oval(60,63,33,6,'#0006'),
+        rect(13,13,94,30,5,'#11171b'),
+        rect(13,8,94,30,5,'#826655'),
+        rect(17,9,86,23,3,'#a88870'),
+        rect(32,13,29,15,3,'#263645'),
+        h('rect',{className:'dsc-of-light',x:35,y:15,width:23,height:9,rx:2,fill:workingNow?'#a3f0da':'#647789'}),
+        rect(66,16,16,9,2,'#dfd8be'),
+        oval(91,18,4,4,'#d3c3a9'),
+        oval(91,18,2.7,2.7,'#684b41'),
+        rect(43,45,34,22,9,'#2b3841'),
+        h('path',{d:'M42 55c1-10 10-16 18-16s17 6 18 16v4H42Z',fill:shirt}),
+        oval(60,39,10,10,skin),
+        h('path',{d:['M49 41c-5-14 18-19 22-6l-2 4-6-3-9 5Z','M50 44c-5-7-2-15 7-17 9-2 15 3 14 13l-7-6-6 3-5 7Z','M49 40l2-7 6-2 3-5 4 5 5 2 3 9-8-4-9 2Z','M50 43c-5-8-1-15 9-16 9-1 13 6 12 15l-5-3-5-4-6 4Z'][n%4],fill:hair}),
+        rect(46,58,28,7,3,'#56636a')),
+      h('small',null,personStatus(e)));
+  }
+  const renderList=records=>h('ul',{className:'dsc-of-list'},records.map((item,i)=>h('li',{key:i},
+    h('strong',null,item.title||L('未命名任务','Untitled task')),
+    h('small',null,[statusLabel(item.status),timeLabel(item.at)].filter(Boolean).join(' · ')))));
+  return h('section',{className:'dsc-ofc','data-office-style':'reference','aria-label':L('AI 办公室','AI office')},
+    h('style',null,OFFICE_CSS),
+    h('header',{className:'dsc-of-head'},
+      h('h2',null,L('AI 办公室','AI office'))),
+    h('div',{className:'dsc-of-layout'},
+      h('div',{className:'dsc-of-floor','aria-label':L('部门分区','Departments')},
+        h(Office3DLayer,{people:officePeople,picked,onPick:selectDesk,onGoal:onOpenCompany,language:en?'en':'zh',fallback:classes.map(([id,zh,english])=>{
+        const members=current.filter(e=>(department[e.role]||'team')===id);
+        if(id==='team'&&!members.length)return null;
+        const empty=h('p',{className:'dsc-of-empty'},L('当前没有登记员工','No employees assigned'));
+        return h('section',{className:'dsc-of-room',key:id,'data-room':id,'aria-label':L(zh,english)},
+          h('header',{className:'dsc-of-roomhead'},h('h3',null,L(zh,english)),h('small',null,en?`${members.length} seated`:`${members.length} 人`)),
+          h('div',{className:'dsc-of-seats'},members.length?members.map(seat):empty),
+          h('i',{className:'dsc-of-door','aria-hidden':true}));
+      })})),
+      h('aside',{className:'dsc-of-rail','aria-label':L('实时工作概览','Work overview')},
+        h('section',{className:'dsc-of-panel'},h('h3',null,L('运营概览','Operations')),
+          h('p',{className:'dsc-of-empty'},(failed||stateError)?L('员工任务状态暂不可验证。','Employee work could not be verified.'):L('根据当前公司记录，不含演示数字。','From current company records.')),
+          h('div',{className:'dsc-of-metrics'},[
+            [current.length,L('在册员工','Employees')],[data&&!stateError?current.filter(working).length:'—',L('工作中','Working')],
+            [data&&!stateError?current.filter(waiting).length:'—',L('有任务待开始','With waiting work')],
+            [items?items.filter(p=>p.status==='running').length:'—',L('运行方案','Active plans')],
+          ].map(([n,label])=>h('div',{key:label},h('strong',null,n),h('span',null,label))))),
+        selected?h('section',{className:'dsc-of-panel','aria-label':L('员工工位详情','Employee desk details')},
+          h('h3',null,selected.name),h('p',{className:'dsc-of-empty'},displayRole(selected)+' · '+personStatus(selected)),
+          (workFor(selected)?.active||[]).length?renderList(workFor(selected).active):null,
+          workFor(selected)?.last?h('div',null,h('h4',null,L('最近结果状态','Latest result status')),renderList([workFor(selected).last])):null,
+          onOpenEmployee?h('button',{type:'button',className:'dsc-of-profile',onClick:()=>onOpenEmployee(selected)},L('员工详情','Employee profile')):null):null,
+        h('section',{className:'dsc-of-panel'},h('h3',null,L('目标进度','Objectives')),
+          goals.length?h('ul',{className:'dsc-of-goals'},goals.map(plan=>{
+            const progress=progressOf(plan);
+            const name=(plan.outcome||plan.brief||L('未命名目标','Untitled')).slice(0,110);
+            return h('li',{key:plan.id},h('strong',null,name),h('small',null,planLabel(plan.status),progress?' · '+L(`已结束 ${progress.settled}/${progress.total} 步`,`${progress.settled}/${progress.total} steps settled`):null),
+              progress?h('progress',{value:progress.settled,max:progress.total,'aria-label':name}):null);
+          })):h('p',{className:'dsc-of-empty'},items?L('还没有目标记录。','No objectives yet.'):L('目标数据暂不可用。','Objectives are unavailable.'))),
+        h('section',{className:'dsc-of-panel'},h('h3',null,L('近期任务动态','Recent activity')),
+          activity.length?h('ul',{className:'dsc-of-list'},activity.map(({employee,record},i)=>h('li',{key:i},h('strong',null,employee.name+' · '+(record.title||L('未命名任务','Untitled task'))),h('small',null,[statusLabel(record.status),timeLabel(record.at)].filter(Boolean).join(' · '))))):
+            h('p',{className:'dsc-of-empty'},data?L('暂无可展示的任务记录。','No activity records to show.'):failed?L('工作状态暂不可用。','Work status is unavailable.'):L('等待工作状态数据。','Waiting for work status.'))))));
+}
+
+    function assignmentLabel(employee, roster, english) {
+      const departments={director:['总经理办公室','Director’s office'],product:['产品部','Product'],techlead:['研发部','Engineering'],engineer:['研发部','Engineering'],analyst:['数据分析部','Data & analysis'],qa:['质量与审核部','Quality & review'],reviewer:['质量与审核部','Quality & review']};
+      const roles={director:'Project director',product:'Product manager',techlead:'Technical director',engineer:'Engineer',analyst:'Data analyst',qa:'QA engineer',reviewer:'Independent reviewer'};
+      const dept=departments[employee.role]||['共享办公区','Shared office'];
+      const duplicate=roster.filter(person=>person.name===employee.name).length>1;
+      return [employee.name,dept[english?1:0],english?(roles[employee.role]||employee.role):(employee.title||employee.roleName||employee.role),
+        ...(duplicate?[employee.id]:[])].filter(Boolean).join(' · ');
+    }
     function CompanyPanel({ t: translate }) {
       const [state, setState] = useState(null);
       const [error, setError] = useState('');
-      const [tab, setTab] = useState('architecture');
+      const [tab, setTab] = useState('office');
+      const [focusIntake, setFocusIntake] = useState(false);
+      const workspaceBody = useRef(null);
       const [editing, setEditing] = useState(null);
       const [detail, setDetail] = useState(null);
       const [title, setTitle] = useState('');
@@ -1978,6 +3132,7 @@ window.__ModuleLoader__.load({
       const [modelsLoading, setModelsLoading] = useState(false);
       const [sponsorOpen, setSponsorOpen] = useState(false);
       const [workflowDraft, setWorkflowDraft] = useState(null);
+      const [initialGroupId, setInitialGroupId] = useState('');
 
       const t = useDict(translate);
 
@@ -2032,11 +3187,13 @@ window.__ModuleLoader__.load({
       const tools = state ? state.tools : EMPTY;
       const workflows = state ? (Array.isArray(state.workflows) ? state.workflows : EMPTY) : EMPTY;
 
+      const fixedWorkflows = workflows.filter(item => item.kind !== 'company-run');
+
       const stats = useMemo(() => {
-        const running = missions.filter((mission) => mission.status === 'bidding' || mission.status === 'working').length;
-        const done = missions.filter((mission) => mission.status === 'done').length;
+        const running = (state?.companyPlans || []).filter(plan => plan.status === 'running').length;
+        const done = (state?.companyPlans || []).filter(plan => plan.status === 'completed').length;
         return { employees: employees.length, running, done };
-      }, [employees, missions]);
+      }, [employees, state?.companyPlans]);
 
       const togglePick = (id) =>
         setPicked((current) => {
@@ -2120,6 +3277,7 @@ window.__ModuleLoader__.load({
       };
 
       const openWorkflow = (workflow) => {
+        if (workflow.kind === 'company-run') return;
         setWorkflowDraft({
           id: String(workflow.id || ''),
           name: String(workflow.name || ''),
@@ -2182,12 +3340,14 @@ window.__ModuleLoader__.load({
       };
 
       const runWorkflow = async (id, input) => {
+        if (workflows.find(item => item.id === id)?.kind === 'company-run') return;
         try {
           await call('workflow-run', { id, input });
           await refresh();
           setToast(t('workflowRunStarted'));
         } catch (caught) {
           setToast(caught && caught.message ? caught.message : String(caught));
+          throw caught;
         }
       };
 
@@ -2219,82 +3379,76 @@ window.__ModuleLoader__.load({
         );
       }
 
+      const en = t('companyMode') === DICT.en.companyMode;
+      const L = (zh, english) => en ? english : zh;
+      const pages = [
+        ['office', '⌂', L('办公室','Office'), L('团队工位、工作现场和最近活动。','Team desks, current work, and recent activity.'), '#baadff'],
+        ['company', '◇', L('目标与方案','Objectives & plans'), L('先拆解和验收，再批准执行。','Define acceptance criteria and approve a plan before execution.'), '#97b9ff'],
+        ['roster', '♙', t('tabRoster'), L('查看员工、岗位、模型和工具权限。','Inspect employees, roles, models, and tool access.'), '#90d8c7'],
+        ...(state?.groupsAvailable ? [['groups','◫',t('groupMode'),L('选择员工，在独立群聊中讨论任务。','Select employees to discuss work in a group chat.'),'#c19cf5']] : []),
+        ['workflow','↳',t('tabWorkflow'),L('管理固定流程、依赖关系与运行记录。','Manage fixed workflows, dependencies, and run history.'),'#8cccf2'],
+        ['missions','▤',t('companyLegacy'),L('查看旧任务及竞标结果。','View legacy missions and bids.'),'#efbf83'],
+        ['quant','⌁',t('quantTab'),L('只读查看事件、遥测与负责人。','Read events, telemetry, and owner assignments.'),'#98dcff'],
+        ['architecture','⊞',t('tabArchitecture'),L('了解公司、员工和工作流之间的关系。','Explore how the company, employees, and workflows fit together.'),'#a9b4cf'],
+      ];
+      const page = pages.find(p=>p[0]===tab) || pages[0];
+      const shownTab = page[0];
+      const openWorkspace = (route, intake = false) => {
+        if (!pages.some(p=>p[0]===route)) return;
+        setFocusIntake(intake);
+        setInitialGroupId('');
+        if (route==='workflow' && tab!=='workflow') setWorkflowDraft(null);
+        setTab(route);
+      };
+      const startObjective = () => {
+        if (shownTab==='company') {
+          const input=workspaceBody.current?.querySelector('#dsc-company-brief');
+          if(input){input.scrollIntoView({block:'nearest'}); input.focus(); return;}
+        }
+        openWorkspace('company', true);
+      };
+      const navRow = ([id,icon,label,,accent]) => h('button', {
+        type:'button', key:id, className:'dsc-tab dsc-work-link', 'data-on':shownTab===id?'1':'0', 'data-route':id,
+        'aria-current':shownTab===id?'page':undefined, onClick:()=>openWorkspace(id), style:{'--dsc-route':accent},
+      }, h('span',{className:'dsc-work-icon','aria-hidden':true},icon), h('span',null,label));
+
       return h(
         'div',
-        { className: 'dsc-root', translate: 'no' },
+        { className: 'dsc-root dsc-workspace', 'data-page':shownTab, translate: 'no' },
         h('style', null, CSS),
+        h('header',{className:'dsc-head dsc-work-head'},
+          h('span',{className:'dsc-work-brand','aria-hidden':true},'▦'),
+          h('div',{className:'dsc-work-title'},h('div',{className:'dsc-name'},state ? state.companyName : t('loading')),
+            h('div',{className:'dsc-sub'},links.version ? `${t('subtitle')} · v${links.version}` : t('subtitle'))),
+          h('div',{className:'dsc-spacer'}),
+          h('div',{className:'dsc-stats'},
+            h('div',{className:'dsc-stat'},h('b',null,state&&!error?String(stats.employees):'—'),h('span',null,t('employees'))),
+            h('div',{className:'dsc-stat'},h('b',null,state&&!error&&Array.isArray(state.companyPlans)?String(stats.running):'—'),h('span',null,t('roomPlanCount'))),
+            h('div',{className:'dsc-stat'},h('b',null,state&&!error&&Array.isArray(state.companyPlans)?String(stats.done):'—'),h('span',null,t('roomDoneCount')))),
+          h('button',{type:'button',className:'dsc-btn dsc-work-dispatch','data-kind':'primary',onClick:startObjective},L('+ 新建目标','+ New objective'))),
+        h('nav',{className:'dsc-work-nav','aria-label':L('公司工作区','Company workspace')},
+          h('p',{className:'dsc-work-nav-caption'},L('工作区','Workspace')),
+          h('div',{className:'dsc-work-links'},pages.map(navRow)),
+          h('footer',{className:'dsc-work-nav-footer'},
+            links.repo?h('a',{className:'dsc-btn dsc-star',href:links.repo,target:'_blank',rel:'noreferrer',title:t('starHint')},'★ ',t('star')):null,
+            links.sponsorImage||links.sponsorText?h('button',{type:'button',className:'dsc-btn','data-kind':'ghost',onClick:()=>setSponsorOpen(true)},t('sponsor')):null)),
         h(
           'div',
-          { className: 'dsc-head' },
-          h(
-            'div',
-            null,
-            h('div', { className: 'dsc-name' }, state ? state.companyName : t('loading')),
-            h(
-              'div',
-              { className: 'dsc-sub' },
-              links.version ? `${t('subtitle')} · v${links.version}` : t('subtitle'),
-            ),
-          ),
-          h('div', { className: 'dsc-spacer' }),
-          h(
-            'div',
-            { className: 'dsc-stats' },
-            h('div', { className: 'dsc-stat' }, h('b', null, String(stats.employees)), h('span', null, t('employees'))),
-            h('div', { className: 'dsc-stat' }, h('b', null, String(stats.running)), h('span', null, t('runningCount'))),
-            h('div', { className: 'dsc-stat' }, h('b', null, String(stats.done)), h('span', null, t('doneCount'))),
-          ),
-          links.repo
-            ? h(
-                'a',
-                {
-                  className: 'dsc-btn dsc-star',
-                  href: links.repo,
-                  target: '_blank',
-                  rel: 'noreferrer',
-                  title: t('starHint'),
-                },
-                '\u2605 ',
-                t('star'),
-              )
-            : null,
-          links.sponsorImage || links.sponsorText
-            ? h('button', { className: 'dsc-btn', 'data-kind': 'ghost', onClick: () => setSponsorOpen(true) }, t('sponsor'))
-            : null,
-        ),
-        h(
-          'div',
-          { className: 'dsc-tabs' },
-          h('button', { className: 'dsc-tab', 'data-on': tab === 'architecture' ? '1' : '0', onClick: () => setTab('architecture') }, t('tabArchitecture')),
-          h(
-            'button',
-            { className: 'dsc-tab', 'data-on': tab === 'roster' ? '1' : '0', onClick: () => setTab('roster') },
-            t('tabRoster'),
-          ),
-          h(
-            'button',
-            { className: 'dsc-tab', 'data-on': tab === 'missions' ? '1' : '0', onClick: () => setTab('missions') },
-            t('tabMissions'),
-          ),
-          h(
-            'button',
-            {
-              className: 'dsc-tab',
-              'data-on': tab === 'workflow' ? '1' : '0',
-              onClick: () => {
-                setTab('workflow');
-                setWorkflowDraft(null);
-              },
-            },
-            t('tabWorkflow'),
-          ),
-        ),
-        h(
-          'div',
-          { className: tab === 'workflow' ? 'dsc-body dsc-body-workflow' : 'dsc-body' },
-          tab === 'architecture'
-            ? h(ArchitectureView, { employees, missions, workflows, t, onNavigate: route => { setWorkflowDraft(null); setTab(route); } })
-            : tab === 'roster'
+          { className: shownTab === 'workflow' ? 'dsc-body dsc-body-workflow' : 'dsc-body', role:'region', ref:workspaceBody, key:shownTab, 'aria-label':page[2], style:{'--dsc-page-accent':page[4]} },
+          error && state?h('div',{className:'dsc-work-stale',role:'status'},L('同步暂不可用。显示最近快照，状态可能滞后。','Sync is unavailable. Showing the last snapshot; statuses may be stale.')):null,
+          shownTab!=='office'?h('div',{className:'dsc-work-pagehead'},h('div',null,h('span',{className:'dsc-work-nav-caption'},L('公司工作台','Company workbench')),h('h2',null,page[2]),h('p',null,page[3]))):null,
+          shownTab === 'office'
+            ? h(OfficeView,{employees,plans:state?.companyPlans,missions,workflows,t,stateError:error,groupsAvailable:state?.groupsAvailable,companyName:state?.companyName,
+                onOpenCompany:startObjective,onOpenEmployee:setDetail,onNavigate:openWorkspace})
+            : shownTab === 'quant'
+            ? h(QuantWorkspace,{t})
+            : shownTab === 'company'
+            ? h(CompanyWorkspace, {plans:state?.companyPlans, workflows, employees, t, refresh, focusIntake, onOpenFixed:()=>{setWorkflowDraft(null);openWorkspace('workflow');}, onOpenGroups:state?.groupsAvailable ? ()=>openWorkspace('groups') : null})
+            : shownTab === 'groups'
+            ? h(GroupWorkspace, {employees,t,initialGroupId})
+            : shownTab === 'architecture'
+            ? h(ArchitectureView, { employees, missions, workflows, t, onNavigate: route=>openWorkspace(route) })
+            : shownTab === 'roster'
             ? h(
                 'div',
                 null,
@@ -2398,7 +3552,7 @@ window.__ModuleLoader__.load({
                       ),
                     ),
               )
-            : tab === 'workflow'
+            : shownTab === 'workflow'
               ? workflowDraft
                 ? h(WorkflowEditor, {
                     draft: workflowDraft,
@@ -2419,16 +3573,17 @@ window.__ModuleLoader__.load({
                       { style: { display: 'flex', justifyContent: 'flex-end', marginBottom: 10 } },
                       h('button', { className: 'dsc-btn', 'data-kind': 'primary', onClick: newWorkflow }, t('workflowNew')),
                     ),
-                    workflows.length === 0
+                    fixedWorkflows.length === 0
                       ? h('div', { className: 'dsc-empty' }, t('workflowEmpty'))
                       : h(
                           'div',
                           { className: 'dsc-list' },
-                          workflows.map((workflow) =>
+                          fixedWorkflows.map((workflow) =>
                             h(WorkflowCard, {
                               key: workflow.id,
                               workflow,
                               t,
+                              onRun: runWorkflow,
                               onEdit: openWorkflow,
                               onRemove: removeWorkflow,
                             }),
@@ -2497,10 +3652,11 @@ window.__ModuleLoader__.load({
                             key: employee.id,
                             className: 'dsc-pickbtn',
                             'data-on': picked.has(employee.id) ? '1' : '0',
+                            'data-employee-id': employee.id,
                             onClick: () => togglePick(employee.id),
                           },
                           h(Dot, { state: employee.status === 'running' ? 'running' : 'idle' }),
-                          employee.name,
+                          assignmentLabel(employee, employees, t('tabRoster')==='Employees'),
                         ),
                       ),
                     ),
@@ -2518,7 +3674,7 @@ window.__ModuleLoader__.load({
                       },
                       h('option', { value: '' }, t('assigneeNone')),
                       employees.map((employee) =>
-                        h('option', { key: employee.id, value: employee.name }, employee.name),
+                        h('option', { key: employee.id, value: employee.id }, assignmentLabel(employee, employees, t('tabRoster')==='Employees')),
                       ),
                     ),
                     h('div', { className: 'dsc-hint' }, t('assigneeHint')),
@@ -2556,6 +3712,7 @@ window.__ModuleLoader__.load({
               employee: detail,
               t,
               onToast: setToast,
+              onOpenGroup: state?.groupsAvailable ? id => { setDetail(null); openWorkspace('groups'); setInitialGroupId(id); } : null,
               onClose: () => setDetail(null),
             })
           : null,

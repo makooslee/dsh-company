@@ -82,3 +82,11 @@ test('node ordering remains part of execution identity for shared employee sched
  const reordered={...draft,nodes:[...draft.nodes].reverse()};
  assert.notEqual(ui.wfExecutionSignature(draft),ui.wfExecutionSignature(reordered));
 });
+
+test('new UI keys fall back to the host-selected language when locale bundle lacks them', () => {
+ const en=ui.useDict(key=>key==='tabRoster'?ui.DICT.en.tabRoster:key);
+ assert.equal(en('companyMode'),'AI Company');
+ const zh=ui.useDict(key=>key==='tabRoster'?ui.DICT.zh.tabRoster:key);
+ assert.equal(zh('companyMode'),'AI 公司');
+ assert.equal(en('done'),'done');
+});
