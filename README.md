@@ -2,27 +2,29 @@
 
 [English](README.en.md) · 简体中文
 
-![version](https://img.shields.io/badge/version-0.6.0-2f6feb) ![license](https://img.shields.io/badge/license-MIT-4c1) ![DSH plugin](https://img.shields.io/badge/DSH-plugin-8a63d2) [![Listed on dsh-plugin.org](https://dsh-plugin.org/badges/listed.svg)](https://dsh-plugin.org/plugins/makooslee/dsh-company)
+[![npm version](https://img.shields.io/badge/npm-0.7.0-2f6feb)](https://www.npmjs.com/package/dsh-company/v/0.7.0) ![license](https://img.shields.io/badge/license-MIT-4c1) ![DSH plugin](https://img.shields.io/badge/DSH-plugin-8a63d2) [![Listed on dsh-plugin.org](https://dsh-plugin.org/badges/listed.svg)](https://dsh-plugin.org/plugins/makooslee/dsh-company)
 
 
 ## 当前版本
 
 | 用途 | 版本 | 获取方式 |
 | --- | --- | --- |
-| 日常使用 | **v0.6.0 稳定版** | npm `latest`，或 [GitHub 稳定版](https://github.com/makooslee/dsh-company/releases/tag/v0.6.0) |
-| 提前体验 | **v0.7.0-rc.2 候选版** | [GitHub 下载 .tgz](https://github.com/makooslee/dsh-company/releases/download/v0.7.0-rc.2/dsh-company-0.7.0-rc.2.tgz) · [英文发行说明](https://github.com/makooslee/dsh-company/releases/tag/v0.7.0-rc.2) · [npm 候选版](https://www.npmjs.com/package/dsh-company/v/0.7.0-rc.2)（`next`） |
+| 当前稳定版 | **v0.7.0** | [npm 正式版](https://www.npmjs.com/package/dsh-company/v/0.7.0) · `latest` |
+| 上一稳定版 | **v0.6.0** | [GitHub 发行版](https://github.com/makooslee/dsh-company/releases/tag/v0.6.0) |
 
-候选版新增 3D 办公室与可操作的 2D 平面图，区分正在工作和等待开始；按指定版本审批后才启动，支持预设的专长并行分工。按员工编号派工可以区分同名员工，群协作记录区分成员身份、实际参与和已保存回复。
+0.7.0 在 3D 办公室地图下加入默认收起的员工目录。收起后保留所选员工详情；3D 降级到 2D 时保留键盘操作位置。本版不包含单独测试的 ACP 接入。
+
+本版新增 3D 办公室与可操作的 2D 平面图，区分正在工作和等待开始；按指定版本审批后才启动，支持预设的专长并行分工。按员工编号派工可以区分同名员工，群协作记录区分成员身份、实际参与和已保存回复。
 
 交接到具体的独立审核员：运行端确认接收后才显示「审核中」。审核中断且结果不明时，显示运行编号和人工核对入口，不自动重发；审核员结论不等于老板验收或发布授权。
 
-升级、重启和回退已用隔离的 Mac 配置及合成数据验证。旧版 v0.6.0 有一种已复现的情况：界面显示完成的流程重启后可能显示中断，但节点结果仍保留。候选版不会猜测这类旧流程的结论。日常使用建议保留稳定版；体验前关闭宿主、备份现有配置，并在独立配置中安装。下方截图来自候选版。
+升级、重启和回退已用隔离的 Mac 配置及合成数据验证。旧版 v0.6.0 有一种已复现的情况：界面显示完成的流程重启后可能显示中断，但节点结果仍保留。0.7.0 不会猜测这类旧流程的结论。升级前请关闭宿主并备份现有配置。下方历史预览图保留版本标注。
 
-> **v0.6.0 发行包**：本轮包含架构与运行态 UI、可靠性和工具权限修复。安装本版可使用 [GitHub Release](https://github.com/makooslee/dsh-company/releases/tag/v0.6.0) 的 `.tgz`；使用 npm 时请核对实际安装版本为 0.6.0，旧版不含本次更新。空技能现在禁止全局工具；输入或输出超限明确失败。
+> **历史版本 v0.6.0**：保留[原 GitHub 发行包](https://github.com/makooslee/dsh-company/releases/tag/v0.6.0)供查阅。新安装请使用上面的 npm 正式版。
 
-给 [DeepSeek Harness](https://github.com/deepseek-ai) 装一家只有一位 CEO 的小公司：**七个员工智能体，你派活，他们自己决定接不接，接单的人并行开工**——还可以像 n8n 一样把员工排成工作流。
+给 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 装一家只有一位 CEO 的小公司：**七个员工智能体，你派活，他们自己决定接不接，接单的人并行开工**——还可以像 n8n 一样把员工排成工作流。
 
-![v0.7.0-rc.2：3D 公司办公室](docs/screenshots/rc.2/zh/office.jpg)
+![v0.7.0：Mac 实拍，3D 办公室与收起的员工目录](docs/screenshots/v0.7.0/office-directory-zh.jpg)
 
 如果它有用，欢迎给仓库点个 ⭐ Star——那比什么都管用。
 
@@ -90,8 +92,7 @@ CEO 派单
 
 ![独立审核交接](docs/screenshots/rc.2/zh/review.jpg)
 
-<details>
-<summary>更多候选版页面</summary>
+### 更多历史预览页面
 
 **固定工作流**
 
@@ -101,31 +102,27 @@ CEO 派单
 
 ![架构总览](docs/screenshots/rc.2/zh/architecture.jpg)
 
-</details>
+
 
 ## 安装
 
-要求：DeepSeek Harness（含 `plugin_manager` 工具）与 Node ≥ 20。
+要求：DeepSeek Harness（含 `plugin_manager` 工具）。插件声明 Node ≥ 20；宿主版本可能要求更高的 Node 版本。
 
-**方式一 · 插件市场（推荐）**：打开 Harness 的插件市场，搜索 `dsh-company`（或 `公司` / `员工` / `多智能体` / `工作流`），一键安装。
-
-**方式二 · 一行命令**（包已发布到 npm，Harness 可直接装）：
+**方式一 · 安装 npm 正式版（推荐）**
 
 ```bash
-dsh plugin --profile web add dsh-company
+dsh plugin --profile web add dsh-company@0.7.0
 ```
 
-或明确安装当前稳定版：
+插件市场可能晚于 npm 同步；安装前请核对显示的版本。已按 npm 包名安装的用户，先备份当前配置和公司数据；若「插件 → 已安装 → DSH Company」里有「版本」，可在同一配置中升级到 0.7.0，按提示重启。Git、本地目录或压缩包安装可能没有此入口，不要为了找入口直接卸载。
 
-```bash
-dsh plugin --profile web add dsh-company@0.6.0
-```
+**方式二 · 在隔离配置中试用正式版**
 
-下载上表的确切 `.tgz`，把示例路径改成实际下载路径。以下命令在临时目录中使用内置 `web` 配置，不改动日常安装；请在 macOS 终端运行。
+下载 [官方 npm 0.7.0 压缩包](https://registry.npmjs.org/dsh-company/-/dsh-company-0.7.0.tgz)，把示例路径换成实际路径。以下步骤在 macOS 临时配置中运行，不覆盖日常安装。
 
 ```bash
 (
-  archive="/absolute/path/dsh-company-0.7.0-rc.2.tgz"
+  archive="/absolute/path/dsh-company-0.7.0.tgz"
   isolated="$(mktemp -d)"
   export HOME="$isolated" DSH_HOME="$isolated/dsh"
   dsh plugin --profile web add "$archive" &&
@@ -135,7 +132,7 @@ dsh plugin --profile web add dsh-company@0.6.0
 
 在本机浏览器打开终端显示的地址。试用结束后，回到终端按 **Ctrl+C** 停止服务。请勿分享打印出的登录地址。
 
-不想用 npm 源，可以在 [Releases](https://github.com/makooslee/dsh-company/releases) 中选择实际存在的发布包，复制该版本 `.tgz` 的下载地址后执行 `dsh plugin --profile web add "<下载地址>"`。请确认包版本，不要使用旧教程里的固定链接。
+需要历史归档时，请在 [GitHub Releases](https://github.com/makooslee/dsh-company/releases) 核对版本；历史归档不是当前正式版。
 
 **方式三 · 源码安装**：
 

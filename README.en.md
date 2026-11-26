@@ -2,27 +2,29 @@
 
 English · [简体中文](README.md)
 
-![version](https://img.shields.io/badge/version-0.6.0-2f6feb) ![license](https://img.shields.io/badge/license-MIT-4c1) ![DSH plugin](https://img.shields.io/badge/DSH-plugin-8a63d2) [![Listed on dsh-plugin.org](https://dsh-plugin.org/badges/listed.svg)](https://dsh-plugin.org/plugins/makooslee/dsh-company)
+[![npm version](https://img.shields.io/badge/npm-0.7.0-2f6feb)](https://www.npmjs.com/package/dsh-company/v/0.7.0) ![license](https://img.shields.io/badge/license-MIT-4c1) ![DSH plugin](https://img.shields.io/badge/DSH-plugin-8a63d2) [![Listed on dsh-plugin.org](https://dsh-plugin.org/badges/listed.svg)](https://dsh-plugin.org/plugins/makooslee/dsh-company)
 
 
 ## Current releases
 
 | Use | Version | Availability |
 | --- | --- | --- |
-| Daily use | **v0.6.0 stable** | npm `latest`, or [GitHub stable release](https://github.com/makooslee/dsh-company/releases/tag/v0.6.0) |
-| Try the next release | **v0.7.0-rc.2 candidate** | [Download the GitHub .tgz](https://github.com/makooslee/dsh-company/releases/download/v0.7.0-rc.2/dsh-company-0.7.0-rc.2.tgz) · [English release notes](https://github.com/makooslee/dsh-company/releases/tag/v0.7.0-rc.2) · [npm candidate](https://www.npmjs.com/package/dsh-company/v/0.7.0-rc.2) (`next`) |
+| Current stable | **v0.7.0** | [npm stable release](https://www.npmjs.com/package/dsh-company/v/0.7.0) · `latest` |
+| Previous stable | **v0.6.0** | [GitHub release](https://github.com/makooslee/dsh-company/releases/tag/v0.6.0) |
 
-The candidate adds an interactive 3D office with 2D fallback and separate working and waiting states. Company plans require approval of the exact revision before starting, with an optional preset for parallel specialist work. Stable employee IDs distinguish people with identical names; group records distinguish membership from actual participation and saved replies.
+Version 0.7.0 adds a collapsible employee directory beneath the 3D office map. It starts closed, keeps the selected employee’s details visible and preserves keyboard access if the 3D scene falls back to the 2D plan. This release does not include ACP integration.
+
+This release adds an interactive 3D office with 2D fallback and separate working and waiting states. Company plans require approval of the exact revision before starting, with an optional preset for parallel specialist work. Stable employee IDs distinguish people with identical names; group records distinguish membership from actual participation and saved replies.
 
 The handoff names an independent reviewer and shows active review only after runtime acceptance. When interruption makes the outcome uncertain, the run ID and manual inspection steps are available without automatic resend. A reviewer verdict is not owner sign-off or publication authorization.
 
-Upgrade, restart, and backup restoration were tested in isolated Mac profiles with synthetic data. In the old v0.6.0 itself, an apparently completed workflow could reopen as interrupted while retaining its node results. The candidate does not guess the outcome of such older runs. Keep stable for daily use; close the host, back up the existing profile, and use a separate profile to try the candidate. The screenshots below show this candidate.
+Upgrade, restart, and backup restoration were tested in isolated Mac profiles with synthetic data. In the old v0.6.0 itself, an apparently completed workflow could reopen as interrupted while retaining its node results. Version 0.7.0 does not guess the outcome of such older runs. Before upgrading, close the host and back up the existing profile. Screenshots from earlier previews are labeled by version.
 
-> **v0.6.0 release package**: architecture/runtime UI, reliability and tool-permission fixes. Install this version from the `.tgz` in the [GitHub Release](https://github.com/makooslee/dsh-company/releases/tag/v0.6.0); when using npm, verify that the installed version is 0.6.0 rather than an older package. Empty skills now deny global tools; oversized inputs or outputs fail explicitly.
+> **Historical release v0.6.0:** The [original GitHub archive](https://github.com/makooslee/dsh-company/releases/tag/v0.6.0) remains available for reference. For new installs, use the npm stable release above.
 
-A tiny company of employee agents for [DeepSeek Harness](https://github.com/deepseek-ai): **seven employees, you dispatch work, they decide whether to take it, acceptors run in parallel** — and you can wire them into a pipeline on an n8n-style canvas.
+A tiny company of employee agents for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness): **seven employees, you dispatch work, they decide whether to take it, acceptors run in parallel** — and you can wire them into a pipeline on an n8n-style canvas.
 
-![v0.7.0-rc.2: 3D office](docs/screenshots/rc.2/en/office.jpg)
+![v0.7.0: Mac capture of the 3D office with its employee directory collapsed (Chinese UI)](docs/screenshots/v0.7.0/office-directory-zh.jpg)
 
 ## System architecture diagrams
 
@@ -77,8 +79,7 @@ If everyone declines, the plugin first asks the project director to assign an ow
 
 ![Independent reviewer handoff](docs/screenshots/rc.2/en/review.jpg)
 
-<details>
-<summary>More candidate views</summary>
+### More views from the earlier preview
 
 **Fixed workflow**
 
@@ -88,31 +89,27 @@ If everyone declines, the plugin first asks the project director to assign an ow
 
 ![Architecture overview](docs/screenshots/rc.2/en/architecture.jpg)
 
-</details>
+
 
 ## Install
 
-Requires DeepSeek Harness (with the `plugin_manager` tool) and Node ≥ 20.
+Requires DeepSeek Harness with the plugin manager. The plugin declares Node ≥20; your Harness version may require a newer Node release.
 
-**Option 1 · Plugin market (recommended)**: open the Harness plugin market, search `dsh-company` (or `company` / `employee` / `multi-agent` / `workflow`), install.
-
-**Option 2 · One command** (the package is published on npm, Harness installs it directly):
+**Option 1 · Install the npm stable release (recommended)**
 
 ```bash
-dsh plugin --profile web add dsh-company
+dsh plugin --profile web add dsh-company@0.7.0
 ```
 
-Or pin the current stable version:
+The plugin market can lag behind npm; check the version before installing. If you previously installed by npm package name, back up the active profile and company data first. Use Plugins → Installed → DSH Company → Versions if available, select 0.7.0 in the same profile, and restart if prompted. Git, local or tarball installs may not show Versions; do not uninstall just to find it.
 
-```bash
-dsh plugin --profile web add dsh-company@0.6.0
-```
+**Option 2 · Try the stable release in an isolated profile**
 
-Download the exact `.tgz` above and replace the example path. Run this in a Mac terminal to use the built-in `web` profile in a temporary directory, without modifying your normal installation.
+Download the [official npm 0.7.0 archive](https://registry.npmjs.org/dsh-company/-/dsh-company-0.7.0.tgz) and replace the example path. Run the following in a Mac terminal to use a temporary profile without replacing your normal installation.
 
 ```bash
 (
-  archive="/absolute/path/dsh-company-0.7.0-rc.2.tgz"
+  archive="/absolute/path/dsh-company-0.7.0.tgz"
   isolated="$(mktemp -d)"
   export HOME="$isolated" DSH_HOME="$isolated/dsh"
   dsh plugin --profile web add "$archive" &&
@@ -122,7 +119,7 @@ Download the exact `.tgz` above and replace the example path. Run this in a Mac 
 
 Open the loopback address printed in the terminal on this Mac. When finished, press **Ctrl+C** in the terminal to stop the host. Do not share the printed sign-in URL.
 
-For a release tarball, select an existing package from [Releases](https://github.com/makooslee/dsh-company/releases), copy its `.tgz` asset URL, and run `dsh plugin --profile web add "<asset URL>"`. Check the package version rather than reusing an old tutorial's pinned link.
+For historical archives, check the version in [GitHub Releases](https://github.com/makooslee/dsh-company/releases). Those archives are not the current stable release.
 
 **Option 3 · From source**:
 

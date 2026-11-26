@@ -2886,7 +2886,13 @@ const OFFICE_3D_CSS = `
 .dsc-o3-worker[data-working=true]{border-color:#269274;color:#0b382c;background:#b8f4df;box-shadow:0 0 10px #50a58d55}
 .dsc-o3-worker[data-selected=true]{outline:2px solid #6451a2;outline-offset:2px}
 .dsc-o3-fallback{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));min-width:0;gap:9px;grid-column:1/-1;padding:0!important;border:0!important;background:none!important}
-.dsc-o3-people{display:flex;flex-wrap:wrap;gap:6px;list-style:none;margin:0;padding:0}
+.dsc-o3-roster{border:1px solid #40516c;background:#172131;border-radius:9px;padding:0 10px}
+.dsc-o3-roster summary{cursor:pointer;padding:8px 0;color:#e0eaff}
+.dsc-o3-roster summary:focus-visible{outline:2px solid #9eb7ff;outline-offset:3px;border-radius:3px}
+.dsc-o3-roster-count,.dsc-o3-roster-selected{color:#acbad2;font-size:11px;margin-inline-start:9px}
+.dsc-o3-roster-toggle{float:inline-end;color:#bfcff3;font-size:11px}
+.dsc-o3-roster:not([open]) [data-disclosure=open],.dsc-o3-roster[open] [data-disclosure=closed]{display:none}
+.dsc-o3-roster[open] .dsc-o3-people{display:flex;flex-wrap:wrap;gap:6px;list-style:none;margin:0;padding:0}
 .dsc-o3-people button{white-space:normal;text-align:left;display:flex;align-items:center;flex-wrap:wrap;gap:6px}
 .dsc-o3-people small{color:#d5dff2}.dsc-o3-people small[data-working=true]{color:#a6ffe5}
 @container(max-width:520px){.dsc-o3-fallback{grid-template-columns:minmax(0,1fr)}.dsc-o3-fallback .dsc-of-room{grid-column:1}.dsc-o3-stage{height:auto;aspect-ratio:1.48}.dsc-o3-label{font-size:8px;padding:2px 3px;max-width:70px}.dsc-o3-room{max-width:68px}}
@@ -2904,6 +2910,7 @@ function Office3DLayer({people,picked,onPick,onGoal,fallback,language}) {
   const [mode,setMode]=useState('3d');
   const [renderState,setRenderState]=useState('loading');
   const host=useRef(null), controller=useRef(null), callbacks=useRef(null);
+  const office=useRef(null), floorPlanControl=useRef(null), focusAfterLoss=useRef(null);
   const L=(zh,en)=>language==='en'?en:zh;
   callbacks.current={people,picked,onPick};
   useEffect(()=>{
@@ -2912,7 +2919,14 @@ function Office3DLayer({people,picked,onPick,onGoal,fallback,language}) {
     Promise.resolve().then(()=>import(API+'/office/office3d.js')).then(mod=>{
       if(disposed||!host.current)return;
       instance=mod.mountOffice3D(host.current,{language,pick:id=>callbacks.current.onPick(id),
-        onLost:()=>{if(!disposed){instance?.destroy();instance=null;controller.current=null;setRenderState('lost');}}});
+        onLost:()=>{
+          if(disposed)return;
+          const active=office.current?.ownerDocument.activeElement;
+          if(office.current?.contains(active)&&active.closest('.dsc-o3-roster,.dsc-o3-camera,.dsc-o3-frame')){
+            focusAfterLoss.current={previous:active,employeeId:active.dataset.officeEmployeeId};
+          }
+          instance?.destroy();instance=null;controller.current=null;setRenderState('lost');
+        }});
       controller.current=instance;
       instance.update(callbacks.current.people,callbacks.current.picked);
       setRenderState('ready');
@@ -2923,14 +2937,25 @@ function Office3DLayer({people,picked,onPick,onGoal,fallback,language}) {
   },[mode,language]);
   useEffect(()=>{controller.current?.update(people,picked);},[people,picked]);
   const use3d=mode==='3d'&&renderState==='ready';
+  useEffect(()=>{
+    if(use3d||!focusAfterLoss.current)return;
+    const {previous,employeeId}=focusAfterLoss.current;
+    focusAfterLoss.current=null;
+    const root=office.current;
+    const doc=root?.ownerDocument;
+    if(!doc||![doc.body,doc.documentElement,previous].includes(doc.activeElement))return;
+    const desk=employeeId&&[...root.querySelectorAll('.dsc-o3-fallback button[data-employee-id]')]
+      .find(button=>button.dataset.employeeId===employeeId);
+    (desk||floorPlanControl.current)?.focus();
+  },[use3d]);
   const selectedText=people.find(e=>e.id===picked);
-  return h('div',{className:'dsc-o3'},
+  return h('div',{className:'dsc-o3',ref:office},
     h('style',null,OFFICE_3D_CSS),
     h('div',{className:'dsc-o3-head'},
       h('small',{className:'dsc-of-muted'},L('点击工位查看活动','Select a desk to inspect activity')),
       h('div',{className:'dsc-o3-controls','aria-label':L('办公图显示模式','Office display mode')},
         h('button',{type:'button','aria-pressed':mode==='3d',onClick:()=>{if(mode!=='3d'){setRenderState('loading');setMode('3d');}}},L('3D 实景','3D scene')),
-        h('button',{type:'button','aria-pressed':mode==='2d',onClick:()=>setMode('2d')},L('2D 平面图','2D floor plan')))),
+        h('button',{type:'button',ref:floorPlanControl,'aria-pressed':mode==='2d',onClick:()=>setMode('2d')},L('2D 平面图','2D floor plan')))),
     mode==='3d'&&renderState==='lost'?h('p',{className:'dsc-of-muted',role:'status'},L('3D 暂不可用，已显示可操作的平面图。','3D is unavailable; the interactive floor plan is shown.')):null,
     mode==='3d'&&renderState==='loading'?h('p',{className:'dsc-of-muted',role:'status'},L('正在加载 3D 办公室。','Loading 3D office.')):null,
     mode==='3d'&&renderState!=='lost'?h('div',{className:'dsc-o3-frame'},
@@ -2940,9 +2965,15 @@ function Office3DLayer({people,picked,onPick,onGoal,fallback,language}) {
     use3d ? h('div',{className:'dsc-o3-controls dsc-o3-camera','aria-label':L('相机控制','Camera controls')},
       [['left',L('向左旋转','Orbit left')],['right',L('向右旋转','Orbit right')],['in',L('放大','Zoom in')],['out',L('缩小','Zoom out')],['reset',L('重置视角','Reset camera')]].map(([key,label])=>
         h('button',{key,type:'button',onClick:()=>controller.current?.adjust(key)},label))) : null,
-    use3d ? h('ul',{className:'dsc-o3-people dsc-o3-controls','aria-label':L('可选择的员工','Selectable employees')},people.map(person=>
-      h('li',{key:person.id},h('button',{type:'button','aria-pressed':person.id===picked,onClick:()=>onPick(person.id)},person.name,
-        h('small',{'data-working':String(person.working)},person.status))))) : h('div',{className:'dsc-o3-fallback dsc-of-floor'},fallback),
+    use3d ? h('details',{className:'dsc-o3-roster'},
+      h('summary',null,
+        h('strong',null,L('员工目录','Employee directory')),
+        h('span',{className:'dsc-o3-roster-count'},L(people.length+' 人',people.length+' employees')),
+        selectedText?h('span',{className:'dsc-o3-roster-selected'},L('已选：','Selected: ')+selectedText.name):null,
+        h('span',{className:'dsc-o3-roster-toggle'},h('span',{'data-disclosure':'closed'},L('展开','Expand')),h('span',{'data-disclosure':'open'},L('收起','Collapse')))),
+      h('ul',{className:'dsc-o3-people dsc-o3-controls','aria-label':L('可选择的员工','Selectable employees')},people.map(person=>
+        h('li',{key:person.id},h('button',{type:'button','data-office-employee-id':person.id,'aria-pressed':person.id===picked,onClick:()=>onPick(person.id)},person.name,
+          h('small',{'data-working':String(person.working)},person.status)))))) : h('div',{className:'dsc-o3-fallback dsc-of-floor'},fallback),
     use3d?h('p',{className:'dsc-of-muted dsc-o3-help',role:'status','aria-live':'polite'},selectedText?selectedText.name+' · '+selectedText.status:L('亮绿标记表示已记录的正在执行；可拖动地图切换视角。','Green markers indicate recorded active work. Drag to orbit.')):null);
 }
 
